@@ -24,7 +24,6 @@
         "@typescript-eslint/parser": "^5.40.0",
         "chai": "^4.2.0",
         "eslint": "^8.25.0",
-        "eslint-config-standard-with-typescript": "^23.0.0",
         "eslint-plugin-import": "^2.26.0",
         "eslint-plugin-n": "^15.3.0",
         "eslint-plugin-promise": "^6.1.0",
@@ -1629,50 +1628,6 @@
       },
       "funding": {
         "url": "https://opencollective.com/eslint"
-      }
-    },
-    "node_modules/eslint-config-standard": {
-      "version": "17.0.0",
-      "resolved": "https://registry.npmjs.org/eslint-config-standard/-/eslint-config-standard-17.0.0.tgz",
-      "integrity": "sha512-/2ks1GKyqSOkH7JFvXJicu0iMpoojkwB+f5Du/1SC0PtBL+s8v30k9njRZ21pm2drKYm2342jFnGWzttxPmZVg==",
-      "dev": true,
-      "funding": [
-        {
-          "type": "github",
-          "url": "https://github.com/sponsors/feross"
-        },
-        {
-          "type": "patreon",
-          "url": "https://www.patreon.com/feross"
-        },
-        {
-          "type": "consulting",
-          "url": "https://feross.org/support"
-        }
-      ],
-      "peerDependencies": {
-        "eslint": "^8.0.1",
-        "eslint-plugin-import": "^2.25.2",
-        "eslint-plugin-n": "^15.0.0",
-        "eslint-plugin-promise": "^6.0.0"
-      }
-    },
-    "node_modules/eslint-config-standard-with-typescript": {
-      "version": "23.0.0",
-      "resolved": "https://registry.npmjs.org/eslint-config-standard-with-typescript/-/eslint-config-standard-with-typescript-23.0.0.tgz",
-      "integrity": "sha512-iaaWifImn37Z1OXbNW1es7KI+S7D408F9ys0bpaQf2temeBWlvb0Nc5qHkOgYaRb5QxTZT32GGeN1gtswASOXA==",
-      "dev": true,
-      "dependencies": {
-        "@typescript-eslint/parser": "^5.0.0",
-        "eslint-config-standard": "17.0.0"
-      },
-      "peerDependencies": {
-        "@typescript-eslint/eslint-plugin": "^5.0.0",
-        "eslint": "^8.0.1",
-        "eslint-plugin-import": "^2.25.2",
-        "eslint-plugin-n": "^15.0.0",
-        "eslint-plugin-promise": "^6.0.0",
-        "typescript": "*"
       }
     },
     "node_modules/eslint-import-resolver-node": {
@@ -6953,23 +6908,6 @@
             "isexe": "^2.0.0"
           }
         }
-      }
-    },
-    "eslint-config-standard": {
-      "version": "17.0.0",
-      "resolved": "https://registry.npmjs.org/eslint-config-standard/-/eslint-config-standard-17.0.0.tgz",
-      "integrity": "sha512-/2ks1GKyqSOkH7JFvXJicu0iMpoojkwB+f5Du/1SC0PtBL+s8v30k9njRZ21pm2drKYm2342jFnGWzttxPmZVg==",
-      "dev": true,
-      "requires": {}
-    },
-    "eslint-config-standard-with-typescript": {
-      "version": "23.0.0",
-      "resolved": "https://registry.npmjs.org/eslint-config-standard-with-typescript/-/eslint-config-standard-with-typescript-23.0.0.tgz",
-      "integrity": "sha512-iaaWifImn37Z1OXbNW1es7KI+S7D408F9ys0bpaQf2temeBWlvb0Nc5qHkOgYaRb5QxTZT32GGeN1gtswASOXA==",
-      "dev": true,
-      "requires": {
-        "@typescript-eslint/parser": "^5.0.0",
-        "eslint-config-standard": "17.0.0"
       }
     },
     "eslint-import-resolver-node": {
