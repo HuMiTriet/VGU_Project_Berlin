@@ -14,7 +14,10 @@ functionalTests
 .vscode
 .gitignore
 .npmignore
+.dockerignore
 tsconfig.json
+tsconfig.dev.json
+.eslintrc.json
 tslint.json
 .editorconfig
 .nyc_output
