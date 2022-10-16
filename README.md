@@ -1,1 +1,3 @@
-# VGU_Project
+# VGU Project Group: Berlin
+
+
