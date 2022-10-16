@@ -3,14 +3,27 @@
     "es2021": true,
     "node": true
   },
-  "extends": "standard-with-typescript",
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
   "overrides": [],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module",
     "project": [
-      "./tsconfig.json"
+      "./tsconfig.json",
+      "tsconfig.dev.json"
     ]
   },
-  "rules": {}
+  "rules": {
+    "space-before-function-paren": [
+      "error",
+      "never"
+    ]
+  }
 }
