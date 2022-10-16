@@ -71,5 +71,12 @@
     "branches": 100,
     "functions": 100,
     "lines": 100
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "none",
+    "printWidth": 80,
+    "semi": false,
+    "arrowParens": "avoid"
   }
 }
