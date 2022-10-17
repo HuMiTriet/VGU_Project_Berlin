@@ -2,25 +2,26 @@
   SPDX-License-Identifier: Apache-2.0
 */
 
+import { Ownership } from './IOwnership'
+
+import { RoomType } from './classRoomType'
+
 import { Object, Property } from 'fabric-contract-api'
 
 @Object()
 export class Asset {
   @Property()
-  public docType?: string
+  public AssetID: string
 
   @Property()
-  public ID: string
+  public roomList: RoomType
 
   @Property()
-  public Color: string
+  public area: number
 
   @Property()
-  public Size: number
+  public location: string
 
   @Property()
-  public Owner: string
-
-  @Property()
-  public AppraisedValue: number
+  public Owners: Ownership[]
 }

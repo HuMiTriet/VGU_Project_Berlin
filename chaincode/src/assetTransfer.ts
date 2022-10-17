@@ -13,6 +13,9 @@ import stringify from 'json-stringify-deterministic'
 import sortKeysRecursive from 'sort-keys-recursive'
 import { Asset } from './asset'
 
+import { Ownership } from './IOwnership'
+import { RoomType } from './classRoomType'
+
 @Info({
   title: 'AssetTransfer',
   description: 'Smart contract for trading assets'
@@ -20,62 +23,46 @@ import { Asset } from './asset'
 export class AssetTransferContract extends Contract {
   @Transaction()
   public async InitLedger(ctx: Context): Promise<void> {
+    // const owner1:
+    const ownerships: Array<Ownership> = [
+      {
+        ownerID: 'owner1',
+        ownershipPercentage: 100,
+        sellPercentage: 50,
+        sellPrice: 1000,
+        sellThreshold: 5,
+        isSeller: true
+      }
+    ]
+    let roomType1: RoomType
     const assets: Asset[] = [
+      // {
+      //   ID: 'asset1',
+      //   Color: 'blue',
+      //   Size: 5,
+      //   Owner: 'Tomoko',
+      //   AppraisedValue: 300
+      // },
       {
-        ID: 'asset1',
-        Color: 'blue',
-        Size: 5,
-        Owner: 'Tomoko',
-        AppraisedValue: 300
-      },
-      {
-        ID: 'asset2',
-        Color: 'red',
-        Size: 5,
-        Owner: 'Brad',
-        AppraisedValue: 400
-      },
-      {
-        ID: 'asset3',
-        Color: 'green',
-        Size: 10,
-        Owner: 'Jin Soo',
-        AppraisedValue: 500
-      },
-      {
-        ID: 'asset4',
-        Color: 'yellow',
-        Size: 10,
-        Owner: 'Max',
-        AppraisedValue: 600
-      },
-      {
-        ID: 'asset5',
-        Color: 'black',
-        Size: 15,
-        Owner: 'Adriana',
-        AppraisedValue: 700
-      },
-      {
-        ID: 'asset6',
-        Color: 'white',
-        Size: 15,
-        Owner: 'Michel',
-        AppraisedValue: 800
+        AssetID: 'asset1',
+        area: 200,
+        location: 'Ben Cat',
+        Owners: ownerships,
+        roomList: roomType1
       }
     ]
 
     for (const asset of assets) {
-      asset.docType = 'asset'
+      // asset.docType = 'asset'
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
       // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
       await ctx.stub.putState(
-        asset.ID,
+        asset.AssetID,
         Buffer.from(stringify(sortKeysRecursive(asset)))
       )
-      console.info(`Asset ${asset.ID} initialized`)
+      console.info(`Asset ${asset.AssetID} initialized`)
     }
   }
 
