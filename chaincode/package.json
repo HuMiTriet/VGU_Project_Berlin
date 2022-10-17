@@ -1,12 +1,12 @@
 {
-  "name": "asset-transfer-basic",
+  "name": "Real As-Stated chaincodes",
   "version": "1.0.0",
-  "description": "Asset Transfer Basic contract implemented in TypeScript",
+  "description": "chaincodes that implements the business logic of the Real As-Stated project",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "engines": {
-    "node": ">=12",
-    "npm": ">=5"
+    "node": ">=16",
+    "npm": ">=8"
   },
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
@@ -23,7 +23,7 @@
     "start:server": "set -x && fabric-chaincode-node server --chaincode-address=$CHAINCODE_SERVER_ADDRESS --chaincode-id=$CHAINCODE_ID --chaincode-tls-key-file=/hyperledger/privatekey.pem --chaincode-tls-client-cacert-file=/hyperledger/rootcert.pem --chaincode-tls-cert-file=/hyperledger/cert.pem"
   },
   "engineStrict": true,
-  "author": "Hyperledger",
+  "author": "Berlin group",
   "license": "Apache-2.0",
   "dependencies": {
     "fabric-contract-api": "^2.4.0",
