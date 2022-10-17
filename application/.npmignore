@@ -1,0 +1,24 @@
+
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# don't package the connection details
+docker
+
+# don't package the tests
+test
+functionalTests
+
+# don't package config files
+.vscode
+.gitignore
+.npmignore
+.dockerignore
+tsconfig.json
+tsconfig.dev.json
+.eslintrc.json
+tslint.json
+.editorconfig
+.nyc_output
+coverage
