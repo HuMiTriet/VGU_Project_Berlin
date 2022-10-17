@@ -3,12 +3,19 @@
 # check if user is root to run the script
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root, press password to become root" 
+   echo "after pressing password, please run this script again" 
    sudo su
-   echo "please run this script again" 
    exit 1
 fi
 
-export PATH=${PWD}/../bin:$PATH
+# check if bin existed in root directory
+if [ ! -d ../bin/ ]; then
+  echo "bin directory not found, the script is assuming that there exist a bin directory in root directory"
+  echo "exiting the script..."
+  exit 2
+else
+  export PATH=${PWD}/../bin:$PATH
+fi
 
 export FABRIC_CFG_PATH=$PWD/../config/
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
@@ -37,7 +44,7 @@ case "$OPTION" in
         export CORE_PEER_ADDRESS=localhost:9051
       ;;
     *)
-      echo "must specify orgaization: o1, o2 or s to startup"
+      echo "must specify orgaization: o1, o2 or s to start the network"
       exit 1
       ;;
   esac
