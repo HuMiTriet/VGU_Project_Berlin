@@ -183,8 +183,10 @@ case "$OPTION" in
     upgrade) 
       check_channel_exit
       # upgrade chaincode
-      # get previous version
       read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
+      #Getting the current version of the chaincode
+
+
 
 
 
@@ -204,25 +206,29 @@ case "$OPTION" in
         check_channel_exit
         switch_to_org1
         successln "Switched to org1"
+        gnome-terminal & disown
       ;;
     o2)
         check_channel_exit
         switch_to_org2
         successln "Switched to org2"
+        gnome-terminal & disown
       ;;
     o3) 
         check_channel_exit
         switch_to_org3
         successln "Switched to org3"
+        gnome-terminal & disown
       ;;
     *)
-      infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset or up|o1|o2|o3}  
-      installed - List all the chaincode installed on the peers
+      # option with flags
+      infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset or up|o1|o2|o3}
+      installed - List all the chaincode installed on the peers 
       committed - List all the chaincode committed on the channel
       deploy - deploy the chaincode
       upgrade - upgrade chaincode
       down - stop the network
-      reset or up - start the network by first shutting down and booting back up
+      reset or up - start the network by first shutting down and booting back up, flags: -o 1,2,3
       o1 - switch to org1
       o2 - switch to org2
       o3 - switch to org3

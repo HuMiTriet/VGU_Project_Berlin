@@ -6,7 +6,12 @@
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
       }
     }
   },
@@ -29,9 +34,6 @@
     ]
   },
   "rules": {
-    "space-before-function-paren": [
-      "error",
-      "never"
-    ]
+    "space-before-function-paren": "off"
   }
 }
