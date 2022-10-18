@@ -64,9 +64,8 @@ switch_to_org3() {
 
 verifyResult() {
   if [ $1 -ne 0 ]; then
-    infoln "Network error (dont know why happens), please run \"manager deploy again\" "
-    errorln "$2"
-    # fatalln "$2"
+    infoln "Network error (dont know why happens), please run \"manager reset\" "
+    fatalln "$2"
   fi
 }
 
@@ -185,6 +184,8 @@ case "$OPTION" in
       check_channel_exit
       # upgrade chaincode
       # get previous version
+      read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
+
 
 
       ;;
