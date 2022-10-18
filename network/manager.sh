@@ -224,6 +224,7 @@ case "$OPTION" in
       reset or up - start the network by first shutting down and booting back up
       o1 - switch to org1
       o2 - switch to org2
+      o3 - switch to org3
       "
       exit 1
       ;;
