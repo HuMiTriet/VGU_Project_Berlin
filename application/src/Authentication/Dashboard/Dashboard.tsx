@@ -6,17 +6,18 @@ import { auth, db, logout } from '../../firebase'
 import { query, collection, getDocs, where } from 'firebase/firestore'
 import { getAssets } from '../../API_handler/api'
 
+import axios from 'axios'
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth)
   const [name, setName] = useState('')
   const navigate = useNavigate()
-
+  let asset
   const fetchUserName = async () => {
     try {
       const q = query(collection(db, 'users'), where('uid', '==', user?.uid))
       const doc = await getDocs(q)
       const data = doc.docs[0].data()
-
+      asset = await getAssets()
       setName(data.name)
     } catch (err) {
       console.error(err)
@@ -26,13 +27,12 @@ function Dashboard() {
 
   const [isShown, setIsShown] = useState(false)
 
-  let showAssetName = 'Show Asset'
-  const handleGetAssets = event => {
+  const handleGetAssets = async event => {
+    console.log(await axios.get(`http://172.19.60.228:3001/api/assets`))
     // 👇️ toggle shown state
     setIsShown(current => !current)
   }
 
-  let asset: string = getAssets()
   useEffect(() => {
     if (loading) return
     if (!user) return navigate('/')

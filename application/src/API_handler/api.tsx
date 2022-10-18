@@ -1,8 +1,10 @@
-function getAssets() {
-  let asset: string =
-    '{ID: 123456, Name: Tam, Asset: [duplex, 200, Ho Chi Minh]}'
-  console.log(asset)
-  return asset
+import axios from 'axios'
+async function getAssets() {
+  const host = '172.19.60.228'
+  const allAssets = await axios.get(`http://${host}/assets`)
+
+  console.log('getAssets' + allAssets)
+  return allAssets
 }
 
 export { getAssets }
