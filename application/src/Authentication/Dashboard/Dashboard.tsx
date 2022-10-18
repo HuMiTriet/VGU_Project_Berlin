@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 import { auth, db, logout } from '../../firebase'
 import { query, collection, getDocs, where } from 'firebase/firestore'
-import { getAssets } from '../../API/api'
+import { getAssets } from '../../API_handler/api'
 
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth)
