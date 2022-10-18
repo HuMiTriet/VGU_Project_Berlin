@@ -29,6 +29,10 @@ fi
 export FABRIC_CFG_PATH=$PWD/../config/
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
+PEER0_ORG1_CA=${DIR}/test-network/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+PEER0_ORG2_CA=${DIR}/test-network/organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+PEER0_ORG3_CA=${DIR}/test-network/organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
+
 switch_to_org1() {
     export FABRIC_CFG_PATH=$PWD/../config/
     export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
@@ -58,6 +62,38 @@ switch_to_org3() {
     export CORE_PEER_ADDRESS=localhost:11051
 }
 
+verifyResult() {
+  if [ $1 -ne 0 ]; then
+    infoln "Network error (dont know why happens), please run \"manager deploy again\" "
+    errorln "$2"
+    # fatalln "$2"
+  fi
+}
+
+function installChaincode() {
+  ORG=$1
+  if [ "$ORG" == "org1" ]; then
+    switch_to_org1
+  elif [ "$ORG" == "org2" ]; then
+    switch_to_org2
+  elif [ "$ORG" == "org3" ]; then
+    switch_to_org3
+  else
+    errorln "Invalid organization name, please use org1, org2 or org3"
+    exit 1
+  fi
+  set -x
+  peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${PACKAGE_ID}$ >&log.txt
+  if test $? -ne 0; then
+    peer lifecycle chaincode install ${CHAINCODE_NAME}.tar.gz >&log.txt
+    res=$?
+  fi
+  { set +x; } 2>/dev/null
+  cat log.txt
+  verifyResult $res "Chaincode installation on peer0.org${ORG} has failed"
+  successln "Chaincode is installed on peer0.org${ORG}"
+}
+
 check_channel_exit() {
     # check if mychannel existed 
     if [[ ! -d ./channel-artifacts/ ]]; then
@@ -70,6 +106,7 @@ OPTION="$1"
 
 case "$OPTION" in
     installed)
+      check_channel_exit
       infoln "List all the chaincode installed on the peers"
       echo "--------------------------------------------------"
       switch_to_org1
@@ -85,6 +122,7 @@ case "$OPTION" in
       peer lifecycle chaincode queryinstalled
       ;;
     committed)
+      check_channel_exit
       switch_to_org1
       infoln "Org1: peer0.org1.example.com"
       peer lifecycle chaincode querycommitted --channelID mychannel
@@ -99,38 +137,18 @@ case "$OPTION" in
 
       # if chaincode already installed skip this step
       infoln "Org1: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
-      switch_to_org1
-      peer lifecycle chaincode install "${CHAINCODE_NAME}".tar.gz
-
-      if [[ $? -ne 0 ]]; then
-        errorln "Org1: Failed to install chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
-        infoln "Please try to run manger reset to fix this issue"
-        exit 4
-      fi
+      installChaincode org1
 
       infoln "Org2: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
-      switch_to_org2
-      peer lifecycle chaincode install "${CHAINCODE_NAME}".tar.gz
-      if [[ $? -ne 0 ]]; then
-        errorln "Org2: Failed to install chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
-        infoln "Please try to run manger reset to fix this issue"
-        exit 5
-      fi
+      installChaincode org2
 
       infoln "Org3: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
-      switch_to_org3
-      peer lifecycle chaincode install "${CHAINCODE_NAME}".tar.gz
-
-      if [[ $? -ne 0 ]]; then
-        errorln "Org3: Failed to install chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
-        infoln "Please try to run manger reset to fix this issue"
-        exit 6
-      fi
+      installChaincode org3
 
       # getting the package ID
       infoln "Getting the package ID"
       switch_to_org1
-      CC_PACKAGE_ID=$(peer lifecycle chaincode queryinstalled | sed -n "/${CHAINCODE_NAME}_${CHAINCODE_VERSION}/{s/^Package ID: //; s/, Label:.*$//; p;}")
+      CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CHAINCODE_NAME}".tar.gz)
 
       infoln "Org1: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
       switch_to_org1
@@ -164,12 +182,12 @@ case "$OPTION" in
       ;;
 
     upgrade) 
-      warnln "not implemented yet etou..."
+
       ;;
     down)
       ./network.sh down
       ;;
-    reset)
+    reset|up)
       ./network.sh down
       ./network.sh up createChannel -s couchdb -ca
       infoln "adding Org 3 !!"
@@ -193,13 +211,13 @@ case "$OPTION" in
         successln "Switched to org3"
       ;;
     *)
-      infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset|o1|o2|o3}  
+      infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset or up|o1|o2|o3}  
       installed - List all the chaincode installed on the peers
       committed - List all the chaincode committed on the channel
       deploy - deploy the chaincode
       upgrade - upgrade chaincode
       down - stop the network
-      reset - down and boot up the network again
+      reset or up - start the network by first shutting down and booting back up
       o1 - switch to org1
       o2 - switch to org2
       "
