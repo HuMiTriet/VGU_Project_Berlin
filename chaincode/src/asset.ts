@@ -30,6 +30,7 @@ export class Asset {
   @Property()
   public Owners: Ownership[]
 }
+
 @Object()
 export class AssetUser {
   @Property()
