@@ -11,7 +11,7 @@ import {
 } from 'fabric-contract-api'
 import stringify from 'json-stringify-deterministic'
 import sortKeysRecursive from 'sort-keys-recursive'
-import { Asset, AssetUser } from './asset'
+import { Asset, UserInfo } from './asset'
 
 import { Ownership } from './IOwnership'
 import { RoomType } from './classRoomType'
@@ -24,8 +24,8 @@ import { User } from './IUser'
 export class AssetTransferContract extends Contract {
   @Transaction()
   public async InitLedger(ctx: Context): Promise<void> {
-    this.InitLedgerAsset(ctx)
-    this.InitLedgerOwner(ctx)
+    await this.InitLedgerAsset(ctx)
+    await this.InitLedgerOwner(ctx)
   } // end InitLedger
 
   @Transaction()
@@ -74,6 +74,7 @@ export class AssetTransferContract extends Contract {
 
     for (const asset of assets) {
       asset.docType = 'asset'
+      console.log('DEBUG: ONE ASSET BEFORE ADDED')
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
@@ -102,7 +103,7 @@ export class AssetTransferContract extends Contract {
       balance: 3000
     }
 
-    const assets: AssetUser[] = [
+    const assets: UserInfo[] = [
       {
         user: user1
       },

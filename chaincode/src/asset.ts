@@ -32,7 +32,7 @@ export class Asset {
 }
 
 @Object()
-export class AssetUser {
+export class UserInfo {
   @Property()
   public docType?: string
 
