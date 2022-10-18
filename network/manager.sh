@@ -91,7 +91,7 @@ function installChaincode() {
   { set +x; } 2>/dev/null
   cat log.txt
   verifyResult $res "Chaincode installation on peer0.${ORG} has failed"
-  successln "Chaincode is installed on peer0.org${ORG}"
+  successln "Chaincode is installed on peer0.${ORG}"
 }
 
 check_channel_exit() {
@@ -148,7 +148,7 @@ case "$OPTION" in
       # getting the package ID
       infoln "Getting the package ID"
       switch_to_org1
-      CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CHAINCODE_NAME}".tar.gz)
+      CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz)
 
       infoln "Org1: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
       switch_to_org1
