@@ -29,9 +29,9 @@ fi
 export FABRIC_CFG_PATH=$PWD/../config/
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
-PEER0_ORG1_CA=${DIR}/test-network/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
-PEER0_ORG2_CA=${DIR}/test-network/organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
-PEER0_ORG3_CA=${DIR}/test-network/organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
+# PEER0_ORG1_CA=${DIR}/test-network/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+# PEER0_ORG2_CA=${DIR}/test-network/organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+# PEER0_ORG3_CA=${DIR}/test-network/organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
 
 switch_to_org1() {
     export FABRIC_CFG_PATH=$PWD/../config/
@@ -133,7 +133,7 @@ case "$OPTION" in
       read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
       read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
       infoln "Packaging chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION"
-      peer lifecycle chaincode package "${CHAINCODE_NAME}".tar.gz --path ../chaincode/ --lang node --label "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}"
+      peer lifecycle chaincode package "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz --path ../chaincode/ --lang node --label "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}"
 
       # if chaincode already installed skip this step
       infoln "Org1: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
@@ -182,6 +182,10 @@ case "$OPTION" in
       ;;
 
     upgrade) 
+      check_channel_exit
+      # upgrade chaincode
+      # get previous version
+
 
       ;;
     down)
