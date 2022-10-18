@@ -2,22 +2,24 @@
 
 #written by Huynh Minh Triet - Student ID: 17447
 
+cd "$(git rev-parse --show-toplevel)/network" || exit
+
+source ./scripts/utils.sh
+
 # check if user is root to run the script
 if [[ $EUID -ne 0 ]]; then
    errorln "This script must be run as root, press password to become root" 
-   info "after pressing password, please run this script again" 
+   infoln "after pressing password, please run this script again" 
    sudo su
    exit 1
 fi
 
-source ./scripts/utils.sh
 
-cd "$(git rev-parse --show-toplevel)/network" || exit
 
 # check if bin existed in root directory
 if [ ! -d ../bin/ ]; then
-  errorln "bin directory not found, the script is assuming that there exist a bin directory in the directory that has the README.md file"
-  infoln "Please copy the bin directory from the fabric-samples to the directory with the README.md file"
+  errorln "bin directory not found, the script is assuming that there exist a bin directory in the directory that has the all of the folders: config, chaincode, etc (on the same level)"
+  infoln "Please copy the bin directory from the fabric-samples to the directory above"
   infoln "exiting the script..."
   exit 2
 else
@@ -28,6 +30,8 @@ export FABRIC_CFG_PATH=$PWD/../config/
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
 switch_to_org1() {
+    export FABRIC_CFG_PATH=$PWD/../config/
+    export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
@@ -36,6 +40,8 @@ switch_to_org1() {
 }
 
 switch_to_org2() {
+    export FABRIC_CFG_PATH=$PWD/../config/
+    export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
@@ -43,6 +49,8 @@ switch_to_org2() {
     export CORE_PEER_ADDRESS=localhost:9051
 }
 switch_to_org3() {
+    export FABRIC_CFG_PATH=$PWD/../config/
+    export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_LOCALMSPID="Org3MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
@@ -53,7 +61,7 @@ switch_to_org3() {
 check_channel_exit() {
     # check if mychannel existed 
     if [[ ! -d ./channel-artifacts/ ]]; then
-      errorln "Channel does not exist yet, please run \"manager up\" first "
+      errorln "Channel does not exist yet, please run \"manager reset\" first "
       exit 3
     fi
 }
@@ -61,18 +69,42 @@ check_channel_exit() {
 OPTION="$1"
 
 case "$OPTION" in
+    installed)
+      infoln "List all the chaincode installed on the peers"
+      echo "--------------------------------------------------"
+      switch_to_org1
+      infoln "Org1: peer0.org1.example.com"
+      peer lifecycle chaincode queryinstalled 
+      echo "--------------------------------------------------"
+      switch_to_org2
+      infoln "Org2: peer0.org2.example.com"
+      peer lifecycle chaincode queryinstalled
+      echo "--------------------------------------------------"
+      infoln "Org3: peer0.org3.example.com"
+      switch_to_org3
+      peer lifecycle chaincode queryinstalled
+      ;;
+    committed)
+      switch_to_org1
+      infoln "Org1: peer0.org1.example.com"
+      peer lifecycle chaincode querycommitted --channelID mychannel
+      ;;
+
     deploy)
       check_channel_exit
       read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
       read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
       infoln "Packaging chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION"
       peer lifecycle chaincode package "${CHAINCODE_NAME}".tar.gz --path ../chaincode/ --lang node --label "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}"
+
+      # if chaincode already installed skip this step
       infoln "Org1: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
       switch_to_org1
       peer lifecycle chaincode install "${CHAINCODE_NAME}".tar.gz
 
       if [[ $? -ne 0 ]]; then
         errorln "Org1: Failed to install chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
+        infoln "Please try to run manger reset to fix this issue"
         exit 4
       fi
 
@@ -81,6 +113,7 @@ case "$OPTION" in
       peer lifecycle chaincode install "${CHAINCODE_NAME}".tar.gz
       if [[ $? -ne 0 ]]; then
         errorln "Org2: Failed to install chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
+        infoln "Please try to run manger reset to fix this issue"
         exit 5
       fi
 
@@ -90,14 +123,53 @@ case "$OPTION" in
 
       if [[ $? -ne 0 ]]; then
         errorln "Org3: Failed to install chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
+        infoln "Please try to run manger reset to fix this issue"
         exit 6
       fi
 
+      # getting the package ID
+      infoln "Getting the package ID"
+      switch_to_org1
+      CC_PACKAGE_ID=$(peer lifecycle chaincode queryinstalled | sed -n "/${CHAINCODE_NAME}_${CHAINCODE_VERSION}/{s/^Package ID: //; s/, Label:.*$//; p;}")
+
+      infoln "Org1: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
+      switch_to_org1
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org1"
+
+      infoln "Org2: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
+      switch_to_org2
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org2"
+
+      infoln "Org3: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
+      switch_to_org3
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org3"
+
+      infoln "Current approval state"
+      switch_to_org1
+      peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --sequence 1 --tls --cafile "$ORDERER_CA" --output json
+
+      read -p  "Continute to commit the chaincode definition? [y/n]" -r answer
+      if [[ $answer != "y" ]]; then
+        exit 0
+      fi
+
+      # committing the chaincode
+      infoln "Org1: Committing chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
+      switch_to_org1
+      peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}"  --version "${CHAINCODE_VERSION}"  --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" --peerAddresses localhost:11051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt"
+      successln "chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION committed on channel mychannel"
+      ;;
+
+    upgrade) 
+      warnln "not implemented yet etou..."
       ;;
     down)
       ./network.sh down
       ;;
-    up)
+    reset)
       ./network.sh down
       ./network.sh up createChannel -s couchdb -ca
       infoln "adding Org 3 !!"
@@ -121,11 +193,13 @@ case "$OPTION" in
         successln "Switched to org3"
       ;;
     *)
-      infoln "Usage: manager.sh {deploy|upgrade|stop|start|o1|o2|o3}  
+      infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset|o1|o2|o3}  
+      installed - List all the chaincode installed on the peers
+      committed - List all the chaincode committed on the channel
       deploy - deploy the chaincode
       upgrade - upgrade chaincode
       down - stop the network
-      up - start the network
+      reset - down and boot up the network again
       o1 - switch to org1
       o2 - switch to org2
       "
