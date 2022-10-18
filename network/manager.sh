@@ -14,6 +14,42 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# find out the terminal emulator that user is using
+if [[ -n $DISPLAY ]]; then
+    if [[ -n $KONSOLE_DBUS_SERVICE ]]; then
+        TERMINAL="konsole"
+    # check if alacritty exit 
+    elif [[ -n $(command -v alacritty) ]]; then
+        TERMINAL="alacritty"
+    elif [[ -n $GNOME_TERMINAL_SERVICE ]]; then
+        TERMINAL="gnome-terminal"
+    elif [[ -n $VTE_VERSION ]]; then
+        TERMINAL="gnome-terminal"
+    elif [[ -n $TERMCAP ]]; then
+        TERMINAL="xterm"
+    elif [[ -n $COLORTERM ]]; then
+        TERMINAL="gnome-terminal"
+    elif [[ -n $KONSOLE_PROFILE_NAME ]]; then
+        TERMINAL="konsole"
+    elif [[ -n $WINDOWID ]]; then
+        TERMINAL="xterm"
+    else
+        TERMINAL="xterm"
+    fi
+else
+    TERMINAL="xterm"
+fi
+
+# if user doesn't have any of the terminal emulator, print error message and exit
+if [[ -z $TERMINAL ]]; then
+    errorln "You don't have any terminal emulator installed, please install one of them: konsole, alacritty, gnome-terminal, xterm"
+    infoln "after installing, please run this script again"
+    infoln "xterm is the most lightweight"
+    exit 1
+fi
+
+
+
 
 
 # check if bin existed in root directory
@@ -261,19 +297,19 @@ case "$OPTION" in
         switch_to_org1
         successln "Switched to org1"
         # gnome-terminal & disown
-        alacritty & disown
+        "$TERMINAL" & disown
       ;;
     o2)
         check_channel_exit
         switch_to_org2
         successln "Switched to org2"
-        gnome-terminal & disown
+        "$TERMINAL" & disown
       ;;
     o3) 
         check_channel_exit
         switch_to_org3
         successln "Switched to org3"
-        gnome-terminal & disown
+        "$TERMINAL" & disown
       ;;
     *)
       # option with flags
