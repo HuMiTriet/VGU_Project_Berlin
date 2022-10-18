@@ -26,6 +26,7 @@
   "author": "Berlin group",
   "license": "Apache-2.0",
   "dependencies": {
+    "build": "^0.1.4",
     "fabric-contract-api": "^2.4.0",
     "fabric-shim": "^2.4.0",
     "json-stringify-deterministic": "^1.0.1",

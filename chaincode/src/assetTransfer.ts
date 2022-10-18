@@ -215,77 +215,105 @@ export class AssetTransferContract extends Contract {
     return assetJSON && assetJSON.length > 0
   }
 
-  // TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
-  // @Transaction()
-  // public async TransferAsset(
-  //   ctx: Context,
-  //   AssetID: string,
-  //   seller: User,
-  //   buyer: User,
-  //   buyPercentage: number
-  // ): Promise<string> {
-  //   const assetString = await this.ReadAsset(ctx, AssetID)
-  //   const asset = JSON.parse(assetString)
+  //TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
+  @Transaction()
+  public async TransferAsset(
+    ctx: Context,
+    AssetID: string,
+    seller: User,
+    buyer: User,
+    buyPercentage: number
+  ): Promise<string> {
+    console.log('Starting transfer asset')
+    const assetString = await this.ReadAsset(ctx, AssetID)
+    const asset = JSON.parse(assetString)
 
-  //   //Get the seller's Ownership data
-  //   const sellerOwnership: Ownership = asset.Ownership.find(
-  //     (obj: Ownership) => {
-  //       return obj.ownerID === seller.userID
-  //     }
-  //   )
+    //Get the seller's Ownership data
+    const sellerOwnership: Ownership = asset.Ownership.find(
+      (obj: Ownership) => {
+        return obj.ownerID === seller.userID
+      }
+    )
 
-  //   if (sellerOwnership.isSeller === false) {
-  //     console.info('Asset is not for sale according to Seller.')
-  //     return
-  //   }
-  //   if (sellerOwnership.ownershipPercentage < sellerOwnership.sellThreshold) {
-  //     console.info(
-  //       "Seller's ownership percentage is smaller than seller's sell threshhold."
-  //     )
-  //     return
-  //   }
-  //   const payment = sellerOwnership.sellPrice * buyPercentage
-  //   if (buyer.balance < payment) {
-  //     console.info('Buyer does not have enough balance.')
-  //     return
-  //   }
+    if (sellerOwnership === undefined) {
+      return 'Transfer Cancelled'
+    }
 
-  //   const buyerOwnership: Ownership = {
-  //     ownerID: buyer.userID,
-  //     ownershipPercentage:
-  //       sellerOwnership.ownershipPercentage *
-  //       sellerOwnership.sellPercentage *
-  //       buyPercentage,
-  //     sellPercentage: 0.0,
-  //     sellPrice: 0,
-  //     sellThreshold: 5,
-  //     isSeller: false
-  //   }
+    if (sellerOwnership.isSeller === false) {
+      console.info('Asset is not for sale according to Seller.')
+      return 'Transfer Cancelled'
+    }
+    const sellerRemainOwnershipPercentage =
+      sellerOwnership.ownershipPercentage - buyPercentage
 
-  //   sellerOwnership.ownershipPercentage =
-  //     sellerOwnership.ownershipPercentage - buyerOwnership.ownershipPercentage
+    if (
+      sellerRemainOwnershipPercentage < sellerOwnership.sellThreshold &&
+      sellerRemainOwnershipPercentage !== 0
+    ) {
+      console.info(
+        "Seller's ownership percentage is smaller than seller's sell threshhold." +
+          " OR buyer's does not buy all"
+      )
+      return 'Transfer Cancelled'
+    }
+    const payment =
+      (sellerOwnership.sellPrice / sellerOwnership.sellPercentage) *
+      buyPercentage
+    if (buyer.balance < payment) {
+      console.info('Buyer does not have enough balance.')
+      return 'Transfer Cancelled'
+    }
 
-  //   buyer.balance = buyer.balance - payment
-  //   seller.balance = seller.balance + payment
+    //Check if buyer has already bought this asset once or more.
+    let buyerOwnership: Ownership = asset.Ownership.find((obj: Ownership) => {
+      return obj.ownerID === buyer.userID
+    })
 
-  //   //Remove seller from Asset's Ownership if they don't have any ownershipPercentage left
-  //   if (sellerOwnership.ownershipPercentage === 0) {
-  //     const removeIndex = asset.Ownership.findIndex(obj => {
-  //       return obj.ownerID === seller.userID
-  //     })
+    //If buyer isn't currently own this asset yet, create new Ownership for buyer
+    if (buyerOwnership === undefined) {
+      console.log(
+        "Buyer isn't currently own this asset yet, create new Ownership for buyer"
+      )
+      buyerOwnership = {
+        ownerID: buyer.userID,
+        ownershipPercentage:
+          sellerOwnership.ownershipPercentage *
+          sellerOwnership.sellPercentage *
+          buyPercentage,
+        sellPercentage: 0.0,
+        sellPrice: 0,
+        sellThreshold: 5,
+        isSeller: false
+      }
+    }
 
-  //     if (removeIndex !== -1) {
-  //       asset.Ownership.splice(removeIndex, 1)
-  //     }
-  //   }
+    console.log('Updating ownership percentage')
+    buyerOwnership.ownershipPercentage += buyPercentage
+    sellerOwnership.ownershipPercentage -= buyPercentage
+    console.log('Updating balance')
+    buyer.balance -= payment
+    seller.balance += payment
 
-  //   // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
-  //   await ctx.stub.putState(
-  //     AssetID,
-  //     Buffer.from(stringify(sortKeysRecursive(asset)))
-  //   )
-  //   return buyer.userID
-  // }
+    //Remove seller from Asset's Ownership if they don't have any ownershipPercentage left
+    if (sellerOwnership.ownershipPercentage === 0) {
+      const removeIndex = asset.Ownership.findIndex(obj => {
+        return obj.ownerID === seller.userID
+      })
+
+      if (removeIndex !== -1) {
+        console.log('Removing seller from list of Ownership')
+        asset.Ownership.splice(removeIndex, 1)
+      }
+    }
+
+    // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+    await ctx.stub.putState(
+      AssetID,
+      Buffer.from(stringify(sortKeysRecursive(asset)))
+    )
+    console.log('Updating asset')
+    return buyer.userID
+  }
 
   // GetAllAssets returns all assets found in the world state.
   @Transaction(false)
