@@ -8,6 +8,9 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# cd to project root directory with .git file
+cd "$(git rev-parse --show-toplevel)/network" || exit
+
 # check if bin existed in root directory
 if [ ! -d ../bin/ ]; then
   echo "bin directory not found, the script is assuming that there exist a bin directory in root directory"
