@@ -85,12 +85,12 @@ function installChaincode() {
   set -x
   peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${PACKAGE_ID}$ >&log.txt
   if test $? -ne 0; then
-    peer lifecycle chaincode install ${CHAINCODE_NAME}.tar.gz >&log.txt
+    peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz >&log.txt
     res=$?
   fi
   { set +x; } 2>/dev/null
   cat log.txt
-  verifyResult $res "Chaincode installation on peer0.org${ORG} has failed"
+  verifyResult $res "Chaincode installation on peer0.${ORG} has failed"
   successln "Chaincode is installed on peer0.org${ORG}"
 }
 
