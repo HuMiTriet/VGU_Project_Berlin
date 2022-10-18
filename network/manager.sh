@@ -82,7 +82,7 @@ function installChaincode() {
     exit 1
   fi
   set -x
-  peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${PACKAGE_ID}$ >&log.txt
+  peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${CC_PACKAGE_ID}$ >&log.txt
   if test $? -ne 0; then
     peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz >&log.txt
     res=$?
@@ -185,11 +185,65 @@ case "$OPTION" in
       # upgrade chaincode
       read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
       #Getting the current version of the chaincode
+      CURRENT_VERSION=$(find . -maxdepth 1 -name "${CHAINCODE_NAME}*.tar.gz" | cut -d'_' -f2 | cut -d'.' -f1)
+      # get current sequnce
+      switch_to_org1
+      CURRENT_SEQUENCE=$(peer lifecycle chaincode querycommitted --channelID mychannel --name "${CHAINCODE_NAME}" | awk '{print $4}')
+      CURRENT_SEQUENCE=$(echo "${CURRENT_SEQUENCE: -2}" | tr -d ',')
+      # increment sequence
+      NEW_SEQUENCE=$((CURRENT_SEQUENCE+1))
+
+      infoln "Current version of the chaincode is: $CURRENT_VERSION"
+      warnln "please increment this version for the upgrade"
+      read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
+
+      infoln "Packaging chaincode ${CHAINCODE_NAME}_${CHAINCODE_VERSION}"
+      peer lifecycle chaincode package "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz --path ../chaincode/ --lang node --label "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}"
+
+      infoln "Org1: Installing chaincode ${CHAINCODE_NAME}_${CHAINCODE_VERSION} on peer0.org1.example.com"
+      installChaincode org1
+
+      infoln "Org2: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
+      installChaincode org2
+
+      infoln "Org3: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
+      installChaincode org3
+
+      # getting the package ID
+      infoln "Getting the package ID"
+      switch_to_org1
+      CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz)
+
+      infoln "Org1: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
+      switch_to_org1
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence "$NEW_SEQUENCE" --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org1"
+
+      infoln "Org2: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
+      switch_to_org2
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence "$NEW_SEQUENCE" --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org2"
+
+      infoln "Org3: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
+      switch_to_org3
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence "$NEW_SEQUENCE" --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org3"
 
 
+      infoln "Current approval state"
+      switch_to_org1
+      peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --sequence "$NEW_SEQUENCE" --tls --cafile "$ORDERER_CA" --output json
 
+      read -p  "Continute to commit the chaincode definition? [y/n]" -r answer
+      if [[ $answer != "y" ]]; then
+        exit 0
+      fi
 
-
+      # committing the chaincode
+      infoln "Org1: Committing chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
+      switch_to_org1
+      peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}"  --version "${CHAINCODE_VERSION}"  --sequence "${NEW_SEQUENCE}" --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" --peerAddresses localhost:11051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt"
+      successln "chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION committed on channel mychannel"
       ;;
     down)
       ./network.sh down
@@ -206,7 +260,8 @@ case "$OPTION" in
         check_channel_exit
         switch_to_org1
         successln "Switched to org1"
-        gnome-terminal & disown
+        # gnome-terminal & disown
+        alacritty & disown
       ;;
     o2)
         check_channel_exit
