@@ -8,7 +8,6 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# cd to project root directory with .git file
 cd "$(git rev-parse --show-toplevel)/network" || exit
 
 # check if bin existed in root directory
@@ -47,7 +46,7 @@ case "$OPTION" in
         export CORE_PEER_ADDRESS=localhost:9051
       ;;
     *)
-      echo "must specify orgaization: o1, o2 or s to start the network"
+      echo "must specify orgaization: o1, o2 to switch to that organization or s to start the network"
       exit 1
       ;;
   esac
