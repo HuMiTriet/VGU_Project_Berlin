@@ -6,10 +6,15 @@ import { Ownership } from './IOwnership'
 
 import { RoomType } from './classRoomType'
 
+import { User } from './IUser'
+
 import { Object, Property } from 'fabric-contract-api'
 
 @Object()
 export class Asset {
+  @Property()
+  public docType?: string
+
   @Property()
   public AssetID: string
 
@@ -24,4 +29,12 @@ export class Asset {
 
   @Property()
   public Owners: Ownership[]
+}
+@Object()
+export class AssetUser {
+  @Property()
+  public docType?: string
+
+  @Property()
+  public user: User
 }
