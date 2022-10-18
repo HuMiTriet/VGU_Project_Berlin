@@ -8,7 +8,6 @@
     "node": ">=16",
     "npm": ">=8"
   },
-  "proxy": "http://172.19.60.228:3001/api",
   "scripts": {
     "build": "react-scripts build",
     "test": "echo \"Error: no test specified\" && exit 1",
