@@ -31,3 +31,6 @@ install-fabric.sh
 network/organizations
 network/channel-artifacts
 network/log.txt
+network/addOrg3/fabric-ca/org3/msp/keystore
+network/addOrg3/fabric-ca/org3
+network/*.tar.gz
