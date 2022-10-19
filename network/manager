@@ -130,12 +130,12 @@ function installChaincode() {
   set -x
   peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${CC_PACKAGE_ID}$ >&log.txt
 
-  # if chaincode has been installed skip
-  if [ $? -eq 0 ]; then
-    infoln "Chaincode has been installed, skipping..."
-    set +x
-    return
-  fi
+  # # if chaincode has been installed skip
+  # if [ $? -eq 0 ]; then
+  #   infoln "Chaincode has been installed, skipping..."
+  #   set +x
+  #   return
+  # fi
   if test $? -ne 0; then
     peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz >&log.txt
     res=$?
