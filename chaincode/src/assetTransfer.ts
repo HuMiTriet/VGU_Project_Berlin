@@ -73,7 +73,7 @@ export class AssetTransferContract extends Contract {
     ]
 
     for (const asset of assets) {
-      asset.docType = 'asset'
+      //asset.docType = 'asset'
       console.log('DEBUG: ONE ASSET BEFORE ADDED')
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
@@ -116,7 +116,7 @@ export class AssetTransferContract extends Contract {
     ]
 
     for (const asset of assets) {
-      asset.docType = 'assetUser'
+      //asset.docType = 'assetUser'
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
@@ -220,22 +220,58 @@ export class AssetTransferContract extends Contract {
   public async TransferAsset(
     ctx: Context,
     AssetID: string,
-    seller: User,
-    buyer: User,
-    buyPercentage: number
+    sellerID: string,
+    buyerID: string,
+    buyPercentageString: string
   ): Promise<string> {
     console.log('Starting transfer asset')
+
+    //convert buyPercentage to String
+    const buyPercentage = parseInt(buyPercentageString)
+    console.log('Buyer wants to buy ' + buyPercentage + '%')
+
     const assetString = await this.ReadAsset(ctx, AssetID)
-    const asset = JSON.parse(assetString)
+    const asset: Asset = JSON.parse(assetString)
+
+    //Check if seller exists
+    const sellerInfoJSON = await this.ReadAsset(ctx, sellerID)
+    if (sellerInfoJSON === undefined) {
+      console.log('Seller does not exist')
+      return 'Transfer Cancelled'
+    }
+    const sellerInfo: UserInfo = JSON.parse(sellerInfoJSON)
+    const seller: User = {
+      userID: sellerInfo.user.userID,
+      balance: sellerInfo.user.balance
+    }
+
+    //Check if buyer exists
+    const buyerInfoJSON = await this.ReadAsset(ctx, buyerID)
+    if (buyerInfoJSON === undefined) {
+      console.log('Buyer does not exist')
+      return 'Transfer Cancelled'
+    }
+    const buyerInfo: UserInfo = JSON.parse(buyerInfoJSON)
+    const buyer: User = {
+      userID: buyerInfo.user.userID,
+      balance: buyerInfo.user.balance
+    }
+
+    //Check if buyer has the same ID as seller
+    if (sellerID === buyerID) {
+      console.log('Buyer has the same ID as Seller')
+      return 'Transfer Cancelled'
+    }
 
     //Get the seller's Ownership data
-    const sellerOwnership: Ownership = asset.Ownership.find(
-      (obj: Ownership) => {
-        return obj.ownerID === seller.userID
-      }
-    )
+    const sellerOwnership: Ownership = asset.Owners.find((obj: Ownership) => {
+      return obj.ownerID === sellerID
+    })
 
     if (sellerOwnership === undefined) {
+      console.log(
+        'Seller with ID:' + sellerID + ' does not own asset with ID:' + AssetID
+      )
       return 'Transfer Cancelled'
     }
 
@@ -246,26 +282,42 @@ export class AssetTransferContract extends Contract {
     const sellerRemainOwnershipPercentage =
       sellerOwnership.ownershipPercentage - buyPercentage
 
+    console.log(
+      "If transaction is successful, the remaining seller's ownershipPercentage will be: " +
+        sellerRemainOwnershipPercentage
+    )
+
     if (
       sellerRemainOwnershipPercentage < sellerOwnership.sellThreshold &&
       sellerRemainOwnershipPercentage !== 0
     ) {
-      console.info(
-        "Seller's ownership percentage is smaller than seller's sell threshhold." +
+      console.log(
+        "Seller's remaining ownership percentage is smaller than seller's sell threshhold." +
           " OR buyer's does not buy all"
       )
       return 'Transfer Cancelled'
     }
+
+    //Check if buyer wants to buy MORE than seller's sellPercentage
+    if (buyPercentage > sellerOwnership.sellPercentage) {
+      console.log(
+        "Buyer wants to buy more percentage than Seller's sell percentage"
+      )
+      return 'Transfer Cancelled'
+    }
+
     const payment =
       (sellerOwnership.sellPrice / sellerOwnership.sellPercentage) *
       buyPercentage
+
+    console.log('Buyer will have to pay ' + payment + ' to the seller')
     if (buyer.balance < payment) {
       console.info('Buyer does not have enough balance.')
       return 'Transfer Cancelled'
     }
 
     //Check if buyer has already bought this asset once or more.
-    let buyerOwnership: Ownership = asset.Ownership.find((obj: Ownership) => {
+    let buyerOwnership: Ownership = asset.Owners.find((obj: Ownership) => {
       return obj.ownerID === buyer.userID
     })
 
@@ -276,15 +328,19 @@ export class AssetTransferContract extends Contract {
       )
       buyerOwnership = {
         ownerID: buyer.userID,
-        ownershipPercentage:
-          sellerOwnership.ownershipPercentage *
-          sellerOwnership.sellPercentage *
-          buyPercentage,
+        ownershipPercentage: 0.0,
         sellPercentage: 0.0,
         sellPrice: 0,
         sellThreshold: 5,
         isSeller: false
       }
+
+      //Add Buyer to Owners list of this asset
+      asset.Owners.push(buyerOwnership)
+    } else {
+      console.log(
+        'Buyer already owned a part of this asset, skipping creating new Ownership for buyer.'
+      )
     }
 
     console.log('Updating ownership percentage')
@@ -293,16 +349,18 @@ export class AssetTransferContract extends Contract {
     console.log('Updating balance')
     buyer.balance -= payment
     seller.balance += payment
+    console.log('Updating sell percentage of seller.')
+    sellerOwnership.sellPercentage -= buyPercentage
 
     //Remove seller from Asset's Ownership if they don't have any ownershipPercentage left
     if (sellerOwnership.ownershipPercentage === 0) {
-      const removeIndex = asset.Ownership.findIndex(obj => {
+      const removeIndex = asset.Owners.findIndex(obj => {
         return obj.ownerID === seller.userID
       })
 
       if (removeIndex !== -1) {
         console.log('Removing seller from list of Ownership')
-        asset.Ownership.splice(removeIndex, 1)
+        asset.Owners.splice(removeIndex, 1)
       }
     }
 
@@ -311,8 +369,15 @@ export class AssetTransferContract extends Contract {
       AssetID,
       Buffer.from(stringify(sortKeysRecursive(asset)))
     )
-    console.log('Updating asset')
-    return buyer.userID
+    await ctx.stub.putState(
+      sellerID,
+      Buffer.from(stringify(sortKeysRecursive(seller)))
+    )
+    await ctx.stub.putState(
+      buyerID,
+      Buffer.from(stringify(sortKeysRecursive(buyer)))
+    )
+    return 'Transaction successful.'
   }
 
   // GetAllAssets returns all assets found in the world state.
