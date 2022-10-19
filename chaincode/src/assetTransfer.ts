@@ -227,7 +227,7 @@ export class AssetTransferContract extends Contract {
     console.log('Starting transfer asset')
 
     //convert buyPercentage to String
-    const buyPercentage = parseInt(buyPercentageString)
+    const buyPercentage = parseFloat(buyPercentageString)
     console.log('Buyer wants to buy ' + buyPercentage + '%')
 
     const assetString = await this.ReadAsset(ctx, AssetID)
@@ -306,9 +306,7 @@ export class AssetTransferContract extends Contract {
       return 'Transfer Cancelled'
     }
 
-    const payment =
-      (sellerOwnership.sellPrice / sellerOwnership.sellPercentage) *
-      buyPercentage
+    const payment = (sellerOwnership.sellPrice / 100) * buyPercentage
 
     console.log('Buyer will have to pay ' + payment + ' to the seller')
     if (buyer.balance < payment) {
