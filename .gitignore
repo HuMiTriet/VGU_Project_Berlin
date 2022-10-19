@@ -34,3 +34,5 @@ network/log.txt
 network/addOrg3/fabric-ca/org3/msp/keystore
 network/addOrg3/fabric-ca/org3
 network/*.tar.gz
+
+api/application-gateway-typescript/dist
