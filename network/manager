@@ -253,7 +253,10 @@ case "$OPTION" in
 
   deploy1)
     check_channel_exit
+
     compile_typescript
+    read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
+    read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
 
     infoln "Org1: Installing chaincode ${CHAINCODE_NAME}_${CHAINCODE_VERSION} on peer0.org1.example.com"
     installChaincode org1
@@ -272,6 +275,8 @@ case "$OPTION" in
     check_channel_exit
     compile_typescript
 
+    read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
+    read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
     infoln "Org2: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
     installChaincode org2
 
@@ -289,6 +294,8 @@ case "$OPTION" in
     check_channel_exit
     compile_typescript
 
+    read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
+    read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
     infoln "Org3: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
     installChaincode org3
 
