@@ -303,7 +303,7 @@ case "$OPTION" in
     echo "finished approving chaincode definition for org3"
     ;;
 
-  comit_channel)
+  commit_channel)
     infoln "Current approval state"
     switch_to_org1
     peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --sequence "$NEW_SEQUENCE" --tls --cafile "$ORDERER_CA" --output json
