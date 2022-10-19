@@ -110,7 +110,7 @@ switch_to_org3() {
 
 verifyResult() {
   if [ $1 -ne 0 ]; then
-    infoln "Network error (dont know why happens), please run \"manager reset\" "
+    infoln "Network error (dont know why happens), please run \"manager deploy again\" "
     fatalln "$2"
   fi
 }
@@ -129,12 +129,20 @@ function installChaincode() {
   fi
   set -x
   peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${CC_PACKAGE_ID}$ >&log.txt
+
+  # # if chaincode has been installed skip
+  # if [ $? -eq 0 ]; then
+  #   infoln "Chaincode has been installed, skipping..."
+  #   set +x
+  #   return
+  # fi
   if test $? -ne 0; then
     peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz >&log.txt
     res=$?
   fi
   { set +x; } 2> /dev/null
   cat log.txt
+
   verifyResult $res "Chaincode installation on peer0.${ORG} has failed"
   successln "Chaincode is installed on peer0.${ORG}"
 }
@@ -190,25 +198,35 @@ case "$OPTION" in
     infoln "Org3: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
     installChaincode org3
 
-    # getting the package ID
-    infoln "Getting the package ID"
-    switch_to_org1
-    CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz)
+    # if chaincode already committed skip this step
+    INSTALLED=$(peer lifecycle chaincode querycommitted --channelID mychannel | awk '{print $2"_"$4}' | tr -d ',' | sed -n 2p)
+    if [ "$INSTALLED" == "${CHAINCODE_NAME}_${CHAINCODE_VERSION}" ]; then
+      infoln "Chaincode has been committed, skipping..."
+      exit 0
+    else
+      infoln "Committing chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on mychannel"
 
-    infoln "Org1: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
-    switch_to_org1
-    peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
-    echo "finished approving chaincode definition for org1"
+      # getting the package ID
+      infoln "Getting the package ID"
+      switch_to_org1
+      CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz)
 
-    infoln "Org2: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
-    switch_to_org2
-    peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
-    echo "finished approving chaincode definition for org2"
+      infoln "Org1: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
+      switch_to_org1
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org1"
 
-    infoln "Org3: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
-    switch_to_org3
-    peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
-    echo "finished approving chaincode definition for org3"
+      infoln "Org2: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
+      switch_to_org2
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org2"
+
+      infoln "Org3: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
+      switch_to_org3
+      peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --package-id "${CC_PACKAGE_ID}" --sequence 1 --tls --cafile "$ORDERER_CA"
+      echo "finished approving chaincode definition for org3"
+
+    fi
 
     infoln "Current approval state"
     switch_to_org1
@@ -324,6 +342,9 @@ case "$OPTION" in
       infoln "Current organization is $CURRENT_ORG"
     fi
     ;;
+  monitor | m)
+    ./monitordocker.sh fabric_test
+    ;;
   *)
     # option with flags
     infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset or up|o1|o2|o3}
@@ -334,6 +355,7 @@ case "$OPTION" in
       down | o - stop the network
       reset or up | r - start the network by first shutting down and booting back up
       current | cu - print out the current org
+      monitor | m - debug console for all docker messages (console.log() in typescript will be printed here)
       o1 - switch to org1
       o2 - switch to org2
       o3 - switch to org3
