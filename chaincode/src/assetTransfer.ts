@@ -225,6 +225,10 @@ export class AssetTransferContract extends Contract {
     buyPercentageString: string
   ): Promise<string> {
     console.log('Starting transfer asset')
+    console.log('Asset ID:' + AssetID)
+    console.log('seller ID: ' + sellerID)
+    console.log('buyer ID: ' + buyerID)
+    console.log('Buy Percentage: ' + buyPercentageString)
 
     //convert buyPercentage to String
     const buyPercentage = parseFloat(buyPercentageString)
@@ -232,6 +236,7 @@ export class AssetTransferContract extends Contract {
 
     const assetString = await this.ReadAsset(ctx, AssetID)
     const asset: Asset = JSON.parse(assetString)
+    console.log('Asset exists, AssetID:' + asset.AssetID)
 
     //Check if seller exists
     const sellerInfoJSON = await this.ReadAsset(ctx, sellerID)
@@ -239,11 +244,16 @@ export class AssetTransferContract extends Contract {
       console.log('Seller does not exist')
       return 'Transfer Cancelled'
     }
+    console.log('Seller exists')
+
     const sellerInfo: UserInfo = JSON.parse(sellerInfoJSON)
     const seller: User = {
       userID: sellerInfo.user.userID,
       balance: sellerInfo.user.balance
     }
+    console.log('Info of Seller:')
+    console.log("Seller's ID: " + seller.userID)
+    console.log("Seller's Balance: " + seller.balance)
 
     //Check if buyer exists
     const buyerInfoJSON = await this.ReadAsset(ctx, buyerID)
@@ -251,17 +261,23 @@ export class AssetTransferContract extends Contract {
       console.log('Buyer does not exist')
       return 'Transfer Cancelled'
     }
+    console.log('Buyer exists')
+
     const buyerInfo: UserInfo = JSON.parse(buyerInfoJSON)
     const buyer: User = {
       userID: buyerInfo.user.userID,
       balance: buyerInfo.user.balance
     }
+    console.log('Info of Buyer:')
+    console.log("Buyer's ID:" + buyer.userID)
+    console.log("Buyer's Balance:" + buyer.balance)
 
     //Check if buyer has the same ID as seller
     if (sellerID === buyerID) {
       console.log('Buyer has the same ID as Seller')
       return 'Transfer Cancelled'
     }
+    console.log('Buyer is not the same as Seller')
 
     //Get the seller's Ownership data
     const sellerOwnership: Ownership = asset.Owners.find((obj: Ownership) => {
@@ -274,11 +290,14 @@ export class AssetTransferContract extends Contract {
       )
       return 'Transfer Cancelled'
     }
+    console.log('Seller owns this asset')
 
     if (sellerOwnership.isSeller === false) {
       console.info('Asset is not for sale according to Seller.')
       return 'Transfer Cancelled'
     }
+    console.log('Seller is selling this asset')
+
     const sellerRemainOwnershipPercentage =
       sellerOwnership.ownershipPercentage - buyPercentage
 
@@ -367,14 +386,21 @@ export class AssetTransferContract extends Contract {
       AssetID,
       Buffer.from(stringify(sortKeysRecursive(asset)))
     )
-    await ctx.stub.putState(
-      sellerID,
-      Buffer.from(stringify(sortKeysRecursive(seller)))
-    )
-    await ctx.stub.putState(
-      buyerID,
-      Buffer.from(stringify(sortKeysRecursive(buyer)))
-    )
+
+    const participants: UserInfo[] = [
+      {
+        user: seller
+      },
+      {
+        user: buyer
+      }
+    ]
+    for (const participant of participants) {
+      await ctx.stub.putState(
+        participant.user.userID,
+        Buffer.from(stringify(sortKeysRecursive(participant)))
+      )
+    }
     return 'Transaction successful.'
   }
 
