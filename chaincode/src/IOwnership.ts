@@ -1,4 +1,4 @@
-export interface Ownership {
+export class Ownership {
   ownerID: string
   ownershipPercentage: number
   // TODO: Floating point with Precision 2
