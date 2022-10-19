@@ -343,9 +343,13 @@ case "$OPTION" in
     ;;
   down | o)
     ./network.sh down
+    docker stop "$(docker ps -a -q)"
+    docker rm "$(docker ps -a -q)"
     ;;
   reset | up | r)
     ./network.sh down
+    docker stop "$(docker ps -a -q)"
+    docker rm "$(docker ps -a -q)"
     ./network.sh up createChannel -s couchdb -ca
     infoln "adding Org 3 !!"
     cd addOrg3 || exit
