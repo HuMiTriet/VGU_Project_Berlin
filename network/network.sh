@@ -36,8 +36,8 @@ infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 # This function is called when you bring a network down
 function clearContainers() {
   infoln "Removing remaining containers"
-  ${CONTAINER_CLI} rm -f "$(${CONTAINER_CLI} ps -aq --filter label=service=hyperledger-fabric)" 2>/dev/null || true
-  ${CONTAINER_CLI} rm -f "$(${CONTAINER_CLI} ps -aq --filter name='dev-peer*')" 2>/dev/null || true
+  ${CONTAINER_CLI} rm -f "$(${CONTAINER_CLI} ps -aq --filter label=service=hyperledger-fabric)" 2> /dev/null || true
+  ${CONTAINER_CLI} rm -f "$(${CONTAINER_CLI} ps -aq --filter name='dev-peer*')" 2> /dev/null || true
 }
 
 # Delete any images that were generated as a part of this setup
@@ -45,7 +45,7 @@ function clearContainers() {
 # This function is called when you bring the network down
 function removeUnwantedImages() {
   infoln "Removing generated chaincode docker images"
-  ${CONTAINER_CLI} image rm -f $(${CONTAINER_CLI} images -aq --filter reference='dev-peer*') 2>/dev/null || true
+  ${CONTAINER_CLI} image rm -f $(${CONTAINER_CLI} images -aq --filter reference='dev-peer*') 2> /dev/null || true
 }
 
 # Versions of fabric known not to work with the test network
@@ -154,7 +154,7 @@ function createOrgs() {
     set -x
     cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output="organizations"
     res=$?
-    { set +x; } 2>/dev/null
+    { set +x; } 2> /dev/null
     if [ $res -ne 0 ]; then
       fatalln "Failed to generate certificates..."
     fi
@@ -164,7 +164,7 @@ function createOrgs() {
     set -x
     cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output="organizations"
     res=$?
-    { set +x; } 2>/dev/null
+    { set +x; } 2> /dev/null
     if [ $res -ne 0 ]; then
       fatalln "Failed to generate certificates..."
     fi
@@ -174,7 +174,7 @@ function createOrgs() {
     set -x
     cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output="organizations"
     res=$?
-    { set +x; } 2>/dev/null
+    { set +x; } 2> /dev/null
     if [ $res -ne 0 ]; then
       fatalln "Failed to generate certificates..."
     fi
@@ -188,8 +188,7 @@ function createOrgs() {
 
     . organizations/fabric-ca/registerEnroll.sh
 
-    while :
-    do
+    while :; do
       if [ ! -f "organizations/fabric-ca/org1/tls-cert.pem" ]; then
         sleep 1
       else
@@ -270,7 +269,7 @@ function createChannel() {
   # Bring up the network if it is not already up.
   bringUpNetwork="false"
 
-  if ! $CONTAINER_CLI info > /dev/null 2>&1 ; then
+  if ! $CONTAINER_CLI info > /dev/null 2>&1; then
     fatalln "$CONTAINER_CLI network is required to be running to create a channel"
   fi
 
@@ -285,7 +284,7 @@ function createChannel() {
 
   [[ $len -lt 4 ]] || [[ ! -d "organizations/peerOrganizations" ]] && bringUpNetwork="true" || echo "Network Running Already"
 
-  if [ $bringUpNetwork == "true"  ]; then
+  if [ $bringUpNetwork == "true" ]; then
     infoln "Bringing up network"
     networkUp
   fi
@@ -294,7 +293,6 @@ function createChannel() {
   # to create the channel creation transaction and the anchor peer updates.
   scripts/createChannel.sh $CHANNEL_NAME $CLI_DELAY $MAX_RETRY $VERBOSE
 }
-
 
 ## Call the script to deploy a chaincode to the channel
 function deployCC() {
@@ -335,7 +333,6 @@ function networkDown() {
   else
     fatalln "Container CLI  ${CONTAINER_CLI} not supported"
   fi
-
 
   # Don't remove the generated artifacts -- note, the ledgers are always removed
   if [ "$MODE" != "restart" ]; then
@@ -409,7 +406,7 @@ DOCKER_SOCK="${SOCK##unix://}"
 # Parse commandline args
 
 ## Parse mode
-if [[ $# -lt 1 ]] ; then
+if [[ $# -lt 1 ]]; then
   printHelp
   exit 0
 else
@@ -418,86 +415,86 @@ else
 fi
 
 # parse a createChannel subcommand if used
-if [[ $# -ge 1 ]] ; then
+if [[ $# -ge 1 ]]; then
   key="$1"
   if [[ "$key" == "createChannel" ]]; then
-      export MODE="createChannel"
-      shift
+    export MODE="createChannel"
+    shift
   fi
 fi
 
 # parse flags
 
-while [[ $# -ge 1 ]] ; do
+while [[ $# -ge 1 ]]; do
   key="$1"
   case $key in
-  -h )
-    printHelp $MODE
-    exit 0
-    ;;
-  -c )
-    CHANNEL_NAME="$2"
-    shift
-    ;;
-  -ca )
-    CRYPTO="Certificate Authorities"
-    ;;
-  -r )
-    MAX_RETRY="$2"
-    shift
-    ;;
-  -d )
-    CLI_DELAY="$2"
-    shift
-    ;;
-  -s )
-    DATABASE="$2"
-    shift
-    ;;
-  -ccl )
-    CC_SRC_LANGUAGE="$2"
-    shift
-    ;;
-  -ccn )
-    CC_NAME="$2"
-    shift
-    ;;
-  -ccv )
-    CC_VERSION="$2"
-    shift
-    ;;
-  -ccs )
-    CC_SEQUENCE="$2"
-    shift
-    ;;
-  -ccp )
-    CC_SRC_PATH="$2"
-    shift
-    ;;
-  -ccep )
-    CC_END_POLICY="$2"
-    shift
-    ;;
-  -cccg )
-    CC_COLL_CONFIG="$2"
-    shift
-    ;;
-  -cci )
-    CC_INIT_FCN="$2"
-    shift
-    ;;
-  -ccaasdocker )
-    CCAAS_DOCKER_RUN="$2"
-    shift
-    ;;
-  -verbose )
-    VERBOSE=true
-    ;;
-  * )
-    errorln "Unknown flag: $key"
-    printHelp
-    exit 1
-    ;;
+    -h)
+      printHelp $MODE
+      exit 0
+      ;;
+    -c)
+      CHANNEL_NAME="$2"
+      shift
+      ;;
+    -ca)
+      CRYPTO="Certificate Authorities"
+      ;;
+    -r)
+      MAX_RETRY="$2"
+      shift
+      ;;
+    -d)
+      CLI_DELAY="$2"
+      shift
+      ;;
+    -s)
+      DATABASE="$2"
+      shift
+      ;;
+    -ccl)
+      CC_SRC_LANGUAGE="$2"
+      shift
+      ;;
+    -ccn)
+      CC_NAME="$2"
+      shift
+      ;;
+    -ccv)
+      CC_VERSION="$2"
+      shift
+      ;;
+    -ccs)
+      CC_SEQUENCE="$2"
+      shift
+      ;;
+    -ccp)
+      CC_SRC_PATH="$2"
+      shift
+      ;;
+    -ccep)
+      CC_END_POLICY="$2"
+      shift
+      ;;
+    -cccg)
+      CC_COLL_CONFIG="$2"
+      shift
+      ;;
+    -cci)
+      CC_INIT_FCN="$2"
+      shift
+      ;;
+    -ccaasdocker)
+      CCAAS_DOCKER_RUN="$2"
+      shift
+      ;;
+    -verbose)
+      VERBOSE=true
+      ;;
+    *)
+      errorln "Unknown flag: $key"
+      printHelp
+      exit 1
+      ;;
   esac
   shift
 done
