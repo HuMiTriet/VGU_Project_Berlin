@@ -156,9 +156,11 @@ check_channel_exit() {
 }
 
 compile_typescript() {
-  pushd ../chaincode/src || exit
+  cd "$(git rev-parse --show-toplevel)/chaincode" || exit
+  infoln "Compiling typescript files"
   tsc
-  popd +1 || exit
+  successln "compiled successfully!!"
+  cd "$(git rev-parse --show-toplevel)/network" || exit
 }
 
 commit_chaincode() {
