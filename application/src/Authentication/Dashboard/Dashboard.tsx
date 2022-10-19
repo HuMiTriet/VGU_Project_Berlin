@@ -4,16 +4,20 @@ import { useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 import { auth, db, logout } from '../../firebase'
 import { query, collection, getDocs, where } from 'firebase/firestore'
-import { getAssets } from '../../API_handler/api'
+import {
+  getAssets,
+  readAsset,
+  createAsset,
+  deleteAsset
+} from '../../API_handler/api'
 
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth)
   const [name, setName] = useState('')
-  const [assetID, setAssetID] = useState('')
+  const [allAssets, setAllAssets] = useState('')
+  const [assetRead, setReadAsset] = useState('')
+  const [assetID, setInputAssetID] = useState('')
   const navigate = useNavigate()
-  const getAllAssets = async () => {
-    setAssetID(await getAssets())
-  }
   // const fetchUserName = async () => {
   //   try {
   //     const q = query(collection(db, 'users'), where('uid', '==', user?.uid))
@@ -26,11 +30,14 @@ function Dashboard() {
   //     alert('An error occured while fetching user data')
   //   }
   // }
-  let asset: string
   const [isShown, setIsShown] = useState(false)
   const handleGetAssets = async () => {
-    getAllAssets()
+    setAllAssets(await getAssets())
     setIsShown(current => !current)
+  }
+
+  const handleReadAsset = async (req: string) => {
+    setReadAsset(await readAsset(req))
   }
 
   useEffect(() => {
@@ -52,9 +59,34 @@ function Dashboard() {
           {isShown && 'Hide Asset'}
         </button>
         <div>
-          {isShown && <div>AssetID {assetID}</div>}
-          {/* 👇️ show component on click */}
+          {isShown && (
+            <div>
+              <div>All assets</div>
+              <div>{allAssets}</div>
+            </div>
+          )}
           {!isShown && <div></div>}
+        </div>
+        <form>
+          AssetID
+          <input
+            value={assetID}
+            onInput={(e: any) => setInputAssetID(e.target.value)}
+          ></input>
+        </form>
+        <button
+          className="readAsset"
+          onClick={(e: any) => handleReadAsset(assetID)}
+        >
+          Read Asset
+        </button>
+        <div>
+          {
+            <div>
+              <div>Read assets</div>
+              <div>{assetRead}</div>
+            </div>
+          }
         </div>
       </div>
     </div>
