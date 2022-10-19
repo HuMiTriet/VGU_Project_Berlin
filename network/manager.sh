@@ -14,6 +14,14 @@ if [[ $EUID -ne 0 ]]; then
 	exit 1
 fi
 
+# check if manager script exist then add it into /usr/bin
+if [[ ! -f /usr/bin/manager ]]; then
+	infoln "manager script not found, adding it into /usr/bin"
+	ln -s "${PWD}"/manager.sh /usr/bin/manager
+else
+	infoln "manager script found, skipping"
+fi
+
 # find out the terminal emulator that user is using
 if [[ -n $DISPLAY ]]; then
 	if [[ -n $KONSOLE_DBUS_SERVICE ]]; then
@@ -205,11 +213,6 @@ case "$OPTION" in
 		switch_to_org1
 		peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --sequence 1 --tls --cafile "$ORDERER_CA" --output json
 
-		read -p "Continute to commit the chaincode definition? [y/n]" -r answer
-		if [[ $answer != "y" ]]; then
-			exit 0
-		fi
-
 		# committing the chaincode
 		infoln "Org1: Committing chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
 		switch_to_org1
@@ -219,14 +222,19 @@ case "$OPTION" in
 
 	upgrade | u)
 		check_channel_exit
+
+		peer lifecycle chaincode querycommitted --channelID mychannel
+
 		# upgrade chaincode
 		read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
 		#Getting the current version of the chaincode
-		CURRENT_VERSION=$(find . -maxdepth 1 -name "${CHAINCODE_NAME}*.tar.gz" | cut -d'_' -f2 | cut -d'.' -f1)
+		CURRENT_VERSION=$(find . -maxdepth 1 -name "${CHAINCODE_NAME}*.tar.gz" | cut -d'_' -f2 | cut -d'.' -f1 | sort -nr | head -n1)
 		# get current sequnce
 		switch_to_org1
 		CURRENT_SEQUENCE=$(peer lifecycle chaincode querycommitted --channelID mychannel --name "${CHAINCODE_NAME}" | awk '{print $4}')
-		CURRENT_SEQUENCE=$(echo "${CURRENT_SEQUENCE: -2}" | tr -d ',')
+		# echo "awk 6 Current sequence is $CURRENT_SEQUENCE"
+		CURRENT_SEQUENCE=$(echo "$CURRENT_SEQUENCE" | sed 's/.$//' | sed -n 2p)
+		# echo "Current sequence is $CURRENT_SEQUENCE"
 		# increment sequence
 		NEW_SEQUENCE=$((CURRENT_SEQUENCE + 1))
 
@@ -269,11 +277,6 @@ case "$OPTION" in
 		infoln "Current approval state"
 		switch_to_org1
 		peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name "${CHAINCODE_NAME}" --version "${CHAINCODE_VERSION}" --sequence "$NEW_SEQUENCE" --tls --cafile "$ORDERER_CA" --output json
-
-		read -p "Continute to commit the chaincode definition? [y/n]" -r answer
-		if [[ $answer != "y" ]]; then
-			exit 0
-		fi
 
 		# committing the chaincode
 		infoln "Org1: Committing chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
@@ -328,7 +331,7 @@ case "$OPTION" in
       deploy | d - deploy the chaincode
       upgrade | u - upgrade chaincode
       down | o - stop the network
-      reset or up | r - start the network by first shutting down and booting back up, flags: -o 1,2,3
+      reset or up | r - start the network by first shutting down and booting back up
       current | cu - print out the current org
       o1 - switch to org1
       o2 - switch to org2
