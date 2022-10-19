@@ -324,6 +324,9 @@ case "$OPTION" in
       infoln "Current organization is $CURRENT_ORG"
     fi
     ;;
+  monitor | m)
+    ./monitordocker.sh fabric_test
+    ;;
   *)
     # option with flags
     infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset or up|o1|o2|o3}
@@ -334,6 +337,7 @@ case "$OPTION" in
       down | o - stop the network
       reset or up | r - start the network by first shutting down and booting back up
       current | cu - print out the current org
+      monitor | m - debug console for all docker messages (console.log() in typescript will be printed here)
       o1 - switch to org1
       o2 - switch to org2
       o3 - switch to org3
