@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 #written by Huynh Minh Triet - Student ID: 17447
+npm config set fetch-retry-mintimeout 20000
+npm config set fetch-retry-maxtimeout 120000
 
 cd "$(git rev-parse --show-toplevel)/network" || exit
 
@@ -172,10 +174,6 @@ commit_chaincode() {
 
   compile_typescript
 
-  infoln "getting the package id"
-  switch_to_org1
-  cc_package_id=$(peer lifecycle chaincode calculatepackageid "${chaincode_name}"_"${chaincode_version}".tar.gz)
-
   infoln "Packaging chaincode ${CHAINCODE_NAME}_${CHAINCODE_VERSION}"
   peer lifecycle chaincode package "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz --path ../chaincode/ --lang node --label "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}"
 
@@ -191,17 +189,10 @@ commit_chaincode() {
   switch_to_org3
   peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz
 
-  # getting the package id
-  infoln "getting the package id"
+  # getting the package ID
+  infoln "Getting the package ID"
   switch_to_org1
-  cc_package_id=$(peer lifecycle chaincode calculatepackageid "${chaincode_name}"_"${chaincode_version}".tar.gz)
-
-  # # if chaincode alread exists, skip
-  # INSTALLED=$(peer lifecycle chaincode querycommitted --channelID mychannel | awk '{print $2"_"$4}' | tr -d ',' | sed -n 2p)
-  # if [ "$INSTALLED" == "${CHAINCODE_NAME}_${CURRENT_VERSION}" ]; then
-  #   infoln "Chaincode has been committed, skipping..."
-  #   return
-  # fi
+  CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz)
 
   infoln "Org1: Approving chaincode definition for $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org1.example.com"
   switch_to_org1
@@ -295,13 +286,9 @@ case "$OPTION" in
     ;;
   down | o)
     ./network.sh down
-    docker stop "$(docker ps -a -q)"
-    docker rm "$(docker ps -a -q)"
     ;;
   reset | up | r)
     ./network.sh down
-    docker stop "$(docker ps -a -q)"
-    docker rm "$(docker ps -a -q)"
     ./network.sh up createChannel -s couchdb -ca
     infoln "adding Org 3 !!"
     cd addOrg3 || exit
