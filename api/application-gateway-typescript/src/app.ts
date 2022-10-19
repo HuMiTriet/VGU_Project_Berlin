@@ -4,85 +4,85 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as grpc from "@grpc/grpc-js";
+import * as grpc from '@grpc/grpc-js'
 import {
   connect,
   Contract,
   Identity,
   Signer,
-  signers,
-} from "@hyperledger/fabric-gateway";
-import * as crypto from "crypto";
-import { promises as fs } from "fs";
-import * as path from "path";
-import { TextDecoder } from "util";
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
-import { stringToSubchannelAddress } from "@grpc/grpc-js/build/src/subchannel-address";
+  signers
+} from '@hyperledger/fabric-gateway'
+import * as crypto from 'crypto'
+import { promises as fs } from 'fs'
+import * as path from 'path'
+import { TextDecoder } from 'util'
+import express, { Express, Request, Response } from 'express'
+import dotenv from 'dotenv'
+import { stringToSubchannelAddress } from '@grpc/grpc-js/build/src/subchannel-address'
 
-dotenv.config();
+dotenv.config()
 
-const app: Express = express();
-const port = process.env.PORT;
+const app: Express = express()
+const port = process.env.PORT
 
-const channelName = envOrDefault("CHANNEL_NAME", "mychannel");
-const chaincodeName = envOrDefault("CHAINCODE_NAME", "basic");
-const mspId = envOrDefault("MSP_ID", "Org1MSP");
+const channelName = envOrDefault('CHANNEL_NAME', 'mychannel')
+const chaincodeName = envOrDefault('CHAINCODE_NAME', 'basic')
+const mspId = envOrDefault('MSP_ID', 'Org1MSP')
 
 // Path to crypto materials.
 const cryptoPath = envOrDefault(
-  "CRYPTO_PATH",
+  'CRYPTO_PATH',
   path.resolve(
     __dirname,
-    "..",
-    "..",
-    "..",
-    "network",
-    "organizations",
-    "peerOrganizations",
-    "org1.example.com"
+    '..',
+    '..',
+    '..',
+    'network',
+    'organizations',
+    'peerOrganizations',
+    'org1.example.com'
   )
-);
+)
 
 // Path to user private key directory.
 const keyDirectoryPath = envOrDefault(
-  "KEY_DIRECTORY_PATH",
-  path.resolve(cryptoPath, "users", "User1@org1.example.com", "msp", "keystore")
-);
+  'KEY_DIRECTORY_PATH',
+  path.resolve(cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore')
+)
 
 // Path to user certificate.
 const certPath = envOrDefault(
-  "CERT_PATH",
+  'CERT_PATH',
   path.resolve(
     cryptoPath,
-    "users",
-    "User1@org1.example.com",
-    "msp",
-    "signcerts",
-    "cert.pem"
+    'users',
+    'User1@org1.example.com',
+    'msp',
+    'signcerts',
+    'cert.pem'
   )
-);
+)
 
 // Path to peer tls certificate.
 const tlsCertPath = envOrDefault(
-  "TLS_CERT_PATH",
-  path.resolve(cryptoPath, "peers", "peer0.org1.example.com", "tls", "ca.crt")
-);
+  'TLS_CERT_PATH',
+  path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt')
+)
 
 // Gateway peer endpoint.
-const peerEndpoint = envOrDefault("PEER_ENDPOINT", "localhost:7051");
+const peerEndpoint = envOrDefault('PEER_ENDPOINT', 'localhost:7051')
 
 // Gateway peer SSL host name override.
-const peerHostAlias = envOrDefault("PEER_HOST_ALIAS", "peer0.org1.example.com");
+const peerHostAlias = envOrDefault('PEER_HOST_ALIAS', 'peer0.org1.example.com')
 
-const utf8Decoder = new TextDecoder();
-const assetId = `asset${Date.now()}`;
+const utf8Decoder = new TextDecoder()
+const assetId = `asset${Date.now()}`
 
 async function main(): Promise<void> {
-  await displayInputParameters();
+  await displayInputParameters()
 
   // The gRPC client connection should be shared by all Gateway connections to this endpoint.
-  const client = await newGrpcConnection();
+  const client = await newGrpcConnection()
 
   const gateway = connect({
     client,
@@ -90,67 +90,65 @@ async function main(): Promise<void> {
     signer: await newSigner(),
     // Default timeouts for different gRPC calls
     evaluateOptions: () => {
-      return { deadline: Date.now() + 5000 }; // 5 seconds
+      return { deadline: Date.now() + 5000 } // 5 seconds
     },
     endorseOptions: () => {
-      return { deadline: Date.now() + 15000 }; // 15 seconds
+      return { deadline: Date.now() + 15000 } // 15 seconds
     },
     submitOptions: () => {
-      return { deadline: Date.now() + 5000 }; // 5 seconds
+      return { deadline: Date.now() + 5000 } // 5 seconds
     },
     commitStatusOptions: () => {
-      return { deadline: Date.now() + 60000 }; // 1 minute
-    },
-  });
+      return { deadline: Date.now() + 60000 } // 1 minute
+    }
+  })
 
   try {
     // Get a network instance representing the channel where the smart contract is deployed.
-    const network = gateway.getNetwork(channelName);
+    const network = gateway.getNetwork(channelName)
 
     // Get the smart contract from the network.
-    const contract = network.getContract(chaincodeName);
+    const contract = network.getContract(chaincodeName)
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
-    await initLedger(contract);
+    await initLedger(contract)
 
     // Return all the current assets on the ledger.
     app.listen(port, () => {
-      console.log(
-        `⚡️[server]: Server is running at https://localhost:${port}`
-      );
-    });
+      console.log(`⚡️[server]: Server is running at https://localhost:${port}`)
+    })
 
-    let assets: string = await getAllAssets(contract);
-    app.get("/api/assets", (req: Request, res: Response) => {
+    const assets: string = await getAllAssets(contract)
+    app.get('/api/assets', (req: Request, res: Response) => {
       try {
-        res.set("Access-Control-Allow-Origin", "*");
-        res.send(assets);
+        res.set('Access-Control-Allow-Origin', '*')
+        res.send(assets)
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
 
-    app.post("/api/assets", (req, res) => {
-      let query = req.query;
-      let searchQuery = query["q"];
-      let id = query["id"];
+    app.post('/api/assets', (req, res) => {
+      const query = req.query
+      const searchQuery = query['q']
+      const id = query['id']
       if (searchQuery != undefined && id != undefined) {
-        console.log(searchQuery);
-        console.log(id);
+        console.log(searchQuery)
+        console.log(id)
       } else {
-        res.send("Invalid query format");
+        res.send('Invalid query format')
       }
-      return res.send(query);
-    });
+      return res.send(query)
+    })
 
-    app.put("/api", (req, res) => {
-      console.log(req.params);
-      return res.send("Received a PUT HTTP method");
-    });
+    app.put('/api', (req, res) => {
+      console.log(req.params)
+      return res.send('Received a PUT HTTP method')
+    })
 
-    app.delete("/api", (req, res) => {
-      return res.send("Received a DELETE HTTP method");
-    });
+    app.delete('/api', (req, res) => {
+      return res.send('Received a DELETE HTTP method')
+    })
 
     // // Create a new asset on the ledger.
     // await createAsset(contract);
@@ -164,35 +162,35 @@ async function main(): Promise<void> {
     // // Update an asset which does not exist.
     // await updateNonExistentAsset(contract);
   } finally {
-    gateway.close();
-    client.close();
+    gateway.close()
+    client.close()
   }
 }
 
-main().catch((error) => {
-  console.error("******** FAILED to run the application:", error);
-  process.exitCode = 1;
-});
+main().catch(error => {
+  console.error('******** FAILED to run the application:', error)
+  process.exitCode = 1
+})
 
 async function newGrpcConnection(): Promise<grpc.Client> {
-  const tlsRootCert = await fs.readFile(tlsCertPath);
-  const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
+  const tlsRootCert = await fs.readFile(tlsCertPath)
+  const tlsCredentials = grpc.credentials.createSsl(tlsRootCert)
   return new grpc.Client(peerEndpoint, tlsCredentials, {
-    "grpc.ssl_target_name_override": peerHostAlias,
-  });
+    'grpc.ssl_target_name_override': peerHostAlias
+  })
 }
 
 async function newIdentity(): Promise<Identity> {
-  const credentials = await fs.readFile(certPath);
-  return { mspId, credentials };
+  const credentials = await fs.readFile(certPath)
+  return { mspId, credentials }
 }
 
 async function newSigner(): Promise<Signer> {
-  const files = await fs.readdir(keyDirectoryPath);
-  const keyPath = path.resolve(keyDirectoryPath, files[0]);
-  const privateKeyPem = await fs.readFile(keyPath);
-  const privateKey = crypto.createPrivateKey(privateKeyPem);
-  return signers.newPrivateKeySigner(privateKey);
+  const files = await fs.readdir(keyDirectoryPath)
+  const keyPath = path.resolve(keyDirectoryPath, files[0])
+  const privateKeyPem = await fs.readFile(keyPath)
+  const privateKey = crypto.createPrivateKey(privateKeyPem)
+  return signers.newPrivateKeySigner(privateKey)
 }
 
 /**
@@ -201,12 +199,12 @@ async function newSigner(): Promise<Signer> {
  */
 async function initLedger(contract: Contract): Promise<void> {
   console.log(
-    "\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger"
-  );
+    '\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger'
+  )
 
-  await contract.submitTransaction("InitLedger");
+  await contract.submitTransaction('InitLedger')
 
-  console.log("*** Transaction committed successfully");
+  console.log('*** Transaction committed successfully')
 }
 
 /**
@@ -214,14 +212,14 @@ async function initLedger(contract: Contract): Promise<void> {
  */
 async function getAllAssets(contract: Contract): Promise<string> {
   console.log(
-    "\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger"
-  );
-  const resultBytes = await contract.evaluateTransaction("GetAllAssets");
+    '\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger'
+  )
+  const resultBytes = await contract.evaluateTransaction('GetAllAssets')
 
-  const resultJson = utf8Decoder.decode(resultBytes);
-  const result = JSON.parse(resultJson);
-  console.log("*** Result:", result);
-  return resultJson;
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return resultJson
 }
 
 /**
@@ -229,19 +227,19 @@ async function getAllAssets(contract: Contract): Promise<string> {
  */
 async function createAsset(contract: Contract): Promise<void> {
   console.log(
-    "\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments"
-  );
+    '\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments'
+  )
 
   await contract.submitTransaction(
-    "CreateAsset",
+    'CreateAsset',
     assetId,
-    "yellow",
-    "5",
-    "Tom",
-    "1300"
-  );
+    'yellow',
+    '5',
+    'Tom',
+    '1300'
+  )
 
-  console.log("*** Transaction committed successfully");
+  console.log('*** Transaction committed successfully')
 }
 
 /**
@@ -250,39 +248,39 @@ async function createAsset(contract: Contract): Promise<void> {
  */
 async function transferAssetAsync(contract: Contract): Promise<void> {
   console.log(
-    "\n--> Async Submit Transaction: TransferAsset, updates existing asset owner"
-  );
+    '\n--> Async Submit Transaction: TransferAsset, updates existing asset owner'
+  )
 
-  const commit = await contract.submitAsync("TransferAsset", {
-    arguments: [assetId, "Saptha"],
-  });
-  const oldOwner = utf8Decoder.decode(commit.getResult());
+  const commit = await contract.submitAsync('TransferAsset', {
+    arguments: [assetId, 'Saptha']
+  })
+  const oldOwner = utf8Decoder.decode(commit.getResult())
 
   console.log(
     `*** Successfully submitted transaction to transfer ownership from ${oldOwner} to Saptha`
-  );
-  console.log("*** Waiting for transaction commit");
+  )
+  console.log('*** Waiting for transaction commit')
 
-  const status = await commit.getStatus();
+  const status = await commit.getStatus()
   if (!status.successful) {
     throw new Error(
       `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
-    );
+    )
   }
 
-  console.log("*** Transaction committed successfully");
+  console.log('*** Transaction committed successfully')
 }
 
 async function readAssetByID(contract: Contract): Promise<void> {
   console.log(
-    "\n--> Evaluate Transaction: ReadAsset, function returns asset attributes"
-  );
+    '\n--> Evaluate Transaction: ReadAsset, function returns asset attributes'
+  )
 
-  const resultBytes = await contract.evaluateTransaction("ReadAsset", assetId);
+  const resultBytes = await contract.evaluateTransaction('ReadAsset', assetId)
 
-  const resultJson = utf8Decoder.decode(resultBytes);
-  const result = JSON.parse(resultJson);
-  console.log("*** Result:", result);
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
 }
 
 /**
@@ -290,21 +288,21 @@ async function readAssetByID(contract: Contract): Promise<void> {
  */
 async function updateNonExistentAsset(contract: Contract): Promise<void> {
   console.log(
-    "\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error"
-  );
+    '\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error'
+  )
 
   try {
     await contract.submitTransaction(
-      "UpdateAsset",
-      "asset70",
-      "blue",
-      "5",
-      "Tomoko",
-      "300"
-    );
-    console.log("******** FAILED to return an error");
+      'UpdateAsset',
+      'asset70',
+      'blue',
+      '5',
+      'Tomoko',
+      '300'
+    )
+    console.log('******** FAILED to return an error')
   } catch (error) {
-    console.log("*** Successfully caught the error: \n", error);
+    console.log('*** Successfully caught the error: \n', error)
   }
 }
 
@@ -312,23 +310,23 @@ async function updateNonExistentAsset(contract: Contract): Promise<void> {
  * envOrDefault() will return the value of an environment variable, or a default value if the variable is undefined.
  */
 function envOrDefault(key: string, defaultValue: string): string {
-  return process.env[key] || defaultValue;
+  return process.env[key] || defaultValue
 }
 
 /**
  * displayInputParameters() will print the global scope parameters used by the main driver routine.
  */
 async function displayInputParameters(): Promise<void> {
-  console.log(`channelName:       ${channelName}`);
-  console.log(`chaincodeName:     ${chaincodeName}`);
-  console.log(`mspId:             ${mspId}`);
-  console.log(`cryptoPath:        ${cryptoPath}`);
-  console.log(`keyDirectoryPath:  ${keyDirectoryPath}`);
-  console.log(`certPath:          ${certPath}`);
-  console.log(`tlsCertPath:       ${tlsCertPath}`);
-  console.log(`peerEndpoint:      ${peerEndpoint}`);
-  console.log(`peerHostAlias:     ${peerHostAlias}`);
+  console.log(`channelName:       ${channelName}`)
+  console.log(`chaincodeName:     ${chaincodeName}`)
+  console.log(`mspId:             ${mspId}`)
+  console.log(`cryptoPath:        ${cryptoPath}`)
+  console.log(`keyDirectoryPath:  ${keyDirectoryPath}`)
+  console.log(`certPath:          ${certPath}`)
+  console.log(`tlsCertPath:       ${tlsCertPath}`)
+  console.log(`peerEndpoint:      ${peerEndpoint}`)
+  console.log(`peerHostAlias:     ${peerHostAlias}`)
 }
 function uuidv4() {
-  throw new Error("Function not implemented.");
+  throw new Error('Function not implemented.')
 }
