@@ -155,10 +155,6 @@ check_channel_exit() {
   fi
 }
 
-# commit_chaincode() {
-
-# }
-
 OPTION="$1"
 
 case "$OPTION" in
