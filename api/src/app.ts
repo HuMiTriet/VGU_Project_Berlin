@@ -167,11 +167,18 @@ export async function createAsset(
   // contract: Contract,
   assetID: string,
   area: string,
-  location: string
+  location: string,
+  ownership: string
 ): Promise<void> {
   try {
     console.log('Create Asset')
-    await contract.submitTransaction('CreateAsset', assetID, area, location)
+    await contract.submitTransaction(
+      'CreateAsset',
+      assetID,
+      area,
+      location,
+      ownership
+    )
     console.log('*** Transaction committed successfully')
   } catch (error) {
     console.log(error)
@@ -234,7 +241,7 @@ export async function transferAssetAsync(
  * Return an asset read from world state
  * @author Thai Hoang Tam
  * @param assetID
- * @returns
+ * @returns assetString
  */
 export async function readAsset(
   // contract: Contract,
@@ -249,6 +256,12 @@ export async function readAsset(
   return result
 }
 
+/**
+ * Delete an asset from the world state
+ * @author Thai Hoang Tam
+ * @param assetID
+ * @returns
+ */
 export async function deleteAsset(assetID: string) {
   console.log('Delete asset')
   const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
@@ -267,6 +280,12 @@ export async function assetExists(assetID: string): Promise<boolean> {
   return result
 }
 
+/**
+ * Update an asset information
+ * 
+ * @param assetID 
+ * @returns 
+ */
 export async function updateAsset(assetID: string) {
   console.log('Update Asset')
   const resultBytes = await contract.evaluateTransaction('UpdateUser', assetID)
@@ -276,6 +295,12 @@ export async function updateAsset(assetID: string) {
   return result
 }
 
+/**
+ * Update a user information
+ * @author Thai Hoang Tam
+ * @param assetID
+ * @returns
+ */
 export async function updateUser(assetID: string): Promise<string> {
   console.log('Update User')
   const resultBytes = await contract.evaluateTransaction('UpdateUser', assetID)
