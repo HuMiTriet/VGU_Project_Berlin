@@ -111,43 +111,45 @@ switch_to_org3() {
 }
 
 verifyResult() {
-  if [ $1 -ne 0 ]; then
+  if [ "$1" -ne 0 ]; then
     infoln "Network error (dont know why happens), please run \"manager deploy again\" "
     fatalln "$2"
   fi
 }
 
-function installChaincode() {
-  ORG=$1
-  if [ "$ORG" == "org1" ]; then
-    switch_to_org1
-  elif [ "$ORG" == "org2" ]; then
-    switch_to_org2
-  elif [ "$ORG" == "org3" ]; then
-    switch_to_org3
-  else
-    errorln "Invalid organization name, please use org1, org2 or org3"
-    exit 1
-  fi
-  set -x
-  peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${CC_PACKAGE_ID}$ >&log.txt
+# function installChaincode() {
+#   ORG=$1
+#   CHAINCODE_NAME=$2
+#   CHAINCODE_VERSION=$3
+#   if [ "$ORG" == "org1" ]; then
+#     switch_to_org1
+#   elif [ "$ORG" == "org2" ]; then
+#     switch_to_org2
+#   elif [ "$ORG" == "org3" ]; then
+#     switch_to_org3
+#   else
+#     errorln "Invalid organization name, please use org1, org2 or org3"
+#     exit 1
+#   fi
+#   set -x
+#   peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${CC_PACKAGE_ID}$ >&log.txt
 
-  # # if chaincode has been installed skip
-  # if [ $? -eq 0 ]; then
-  #   infoln "Chaincode has been installed, skipping..."
-  #   set +x
-  #   return
-  # fi
-  if test $? -ne 0; then
-    peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz >&log.txt
-    res=$?
-  fi
-  { set +x; } 2> /dev/null
-  cat log.txt
+#   # if chaincode has been installed skip
+#   if [ $? -eq 0 ]; then
+#     infoln "Chaincode has been installed, skipping..."
+#     set +x
+#     return
+#   fi
+#   if test $? -ne 0; then
+#     peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz >&log.txt
+#     res=$?
+#   fi
+#   { set +x; } 2> /dev/null
+#   cat log.txt
 
-  verifyResult $res "Chaincode installation on peer0.${ORG} has failed"
-  successln "Chaincode is installed on peer0.${ORG}"
-}
+#   verifyResult $res "Chaincode installation on peer0.${ORG} has failed"
+#   successln "Chaincode is installed on peer0.${ORG}"
+# }
 
 check_channel_exit() {
   # check if mychannel existed
@@ -176,13 +178,16 @@ commit_chaincode() {
   peer lifecycle chaincode package "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}".tar.gz --path ../chaincode/ --lang node --label "${CHAINCODE_NAME}"_"${CHAINCODE_VERSION}"
 
   infoln "Org1: Installing chaincode ${CHAINCODE_NAME}_${CHAINCODE_VERSION} on peer0.org1.example.com"
-  installChaincode org1
+  switch_to_org1
+  peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz
 
   infoln "Org2: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org2.example.com"
-  installChaincode org2
+  switch_to_org2
+  peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz
 
   infoln "Org3: Installing chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION on peer0.org3.example.com"
-  installChaincode org3
+  switch_to_org3
+  peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz
 
   # getting the package ID
   infoln "Getting the package ID"
