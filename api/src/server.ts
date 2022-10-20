@@ -93,9 +93,9 @@ async function main(): Promise<void> {
     try {
       res.set('Access-Control-Allow-Origin', '*')
       res.setHeader('Content-Type', 'application/json')
-      console.log(req.body)
-      console.log(JSON.parse(req.body))
-      console.log(JSON.stringify(req.body))
+      console.log('body' + req.body)
+      console.log('JSON parse' + JSON.parse(req.body))
+      console.log('JSON string' + JSON.stringify(req.body))
       const query = req.query
       const assetID: string = <string>query['assetID']
       const area = query['area']

@@ -28,7 +28,6 @@ const cryptoPath = envOrDefault(
     __dirname,
     '..',
     '..',
-    '..',
     'network',
     'organizations',
     'peerOrganizations',
@@ -103,6 +102,7 @@ export async function main(): Promise<void> {
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await initLedger()
+    await createAsset()
   } finally {
     // gateway.close()
     // client.close()
@@ -282,9 +282,9 @@ export async function assetExists(assetID: string): Promise<boolean> {
 
 /**
  * Update an asset information
- * 
- * @param assetID 
- * @returns 
+ *
+ * @param assetID
+ * @returns
  */
 export async function updateAsset(assetID: string) {
   console.log('Update Asset')
