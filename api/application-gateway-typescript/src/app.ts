@@ -12,7 +12,6 @@ import {
   Signer,
   signers
 } from '@hyperledger/fabric-gateway'
-import { ContractImpl } from '@hyperledger/fabric-gateway/dist/contract'
 import * as crypto from 'crypto'
 import { promises as fs } from 'fs'
 import * as path from 'path'
@@ -104,24 +103,12 @@ export async function main(): Promise<void> {
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await initLedger()
-    // Return all the current assets on the ledger.
-    // // Create a new asset on the ledger.
-    // await createAsset(contract);
-
-    // // Update an existing asset asynchronously.
-    // await transferAssetAsync(contract);
-
-    // // Get the asset details by assetID.
-
-    // // Update an asset which does not exist.
-    // await updateNonExistentAsset(contract);
   } finally {
     // gateway.close()
     // client.close()
   }
 }
 
-main()
 async function newGrpcConnection(): Promise<grpc.Client> {
   const tlsRootCert = await fs.readFile(tlsCertPath)
   const tlsCredentials = grpc.credentials.createSsl(tlsRootCert)
@@ -159,40 +146,56 @@ export async function initLedger(): Promise<void> {
 
 /**
  * Evaluate a transaction to query ledger state.
+ * @author Thai Hoang Tam
+ * @return
  */
 export async function getAllAssets(): Promise<string> {
-  console.log(
-    '\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger'
-  )
+  console.log('Get all assets')
   const resultBytes = await contract.evaluateTransaction('GetAllAssets')
-
   const resultJson = utf8Decoder.decode(resultBytes)
   const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return resultJson
+  // console.log('*** Result:', result)
+  return result
 }
 
 /**
  * Submit a transaction synchronously, blocking until it has been committed to the ledger.
+ * @author Thai Hoang Tam
+ * @param assetID
  */
 export async function createAsset(
   // contract: Contract,
-  assetId: string
+  assetID: string,
+  area: string,
+  location: string
 ): Promise<void> {
-  console.log(
-    '\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments'
-  )
+  try {
+    console.log('Create Asset')
+    await contract.submitTransaction('CreateAsset', assetID, area, location)
+    console.log('*** Transaction committed successfully')
+  } catch (error) {
+    console.log(error)
+  }
+}
 
-  await contract.submitTransaction(
+/**
+ * Create a new user with a starting balance
+ * @author Thai Hoang Tam
+ * @param userID
+ * @param balance
+ * @returns
+ */
+export async function createUser(userID: string, balance: string) {
+  console.log('Create user')
+  const resultBytes = await contract.submitTransaction(
     'CreateAsset',
-    assetId,
-    'yellow',
-    '5',
-    'Tom',
-    '1300'
+    userID,
+    balance
   )
-
-  console.log('*** Transaction committed successfully')
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return result
 }
 
 /**
@@ -201,14 +204,14 @@ export async function createAsset(
  */
 export async function transferAssetAsync(
   // contract: Contract,
-  assetId: string
+  assetID: string
 ): Promise<void> {
   console.log(
     '\n--> Async Submit Transaction: TransferAsset, updates existing asset owner'
   )
 
   const commit = await contract.submitAsync('TransferAsset', {
-    arguments: [assetId, 'Saptha']
+    arguments: [assetID, 'Saptha']
   })
   const oldOwner = utf8Decoder.decode(commit.getResult())
 
@@ -227,61 +230,60 @@ export async function transferAssetAsync(
   console.log('*** Transaction committed successfully')
 }
 
-export async function readAssetByID(
+/**
+ * Return an asset read from world state
+ * @author Thai Hoang Tam
+ * @param assetID
+ * @returns
+ */
+export async function readAsset(
   // contract: Contract,
   assetID: string
 ): Promise<string> {
-  console.log(
-    '\n--> Evaluate Transaction: ReadAsset, function returns asset attributes'
-  )
-
+  console.log('Read Asset')
   const resultBytes = await contract.evaluateTransaction('ReadAsset', assetID)
-
   const resultJson = utf8Decoder.decode(resultBytes)
-  const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return JSON.stringify(result)
-}
-
-export async function deleteAsset(assetID: string) {
-  console.log('Delete asset')
-
-  const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
-
-  const resultJson = utf8Decoder.decode(resultBytes)
-  const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return JSON.stringify(result)
-}
-
-export async function assetExists(assetID: string): Promise<boolean> {
-  console.log('Asset Exist')
-  const resultBytes = await contract.evaluateTransaction('AssetExists', assetID)
-
-  const resultJson = utf8Decoder.decode(resultBytes)
-
   console.log(resultJson)
   const result = JSON.parse(resultJson)
   console.log('*** Result:', result)
   return result
 }
 
-export async function updateAsset() {}
-
-export async function createUser(userID: string, balance: string) {
-  console.log('Create user')
-  const resultBytes = await contract.submitTransaction(
-    'CreateAsset',
-    userID,
-    balance
-  )
+export async function deleteAsset(assetID: string) {
+  console.log('Delete asset')
+  const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
   const resultJson = utf8Decoder.decode(resultBytes)
   const result = JSON.parse(resultJson)
   console.log('*** Result:', result)
-  return JSON.stringify(resultJson)
+  return result
 }
 
-export async function updateUser() {}
+export async function assetExists(assetID: string): Promise<boolean> {
+  console.log('Asset Exist')
+  const resultBytes = await contract.evaluateTransaction('AssetExists', assetID)
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return result
+}
+
+export async function updateAsset(assetID: string) {
+  console.log('Update Asset')
+  const resultBytes = await contract.evaluateTransaction('UpdateUser', assetID)
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return result
+}
+
+export async function updateUser(assetID: string): Promise<string> {
+  console.log('Update User')
+  const resultBytes = await contract.evaluateTransaction('UpdateUser', assetID)
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return result
+}
 
 /**
  * envOrDefault() will return the value of an environment variable, or a default value if the variable is undefined.
