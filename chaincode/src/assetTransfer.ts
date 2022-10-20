@@ -11,7 +11,7 @@ import {
 } from 'fabric-contract-api'
 import stringify from 'json-stringify-deterministic'
 import sortKeysRecursive from 'sort-keys-recursive'
-import { Asset, UserInfo } from './asset'
+import { RealEstate, UserInfo } from './asset'
 
 import { Ownership } from './IOwnership'
 import { RoomType } from './classRoomType'
@@ -55,19 +55,19 @@ export class AssetTransferContract extends Contract {
       numOfLivingroom: 2
     }
 
-    const assets: Asset[] = [
+    const assets: RealEstate[] = [
       {
-        AssetID: 'asset1',
+        assetID: 'asset1',
         area: 200,
         location: 'Ben Cat',
-        Owners: ownerships,
+        owners: ownerships,
         roomList: roomType1
       },
       {
-        AssetID: 'asset2',
+        assetID: 'asset2',
         area: 500,
         location: 'Dong Nai',
-        Owners: ownerships,
+        owners: ownerships,
         roomList: roomType2
       }
     ]
@@ -80,11 +80,11 @@ export class AssetTransferContract extends Contract {
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
       // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
       await ctx.stub.putState(
-        asset.AssetID,
+        asset.assetID,
         Buffer.from(stringify(sortKeysRecursive(asset)))
       )
       console.log('DEBUG: ONE ASSET ADDED')
-      console.info(`Asset ${asset.AssetID} initialized`)
+      console.info(`Asset ${asset.assetID} initialized`)
     }
   }
 
@@ -290,8 +290,8 @@ export class AssetTransferContract extends Contract {
     console.log('Buyer wants to buy ' + buyPercentage + '%')
 
     const assetString = await this.ReadAsset(ctx, AssetID)
-    const asset: Asset = JSON.parse(assetString)
-    console.log('Asset exists, AssetID:' + asset.AssetID)
+    const asset: RealEstate = JSON.parse(assetString)
+    console.log('Asset exists, AssetID:' + asset.assetID)
 
     //Check if seller exists
     const sellerInfoJSON = await this.ReadAsset(ctx, sellerID)
@@ -332,7 +332,7 @@ export class AssetTransferContract extends Contract {
     console.log('Buyer is not the same as Seller')
 
     //Get the seller's Ownership data
-    const sellerOwnership: Ownership = asset.Owners.find((obj: Ownership) => {
+    const sellerOwnership: Ownership = asset.owners.find((obj: Ownership) => {
       return obj.ownerID === sellerID
     })
 
@@ -381,7 +381,7 @@ export class AssetTransferContract extends Contract {
     }
 
     //Check if buyer has already bought this asset once or more.
-    let buyerOwnership: Ownership = asset.Owners.find((obj: Ownership) => {
+    let buyerOwnership: Ownership = asset.owners.find((obj: Ownership) => {
       return obj.ownerID === buyer.userID
     })
 
@@ -400,7 +400,7 @@ export class AssetTransferContract extends Contract {
       }
 
       //Add Buyer to Owners list of this asset
-      asset.Owners.push(buyerOwnership)
+      asset.owners.push(buyerOwnership)
     } else {
       console.log(
         'Buyer already owned a part of this asset, skipping creating new Ownership for buyer.'
@@ -427,13 +427,13 @@ export class AssetTransferContract extends Contract {
 
     //Remove seller from Asset's Ownership if they don't have any ownershipPercentage left
     if (sellerOwnership.ownershipPercentage === 0) {
-      const removeIndex = asset.Owners.findIndex(obj => {
+      const removeIndex = asset.owners.findIndex(obj => {
         return obj.ownerID === seller.userID
       })
 
       if (removeIndex !== -1) {
         console.log('Removing seller from list of Ownership')
-        asset.Owners.splice(removeIndex, 1)
+        asset.owners.splice(removeIndex, 1)
       }
     }
 
@@ -466,7 +466,7 @@ export class AssetTransferContract extends Contract {
       ' obtained ' +
       buyPercentage +
       ' of Asset ' +
-      asset.AssetID +
+      asset.assetID +
       ' from Seller ' +
       sellerOwnership.ownerID
     )

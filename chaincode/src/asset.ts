@@ -17,12 +17,12 @@ import { Object, Property } from 'fabric-contract-api'
 // }
 
 @Object()
-export class Asset {
+export class RealEstate {
   @Property()
   public docType?: string
 
   @Property()
-  public AssetID: string
+  public assetID: string
 
   @Property()
   public roomList: RoomType
@@ -34,7 +34,7 @@ export class Asset {
   public location: string
 
   @Property()
-  public Owners: Ownership[]
+  public owners: Ownership[]
 }
 
 @Object()
