@@ -286,9 +286,13 @@ case "$OPTION" in
     ;;
   down | o)
     ./network.sh down
+    docker rm -f $(docker ps -aq)
+    docker rmi -f $(docker images -q)
     ;;
   reset | up | r)
     ./network.sh down
+    docker rm -f $(docker ps -aq)
+    docker rmi -f $(docker images -q)
     ./network.sh up createChannel -s couchdb -ca
     infoln "adding Org 3 !!"
     cd addOrg3 || exit
