@@ -301,7 +301,7 @@ export class AssetTransferContract extends Contract {
     return assetJSON && assetJSON.length > 0
   }
 
-  //TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
+  // TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
   @Transaction()
   public async TransferAsset(
     ctx: Context,
