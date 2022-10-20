@@ -119,34 +119,38 @@ export class AssetTransferContract extends Contract {
     }
   }
 
-  // @Transaction()
-  // public async CreateAsset(
-  //   ctx: Context,
-  //   AssetID: string,
-  //   areaString: string,
-  //   location: string,
-  //   roomList: RoomType,
-  //   Owners: Array<Ownership>
-  // ) {
-  //   const exists = await this.AssetExists(ctx, AssetID)
-  //   if (exists) {
-  //     throw new Error(`The asset ${AssetID} already exists`)
-  //   }
+  @Transaction()
+  public async CreateAsset(
+    ctx: Context,
+    AssetID: string,
+    roomListString: string,
+    areaString: string,
+    location: string,
+    OwnersString: string
+  ) {
+    const exists = await this.AssetExists(ctx, AssetID)
+    if (exists) {
+      throw new Error(`The asset ${AssetID} already exists`)
+    }
 
-  //   const area = parseFloat(areaString)
+    const roomList: RoomType = JSON.parse(roomListString)
 
-  //   const asset = {
-  //     AssetID: AssetID,
-  //     roomList: roomList,
-  //     area: area,
-  //     location: location,
-  //     Owners: Owners
-  //   }
-  //   await ctx.stub.putState(
-  //     AssetID,
-  //     Buffer.from(stringify(sortKeysRecursive(asset)))
-  //   )
-  // }
+    const area: number = parseFloat(areaString)
+
+    const owners: Array<Ownership> = JSON.parse(OwnersString)
+
+    const asset = {
+      AssetID: AssetID,
+      roomList: roomList,
+      area: area,
+      location: location,
+      Owners: owners
+    }
+    await ctx.stub.putState(
+      AssetID,
+      Buffer.from(stringify(sortKeysRecursive(asset)))
+    )
+  }
 
   @Transaction()
   public async CreateUser(ctx: Context, userID: string, balanceString: string) {
@@ -179,34 +183,56 @@ export class AssetTransferContract extends Contract {
   }
 
   // UpdateAsset updates an existing asset in the world state with provided parameters.
-  // @Transaction()
-  // public async UpdateAsset(
-  //   ctx: Context,
-  //   AssetID: string,
-  //   roomList: RoomType,
-  //   area: number,
-  //   location: string,
-  //   Owners: Ownership[]
-  // ): Promise<void> {
-  //   const exists = await this.AssetExists(ctx, AssetID)
-  //   if (!exists) {
-  //     throw new Error(`The asset ${AssetID} does not exist`)
-  //   }
+  @Transaction()
+  public async UpdateAsset(
+    ctx: Context,
+    AssetID: string,
+    roomListString: string, // RoomType
+    areaString: string, // number
+    location: string,
+    OwnersString: string // Ownership[]
+  ): Promise<void> {
+    const exists = await this.AssetExists(ctx, AssetID)
+    if (!exists) {
+      throw new Error(`The asset ${AssetID} does not exist`)
+    }
 
-  //   // overwriting original asset with new asset
-  //   const updatedAsset = {
-  //     AssetID: AssetID,
-  //     roomList: roomList,
-  //     area: area,
-  //     location: location,
-  //     Owners: Owners
-  //   }
-  //   // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
-  //   return ctx.stub.putState(
-  //     AssetID,
-  //     Buffer.from(stringify(sortKeysRecursive(updatedAsset)))
-  //   )
-  // }
+    // code to test this method
+    // peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"UpdateAsset","Args":["asset1", "{ \"numOfBedroom\": \"0\", \"numOfLivingroom\": \"0\", \"numOfBathroom\": \"0\", \"numOfDiningroom\": \"0\" }", "420", "cumhole", "[ { \"ownerID\": \"user1\", \"ownershipPercentage\": 69, \"sellPercentage\": 10, \"sellPrice\": 69420, \"sellThreshold\": 69, \"isSeller\": true },{ \"ownerID\": \"user2\", \"ownershipPercentage\": 69, \"sellPercentage\": 10, \"sellPrice\": 69420, \"sellThreshold\": 69, \"isSeller\": true } ]" ]}'
+
+    const roomList: RoomType = JSON.parse(roomListString)
+
+    const area: number = parseFloat(areaString)
+
+    const owners: Array<Ownership> = JSON.parse(OwnersString)
+
+    // // console log out all owners
+    // for (const owner of owners) {
+    //   console.log('DEBUG: OWNER')
+    //   console.log(owner)
+    // }
+
+    // console.log('DEBUG: roomList', roomList)
+
+    // console.log(typeof roomList.numOfBedroom)
+
+    // console.log(`PAIN PEKO: ${roomList.numOfBedroom + 1} `)
+
+    // overwriting original asset with new asset
+    const updatedAsset = {
+      AssetID: AssetID,
+      roomList: roomList,
+      area: area,
+      location: location,
+      Owners: owners
+    }
+    // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+
+    return ctx.stub.putState(
+      AssetID,
+      Buffer.from(stringify(sortKeysRecursive(updatedAsset)))
+    )
+  }
 
   @Transaction()
   public async UpdateUser(
