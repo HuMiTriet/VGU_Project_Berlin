@@ -13,7 +13,7 @@
     "lint": "eslint . --ext .ts",
     "prepare": "npm run build",
     "pretest": "npm run lint",
-    "start": "node dist/app.js"
+    "start": "node dist/server.js"
   },
   "engineStrict": true,
   "author": "Hyperledger",
@@ -23,7 +23,8 @@
     "@grpc/grpc-js": "~1.6.7",
     "@hyperledger/fabric-gateway": "^1.1.0",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "fabric-network": "^2.2.10"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.3",
