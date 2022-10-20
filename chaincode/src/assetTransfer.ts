@@ -11,11 +11,10 @@ import {
 } from 'fabric-contract-api'
 import stringify from 'json-stringify-deterministic'
 import sortKeysRecursive from 'sort-keys-recursive'
-import { RealEstate, UserInfo } from './asset'
+import { RealEstate, User } from './asset'
 
 import { Ownership } from './IOwnership'
 import { RoomType } from './classRoomType'
-import { User } from './IUser'
 
 @Info({
   title: 'AssetTransfer',
@@ -73,7 +72,7 @@ export class AssetTransferContract extends Contract {
     ]
 
     for (const asset of assets) {
-      asset.docType = 'asset'
+      asset.docType = 'realEstate'
       console.log('DEBUG: ONE ASSET BEFORE ADDED')
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
@@ -90,28 +89,18 @@ export class AssetTransferContract extends Contract {
 
   @Transaction()
   public async InitLedgerUser(ctx: Context): Promise<void> {
-    const user1: User = {
-      userID: 'user1',
-      balance: 1000
-    }
-    const user2: User = {
-      userID: 'user2',
-      balance: 500
-    }
-    const user3: User = {
-      userID: 'user3',
-      balance: 3000
-    }
-
-    const assets: UserInfo[] = [
+    const assets: User[] = [
       {
-        user: user1
+        userID: 'user1',
+        balance: 1000
       },
       {
-        user: user2
+        userID: 'user2',
+        balance: 500
       },
       {
-        user: user3
+        userID: 'user3',
+        balance: 3000
       }
     ]
 
@@ -122,11 +111,11 @@ export class AssetTransferContract extends Contract {
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
       // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
       await ctx.stub.putState(
-        asset.user.userID,
+        asset.userID,
         Buffer.from(stringify(sortKeysRecursive(asset)))
       )
       console.log('DEBUG: ONE ASSET-USER ADDED')
-      console.info(`Asset ${asset.user.userID} initialized`)
+      console.info(`Asset ${asset.userID} initialized`)
     }
   }
 
@@ -173,13 +162,9 @@ export class AssetTransferContract extends Contract {
       balance: balance
     }
 
-    const userInfo: UserInfo = {
-      docType: 'user',
-      user: user
-    }
     await ctx.stub.putState(
-      userInfo.user.userID,
-      Buffer.from(stringify(sortKeysRecursive(userInfo)))
+      user.userID,
+      Buffer.from(stringify(sortKeysRecursive(user)))
     )
   }
 
@@ -235,20 +220,16 @@ export class AssetTransferContract extends Contract {
     }
 
     const balance = parseFloat(balanceString)
+    // overwriting original asset with new asset
     const updatedUser: User = {
       userID: userID,
       balance: balance
     }
 
-    // overwriting original asset with new asset
-    const updatedUserInfo: UserInfo = {
-      docType: 'user',
-      user: updatedUser
-    }
     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
     return ctx.stub.putState(
-      updatedUserInfo.user.userID,
-      Buffer.from(stringify(sortKeysRecursive(updatedUserInfo)))
+      updatedUser.userID,
+      Buffer.from(stringify(sortKeysRecursive(updatedUser)))
     )
   }
 
@@ -290,37 +271,30 @@ export class AssetTransferContract extends Contract {
     console.log('Buyer wants to buy ' + buyPercentage + '%')
 
     const assetString = await this.ReadAsset(ctx, AssetID)
-    const asset: RealEstate = JSON.parse(assetString)
-    console.log('Asset exists, AssetID:' + asset.assetID)
+    const realEstate: RealEstate = JSON.parse(assetString)
+    console.log('RealEstate exists, ID:' + realEstate.assetID)
 
     //Check if seller exists
-    const sellerInfoJSON = await this.ReadAsset(ctx, sellerID)
-    if (sellerInfoJSON === undefined) {
+    const sellerJSON = await this.ReadAsset(ctx, sellerID)
+    if (sellerJSON === undefined) {
       throw new Error('Seller does not exist')
     }
     console.log('Seller exists')
 
-    const sellerInfo: UserInfo = JSON.parse(sellerInfoJSON)
-    const seller: User = {
-      userID: sellerInfo.user.userID,
-      balance: sellerInfo.user.balance
-    }
+    const seller: User = JSON.parse(sellerJSON)
     console.log('Info of Seller:')
     console.log("Seller's ID: " + seller.userID)
     console.log("Seller's Balance: " + seller.balance)
 
     //Check if buyer exists
-    const buyerInfoJSON = await this.ReadAsset(ctx, buyerID)
-    if (buyerInfoJSON === undefined) {
+    const buyerJSON = await this.ReadAsset(ctx, buyerID)
+    if (buyerJSON === undefined) {
       throw new Error('Buyer does not exist')
     }
     console.log('Buyer exists')
 
-    const buyerInfo: UserInfo = JSON.parse(buyerInfoJSON)
-    const buyer: User = {
-      userID: buyerInfo.user.userID,
-      balance: buyerInfo.user.balance
-    }
+    const buyer: User = JSON.parse(buyerJSON)
+
     console.log('Info of Buyer:')
     console.log("Buyer's ID:" + buyer.userID)
     console.log("Buyer's Balance:" + buyer.balance)
@@ -332,21 +306,26 @@ export class AssetTransferContract extends Contract {
     console.log('Buyer is not the same as Seller')
 
     //Get the seller's Ownership data
-    const sellerOwnership: Ownership = asset.owners.find((obj: Ownership) => {
-      return obj.ownerID === sellerID
-    })
+    const sellerOwnership: Ownership = realEstate.owners.find(
+      (realEstate: Ownership) => {
+        return realEstate.ownerID === sellerID
+      }
+    )
 
     if (sellerOwnership === undefined) {
       throw new Error(
-        'Seller with ID:' + sellerID + ' does not own asset with ID:' + AssetID
+        'Seller with ID:' +
+          sellerID +
+          ' does not own realEstate with ID:' +
+          AssetID
       )
     }
     console.log('Seller owns this asset')
 
     if (sellerOwnership.isSeller === false) {
-      throw new Error('Asset is not for sale according to Seller.')
+      throw new Error('realEstate is not for sale according to Seller.')
     }
-    console.log('Seller is selling this asset')
+    console.log('Seller is selling this realEstate')
 
     const sellerRemainOwnershipPercentage =
       sellerOwnership.sellPercentage - buyPercentage
@@ -381,14 +360,14 @@ export class AssetTransferContract extends Contract {
     }
 
     //Check if buyer has already bought this asset once or more.
-    let buyerOwnership: Ownership = asset.owners.find((obj: Ownership) => {
+    let buyerOwnership: Ownership = realEstate.owners.find((obj: Ownership) => {
       return obj.ownerID === buyer.userID
     })
 
     //If buyer isn't currently own this asset yet, create new Ownership for buyer
     if (buyerOwnership === undefined) {
       console.log(
-        "Buyer isn't currently own this asset yet, create new Ownership for buyer"
+        "Buyer isn't currently own this realEstate yet, create new Ownership for buyer"
       )
       buyerOwnership = {
         ownerID: buyer.userID,
@@ -400,10 +379,10 @@ export class AssetTransferContract extends Contract {
       }
 
       //Add Buyer to Owners list of this asset
-      asset.owners.push(buyerOwnership)
+      realEstate.owners.push(buyerOwnership)
     } else {
       console.log(
-        'Buyer already owned a part of this asset, skipping creating new Ownership for buyer.'
+        'Buyer already owned a part of this realEstate, skipping creating new Ownership for buyer.'
       )
     }
 
@@ -427,34 +406,38 @@ export class AssetTransferContract extends Contract {
 
     //Remove seller from Asset's Ownership if they don't have any ownershipPercentage left
     if (sellerOwnership.ownershipPercentage === 0) {
-      const removeIndex = asset.owners.findIndex(obj => {
+      const removeIndex = realEstate.owners.findIndex(obj => {
         return obj.ownerID === seller.userID
       })
 
       if (removeIndex !== -1) {
         console.log('Removing seller from list of Ownership')
-        asset.owners.splice(removeIndex, 1)
+        realEstate.owners.splice(removeIndex, 1)
       }
     }
 
     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+    realEstate.docType = 'realEstate'
     await ctx.stub.putState(
       AssetID,
-      Buffer.from(stringify(sortKeysRecursive(asset)))
+      Buffer.from(stringify(sortKeysRecursive(realEstate)))
     )
-    console.log('Successfully updates Asset')
+    console.log('Successfully updates realEstate')
 
-    const participants: UserInfo[] = [
+    const participants: User[] = [
       {
-        user: seller
+        userID: seller.userID,
+        balance: seller.balance
       },
       {
-        user: buyer
+        userID: buyer.userID,
+        balance: buyer.balance
       }
     ]
     for (const participant of participants) {
+      participant.docType = 'user'
       await ctx.stub.putState(
-        participant.user.userID,
+        participant.userID,
         Buffer.from(stringify(sortKeysRecursive(participant)))
       )
     }
@@ -465,8 +448,8 @@ export class AssetTransferContract extends Contract {
       buyerOwnership.ownerID +
       ' obtained ' +
       buyPercentage +
-      ' of Asset ' +
-      asset.assetID +
+      '% of Real Estate ' +
+      realEstate.assetID +
       ' from Seller ' +
       sellerOwnership.ownerID
     )
