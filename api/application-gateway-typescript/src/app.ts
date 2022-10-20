@@ -246,7 +246,7 @@ export async function readAssetByID(
 export async function deleteAsset(assetID: string) {
   console.log('Delete asset')
 
-  const resultBytes = await contract.evaluateTransaction('DeleteAsset', assetID)
+  const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
 
   const resultJson = utf8Decoder.decode(resultBytes)
   const result = JSON.parse(resultJson)
