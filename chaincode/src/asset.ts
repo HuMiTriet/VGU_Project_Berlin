@@ -10,6 +10,12 @@ import { User } from './IUser'
 
 import { Object, Property } from 'fabric-contract-api'
 
+// @Object()
+// export class TrueAsset {
+//   @Property()
+//   public docType?: string
+// }
+
 @Object()
 export class Asset {
   @Property()

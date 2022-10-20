@@ -73,7 +73,7 @@ export class AssetTransferContract extends Contract {
     ]
 
     for (const asset of assets) {
-      //asset.docType = 'asset'
+      asset.docType = 'asset'
       console.log('DEBUG: ONE ASSET BEFORE ADDED')
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
@@ -116,7 +116,7 @@ export class AssetTransferContract extends Contract {
     ]
 
     for (const asset of assets) {
-      //asset.docType = 'user'
+      asset.docType = 'user'
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
@@ -130,34 +130,34 @@ export class AssetTransferContract extends Contract {
     }
   }
 
-  @Transaction()
-  public async CreateAsset(
-    ctx: Context,
-    AssetID: string,
-    areaString: string,
-    location: string,
-    roomList: RoomType,
-    Owners: Array<Ownership>
-  ) {
-    const exists = await this.AssetExists(ctx, AssetID)
-    if (exists) {
-      throw new Error(`The asset ${AssetID} already exists`)
-    }
+  // @Transaction()
+  // public async CreateAsset(
+  //   ctx: Context,
+  //   AssetID: string,
+  //   areaString: string,
+  //   location: string,
+  //   roomList: RoomType,
+  //   Owners: Array<Ownership>
+  // ) {
+  //   const exists = await this.AssetExists(ctx, AssetID)
+  //   if (exists) {
+  //     throw new Error(`The asset ${AssetID} already exists`)
+  //   }
 
-    const area = parseFloat(areaString)
+  //   const area = parseFloat(areaString)
 
-    const asset = {
-      AssetID: AssetID,
-      roomList: roomList,
-      area: area,
-      location: location,
-      Owners: Owners
-    }
-    await ctx.stub.putState(
-      AssetID,
-      Buffer.from(stringify(sortKeysRecursive(asset)))
-    )
-  }
+  //   const asset = {
+  //     AssetID: AssetID,
+  //     roomList: roomList,
+  //     area: area,
+  //     location: location,
+  //     Owners: Owners
+  //   }
+  //   await ctx.stub.putState(
+  //     AssetID,
+  //     Buffer.from(stringify(sortKeysRecursive(asset)))
+  //   )
+  // }
 
   @Transaction()
   public async CreateUser(ctx: Context, userID: string, balanceString: string) {
@@ -194,34 +194,34 @@ export class AssetTransferContract extends Contract {
   }
 
   // UpdateAsset updates an existing asset in the world state with provided parameters.
-  @Transaction()
-  public async UpdateAsset(
-    ctx: Context,
-    AssetID: string,
-    roomList: RoomType,
-    area: number,
-    location: string,
-    Owners: Ownership[]
-  ): Promise<void> {
-    const exists = await this.AssetExists(ctx, AssetID)
-    if (!exists) {
-      throw new Error(`The asset ${AssetID} does not exist`)
-    }
+  // @Transaction()
+  // public async UpdateAsset(
+  //   ctx: Context,
+  //   AssetID: string,
+  //   roomList: RoomType,
+  //   area: number,
+  //   location: string,
+  //   Owners: Ownership[]
+  // ): Promise<void> {
+  //   const exists = await this.AssetExists(ctx, AssetID)
+  //   if (!exists) {
+  //     throw new Error(`The asset ${AssetID} does not exist`)
+  //   }
 
-    // overwriting original asset with new asset
-    const updatedAsset = {
-      AssetID: AssetID,
-      roomList: roomList,
-      area: area,
-      location: location,
-      Owners: Owners
-    }
-    // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
-    return ctx.stub.putState(
-      AssetID,
-      Buffer.from(stringify(sortKeysRecursive(updatedAsset)))
-    )
-  }
+  //   // overwriting original asset with new asset
+  //   const updatedAsset = {
+  //     AssetID: AssetID,
+  //     roomList: roomList,
+  //     area: area,
+  //     location: location,
+  //     Owners: Owners
+  //   }
+  //   // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+  //   return ctx.stub.putState(
+  //     AssetID,
+  //     Buffer.from(stringify(sortKeysRecursive(updatedAsset)))
+  //   )
+  // }
 
   @Transaction()
   public async UpdateUser(
@@ -475,11 +475,18 @@ export class AssetTransferContract extends Contract {
   // GetAllAssets returns all assets found in the world state.
   @Transaction(false)
   @Returns('string')
-  public async GetAllAssets(ctx: Context, docType = ''): Promise<string> {
+  public async GetAllAssets(ctx: Context): Promise<string> {
     const allResults = []
     // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
     const iterator = await ctx.stub.getStateByRange('', '')
     let result = await iterator.next()
+
+    //let isSpecificTypeNeeded: boolean
+    //User do not want specific type of asset
+    // if (typeof docType === 'undefined') {
+    //   isSpecificTypeNeeded = false
+    // }
+
     while (!result.done) {
       const strValue = Buffer.from(result.value.value.toString()).toString(
         'utf8'
@@ -492,9 +499,8 @@ export class AssetTransferContract extends Contract {
         console.log(err)
         record = strValue
       }
-      if (record.docType === docType && docType !== '') {
-        allResults.push(record)
-      }
+
+      allResults.push(record)
       result = await iterator.next()
     }
     return JSON.stringify(allResults)
