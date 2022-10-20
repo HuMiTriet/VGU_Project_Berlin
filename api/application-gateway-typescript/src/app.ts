@@ -254,14 +254,16 @@ export async function deleteAsset(assetID: string) {
   return JSON.stringify(result)
 }
 
-export async function assetExist(assetID: string) {
+export async function assetExists(assetID: string): Promise<boolean> {
   console.log('Asset Exist')
-  const resultBytes = await contract.evaluateTransaction('AssetExist', assetID)
+  const resultBytes = await contract.evaluateTransaction('AssetExists', assetID)
 
   const resultJson = utf8Decoder.decode(resultBytes)
+
+  console.log(resultJson)
   const result = JSON.parse(resultJson)
   console.log('*** Result:', result)
-  return JSON.stringify(result)
+  return result
 }
 
 export async function updateAsset() {}

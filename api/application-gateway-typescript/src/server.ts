@@ -17,7 +17,7 @@ async function main(): Promise<void> {
   })
 
   // get all assets
-  app.get('/api/assets', async (req: Request, res: Response) => {
+  app.get('/api/assets/getAll', async (req: Request, res: Response) => {
     console.log('Get all assets called')
     try {
       res.set('Access-Control-Allow-Origin', '*')
@@ -49,8 +49,27 @@ async function main(): Promise<void> {
     }
   })
 
+  // asset exists
+  app.get('/api/assets/exists', async (req, res) => {
+    try {
+      res.set('Access-Control-Allow-Origin', '*')
+      const query: any = req.query
+      const assetID = query['assetID']
+      if (assetID != undefined) {
+        console.log(assetID)
+        const asset = await fabric.assetExists(assetID)
+        res.send(asset)
+      } else {
+        res.send('Invalid query to read asset')
+      }
+    } catch (error) {
+      console.log(error)
+      res.send('Fail to read asset')
+    }
+  })
+
   // create asset
-  app.post('/api/assets', async (req: Request, res: Response) => {
+  app.post('/api/assets/create', async (req: Request, res: Response) => {
     const query = req.query
     const assetID: string = <string>query['assetID']
     const area = query['area']
