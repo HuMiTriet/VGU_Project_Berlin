@@ -349,7 +349,7 @@ export class AssetTransferContract extends Contract {
     console.log('Seller is selling this asset')
 
     const sellerRemainOwnershipPercentage =
-      sellerOwnership.ownershipPercentage - buyPercentage
+      sellerOwnership.sellPercentage - buyPercentage
 
     console.log(
       "If transaction is successful, the remaining seller's ownershipPercentage will be: " +
