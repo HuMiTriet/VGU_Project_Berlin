@@ -102,7 +102,16 @@ export async function main(): Promise<void> {
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await initLedger()
-    await createAsset()
+
+    await createAsset(
+      'asset16',
+      '{ "numOfBedroom": "0", "numOfLivingroom": "0", "numOfBathroom": "0", "numOfDiningroom": "0" }',
+      '420',
+      'cumhole',
+      '[ { "ownerID": "user1", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true },{ "ownerID": "user2", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true } ]'
+    )
+
+    await getAllAssets()
   } finally {
     // gateway.close()
     // client.close()
@@ -154,7 +163,7 @@ export async function getAllAssets(): Promise<string> {
   const resultBytes = await contract.evaluateTransaction('GetAllAssets')
   const resultJson = utf8Decoder.decode(resultBytes)
   const result = JSON.parse(resultJson)
-  // console.log('*** Result:', result)
+  console.log('*** Result:', result)
   return result
 }
 
@@ -166,6 +175,7 @@ export async function getAllAssets(): Promise<string> {
 export async function createAsset(
   // contract: Contract,
   assetID: string,
+  roomList: string,
   area: string,
   location: string,
   ownership: string
@@ -175,6 +185,7 @@ export async function createAsset(
     await contract.submitTransaction(
       'CreateAsset',
       assetID,
+      roomList,
       area,
       location,
       ownership
