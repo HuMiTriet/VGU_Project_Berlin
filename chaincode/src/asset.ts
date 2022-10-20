@@ -2,11 +2,9 @@
   SPDX-License-Identifier: Apache-2.0
 */
 
-import { Ownership } from './IOwnership'
+import { Ownership } from '../resources/classOwnership'
 
-import { RoomType } from './classRoomType'
-
-import { User } from './IUser'
+import { RoomType } from '../resources/classRoomType'
 
 import { Object, Property } from 'fabric-contract-api'
 
@@ -17,12 +15,12 @@ import { Object, Property } from 'fabric-contract-api'
 // }
 
 @Object()
-export class Asset {
+export class RealEstate {
   @Property()
   public docType?: string
 
   @Property()
-  public AssetID: string
+  public assetID: string
 
   @Property()
   public roomList: RoomType
@@ -34,14 +32,17 @@ export class Asset {
   public location: string
 
   @Property()
-  public Owners: Ownership[]
+  public owners: Ownership[]
 }
 
 @Object()
-export class UserInfo {
+export class User {
   @Property()
   public docType?: string
 
   @Property()
-  public user: User
+  public userID: string
+
+  @Property()
+  public balance: number
 }
