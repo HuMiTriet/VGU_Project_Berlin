@@ -13,8 +13,8 @@ import stringify from 'json-stringify-deterministic'
 import sortKeysRecursive from 'sort-keys-recursive'
 import { RealEstate, User } from './asset'
 
-import { Ownership } from '../resources/classOwnership'
-import { RoomType } from '../resources/classRoomType'
+import { Ownership } from './resources/classOwnership'
+import { RoomType } from './resources/classRoomType'
 
 @Info({
   title: 'AssetTransfer',

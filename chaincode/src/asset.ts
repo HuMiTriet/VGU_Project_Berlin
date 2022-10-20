@@ -2,9 +2,9 @@
   SPDX-License-Identifier: Apache-2.0
 */
 
-import { Ownership } from '../resources/classOwnership'
+import { Ownership } from './resources/classOwnership'
 
-import { RoomType } from '../resources/classRoomType'
+import { RoomType } from './resources/classRoomType'
 
 import { Object, Property } from 'fabric-contract-api'
 
