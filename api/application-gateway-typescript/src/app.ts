@@ -104,7 +104,6 @@ export async function main(): Promise<void> {
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await initLedger()
-
     // Return all the current assets on the ledger.
     // // Create a new asset on the ledger.
     // await createAsset(contract);
@@ -241,15 +240,45 @@ export async function readAssetByID(
   const resultJson = utf8Decoder.decode(resultBytes)
   const result = JSON.parse(resultJson)
   console.log('*** Result:', result)
-  return JSON.stringify(resultJson)
+  return JSON.stringify(result)
 }
 
-export async function deleteAsset() {}
-export async function assetExist() {}
+export async function deleteAsset(assetID: string) {
+  console.log('Delete asset')
+
+  const resultBytes = await contract.evaluateTransaction('DeleteAsset', assetID)
+
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return JSON.stringify(result)
+}
+
+export async function assetExist(assetID: string) {
+  console.log('Asset Exist')
+  const resultBytes = await contract.evaluateTransaction('AssetExist', assetID)
+
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return JSON.stringify(result)
+}
 
 export async function updateAsset() {}
 
-export async function createUser() {}
+export async function createUser(userID: string, balance: string) {
+  console.log('Create user')
+  const resultBytes = await contract.submitTransaction(
+    'CreateAsset',
+    userID,
+    balance
+  )
+  const resultJson = utf8Decoder.decode(resultBytes)
+  const result = JSON.parse(resultJson)
+  console.log('*** Result:', result)
+  return JSON.stringify(resultJson)
+}
+
 export async function updateUser() {}
 
 /**

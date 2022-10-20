@@ -16,6 +16,7 @@ async function main(): Promise<void> {
     console.log(`API server running on ${host}`)
   })
 
+  // get all assets
   app.get('/api/assets', async (req: Request, res: Response) => {
     console.log('Get all assets called')
     try {
@@ -29,17 +30,52 @@ async function main(): Promise<void> {
     }
   })
 
-  app.get('/api/assets', async (req, res) => {
-    const query: any = req.query
-    const searchQuery = query['q']
-    const id = query['id']
-    if (searchQuery != undefined && id != undefined) {
-      console.log(searchQuery)
-      console.log(id)
-    } else {
-      res.send('Invalid query format')
+  // read assets
+  app.get('/api/assets/read', async (req, res) => {
+    try {
+      res.set('Access-Control-Allow-Origin', '*')
+      const query: any = req.query
+      const assetID = query['assetID']
+      if (assetID != undefined) {
+        console.log(assetID)
+        const asset = await fabric.readAssetByID(assetID)
+        res.send(asset)
+      } else {
+        res.send('Invalid query to read asset')
+      }
+    } catch (error) {
+      console.log(error)
+      res.send('Fail to read asset')
     }
-    return res.send(query)
+  })
+
+  // create asset
+  app.post('/api/assets', async (req: Request, res: Response) => {
+    const query = req.query
+    const assetID: string = <string>query['assetID']
+    const area = query['area']
+    const location = query['location']
+    const roomList = query['roomList']
+    // const asset = await fabric.createAsset(assetID, area, location, roomList)
+  })
+
+  // create user
+  app.post('/api/users/create', async (req: Request, res: Response) => {
+    try {
+      console.log(req.body)
+      const query = req.query
+      const userID: string = <string>query['userID']
+      const balance: string = <string>query['balance']
+      if (userID != undefined && balance != undefined) {
+        const user = await fabric.createUser(userID, balance)
+        return res.send(user)
+      } else {
+        return res.send('Invalid query to create user')
+      }
+    } catch (error) {
+      console.log(error)
+      res.send('')
+    }
   })
 
   app.put('/api', (req, res) => {
@@ -47,8 +83,23 @@ async function main(): Promise<void> {
     return res.send('Received a PUT HTTP method')
   })
 
-  app.delete('/api', (req, res) => {
-    return res.send('Received a DELETE HTTP method')
+  // delete asset
+  app.delete('/api/assets/delete', async (req, res) => {
+    try {
+      res.set('Access-Control-Allow-Origin', '*')
+      const query: any = req.query
+      const assetID = query['assetID']
+      if (assetID != undefined) {
+        console.log(assetID)
+        const asset = await fabric.deleteAsset(assetID)
+        res.send(asset)
+      } else {
+        res.send('Invalid query to read asset')
+      }
+    } catch (error) {
+      console.log(error)
+      res.send('Fail to read asset')
+    }
   })
 }
 
