@@ -244,28 +244,13 @@ export async function readAssetByID(
   return JSON.stringify(resultJson)
 }
 
-/**
- * submitTransaction() will throw an error containing details of any error responses from the smart contract.
- */
-async function updateNonExistentAsset(contract: Contract): Promise<void> {
-  console.log(
-    '\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error'
-  )
+export async function deleteAsset() {}
+export async function assetExist() {}
 
-  try {
-    await contract.submitTransaction(
-      'UpdateAsset',
-      'asset70',
-      'blue',
-      '5',
-      'Tomoko',
-      '300'
-    )
-    console.log('******** FAILED to return an error')
-  } catch (error) {
-    console.log('*** Successfully caught the error: \n', error)
-  }
-}
+export async function updateAsset() {}
+
+export async function createUser() {}
+export async function updateUser() {}
 
 /**
  * envOrDefault() will return the value of an environment variable, or a default value if the variable is undefined.
