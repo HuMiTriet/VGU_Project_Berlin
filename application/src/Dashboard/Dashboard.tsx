@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useNavigate } from 'react-router-dom'
 import './Dashboard.css'
-import { auth, db, logout } from '../../firebase'
+import { auth, db, logout } from '../firebase'
 import { query, collection, getDocs, where } from 'firebase/firestore'
 import {
   getAssets,
   readAsset,
   createAsset,
   deleteAsset
-} from '../../API_handler/api'
+} from '../API_handler/api'
 
 function Dashboard() {
   const [user, loading, error] = useAuthState(auth)
@@ -36,8 +36,11 @@ function Dashboard() {
     setIsShown(current => !current)
   }
 
-  const handleReadAsset = async (req: string) => {
-    setReadAsset(await readAsset(req))
+  const handleReadAsset = async (assetID: string) => {
+    console.log('Read Asset')
+    const asset = await readAsset(assetID)
+    console.log(asset)
+    setReadAsset(asset)
   }
 
   useEffect(() => {

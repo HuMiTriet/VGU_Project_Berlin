@@ -22,12 +22,15 @@ async function deleteAsset(req): Promise<string> {
   return JSON.stringify(data)
 }
 
-async function readAsset(req): Promise<string> {
-  const readAssetRequest = await axios.post(
-    `http://${host}:3001/api/assets?${req}`
+async function readAsset(assetID: string): Promise<string> {
+  const req = `?assetID=${assetID}`
+  const readAssetRequest = await axios.get(
+    `http://${host}:3001/api/assets/read${req}`
   )
   const data = readAssetRequest.data
-  return JSON.stringify(data)
+  const assetRead = JSON.stringify(data)
+  console.log(assetRead)
+  return assetRead
 }
 
 export { getAssets, createAsset, deleteAsset, readAsset }
