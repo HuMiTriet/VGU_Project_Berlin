@@ -2,12 +2,17 @@ import { Ownership } from '../../chaincode/resources/classOwnership'
 import { RoomType } from '../../chaincode/resources/classRoomType'
 
 import { Object, Property } from 'fabric-contract-api'
+import { Md5 } from 'ts-md5';
 
 @Object()
 export class RealEstate {
 
     @Property()
     private assetID: string
+
+    public getAssetID(): string {
+        return this.assetID
+    }
 
     @Property()
     public roomList: RoomType
@@ -21,19 +26,26 @@ export class RealEstate {
     @Property()
     private area: number
 
-    @Property()
-    public owners: Ownership[]
+    public getArea(): number {
+        return this.area
+    }
 
     @Property()
     public location: string
+
+    public getLocation(): string {
+        return this.location
+    }
 
     // public String getAssetID() {
     //     return assetID;
     // }
 
+
     // public String getColor() {
     //     return color;
     // }
+
 
     // public int getSize() {
     //     return size;
@@ -42,6 +54,9 @@ export class RealEstate {
     // public String getOwner() {
     //     return owner;
     // }
+
+    @Property()
+    public owners: Ownership[]
 
     // public String getObjectType() {
     //     return objectType;
@@ -109,6 +124,18 @@ export class RealEstate {
     // public int hashCode() {
     //     return Objects.hash(getObjectType(), getAssetID(), getColor(), getSize(), getOwner());
     // }
+    public hashCode(): string {
+        let md5 = new Md5();
+
+        // Append incrementally your file or other input
+        // Methods are chainable
+        md5.appendStr(this.getAssetID()).appendStr(<any>this.getArea()).appendStr(this.getLocation())
+
+        // Generate the MD5 hex string
+
+        return <string>md5.end()
+        // return Objects.hash(getObjectType(), getAssetID(), getColor(), getSize(), getOwner());
+    }
 
     // @Override
     // public String toString() {
@@ -116,6 +143,9 @@ export class RealEstate {
     //         + " [assetID=" + assetID + ", type=" + objectType + ", color="
     //         + color + ", size=" + size + ", owner=" + owner + "]";
     // }
+    public toString = (): string => {
+        return `Hash: ${this.hashCode()}\nAssetID: ${this.assetID}\nArea: ${this.area}\nLocation: ${this.location}`;
+    }
 
 
 }

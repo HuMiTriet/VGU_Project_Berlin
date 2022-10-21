@@ -14,7 +14,7 @@ import { Object, Property } from 'fabric-contract-api'
 // @DataType()
 @Object()
 // public final class TransferAgreement {
-export class RealEstate {
+export class TransferAgreement {
     //     @Property()
     //     private final String assetID;
     @Property()
@@ -28,16 +28,26 @@ export class RealEstate {
     //     public String getAssetID() {
     //         return assetID;
     //     }
+    public getAssetID(): string {
+        return this.assetID;
+    }
 
     //     public String getBuyerID() {
     //         return buyerID;
     //     }
+    public getBuyerID(): string {
+        return this.buyerID;
+    }
 
     //     public TransferAgreement(final String assetID,
     //                              final String buyer) {
     //         this.assetID = assetID;
     //         this.buyerID = buyer;
     //     }
+    public TransferAgreement(assetID: string, buyerID: string) {
+        this.assetID = assetID;
+        this.buyerID = buyerID;
+    }
 
     //     public byte[] serialize() {
     //         String jsonStr = new JSONObject(this).toString();
