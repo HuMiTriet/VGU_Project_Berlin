@@ -16,6 +16,7 @@ function Dashboard() {
   const [name, setName] = useState('')
   const [allAssets, setAllAssets] = useState('')
   const [assetRead, setReadAsset] = useState('')
+  const [userID, setUserID] = useState('')
   const [assetID, setInputAssetID] = useState('')
   const navigate = useNavigate()
   // const fetchUserName = async () => {
@@ -24,7 +25,6 @@ function Dashboard() {
   //     const doc = await getDocs(q)
   //     const data = doc.docs[0].data()
   //     setName(data.name)
-  //     asset = await getAssets()
   //   } catch (err) {
   //     console.error(err)
   //     alert('An error occured while fetching user data')
@@ -54,6 +54,7 @@ function Dashboard() {
         Logged in as
         <div>{name}</div>
         <div>{user?.email}</div>
+        <div>{user.uid}</div>
         <button className="dashboard__btn" onClick={logout}>
           Logout
         </button>
@@ -91,6 +92,25 @@ function Dashboard() {
             </div>
           }
         </div>
+        <button
+          className="createAsset"
+          onClick={(e: any) => createAsset('asset20', '', '200', 'Ben Cat', '')}
+        >
+          Create Asset
+        </button>
+        <form>
+          Delete AssetID
+          <input
+            value={assetID}
+            onInput={(e: any) => setInputAssetID(e.target.value)}
+          ></input>
+        </form>
+        <button
+          className="deleteAsset"
+          onClick={(e: any) => deleteAsset(assetID)}
+        >
+          Delete Asset
+        </button>
       </div>
     </div>
   )

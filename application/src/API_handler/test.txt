@@ -1,0 +1,1 @@
+'{"function":"UpdateAsset","Args":["asset1", "{ \"numOfBedroom\": \"0\", \"numOfLivingroom\": \"0\", \"numOfBathroom\": \"0\", \"numOfDiningroom\": \"0\" }", "420", "cumhole", "[ { \"ownerID\": \"user1\", \"ownershipPercentage\": 69, \"sellPercentage\": 10, \"sellPrice\": 69420, \"sellThreshold\": 69, \"isSeller\": true } ]"]}'

@@ -28,7 +28,6 @@ async function main(): Promise<void> {
    */
   app.get('/api/assets/getAll', async (req: Request, res: Response) => {
     console.log('Get all assets')
-
     try {
       res.set('Access-Control-Allow-Origin', '*')
       const assets = await fabric.getAllAssets()
@@ -92,10 +91,11 @@ async function main(): Promise<void> {
   app.post('/api/assets/create', async (req: Request, res: Response) => {
     try {
       res.set('Access-Control-Allow-Origin', '*')
+      res.set('Accept', 'application/json')
       res.setHeader('Content-Type', 'application/json')
-      console.log('body' + req.body)
-      console.log('JSON parse' + JSON.parse(req.body))
-      console.log('JSON string' + JSON.stringify(req.body))
+      const body = JSON.stringify(req.body)
+      console.log('body ' + body)
+      console.log('JSON parse' + JSON.parse(body))
       const query = req.query
       const assetID: string = <string>query['assetID']
       const area = query['area']
@@ -142,7 +142,10 @@ async function main(): Promise<void> {
    */
   app.delete('/api/assets/delete', async (req, res) => {
     try {
+      console.log('Delete Asset')
       res.set('Access-Control-Allow-Origin', '*')
+      res.set('Accept', 'application/json')
+      res.setHeader('Content-Type', 'application/json')
       const query = req.query
       const assetID: string = <string>query['assetID']
       if (assetID != undefined) {

@@ -103,15 +103,15 @@ export async function main(): Promise<void> {
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await initLedger()
 
-    await createAsset(
-      'asset16',
-      '{ "numOfBedroom": "0", "numOfLivingroom": "0", "numOfBathroom": "0", "numOfDiningroom": "0" }',
-      '420',
-      'cumhole',
-      '[ { "ownerID": "user1", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true },{ "ownerID": "user2", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true } ]'
-    )
+    // await createAsset(
+    //   'asset18',
+    //   '{ "numOfBedroom": "0", "numOfLivingroom": "0", "numOfBathroom": "0", "numOfDiningroom": "0" }',
+    //   '420',
+    //   'Ben Cat',
+    //   '[ { "ownerID": "user1", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true },{ "ownerID": "user2", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true } ]'
+    // )
 
-    await getAllAssets()
+    // await getAllAssets()
   } finally {
     // gateway.close()
     // client.close()
@@ -190,7 +190,7 @@ export async function createAsset(
       location,
       ownership
     )
-    console.log('*** Transaction committed successfully')
+    console.log('*** Asset created')
   } catch (error) {
     console.log(error)
   }

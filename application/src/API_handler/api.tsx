@@ -1,31 +1,43 @@
 import axios from 'axios'
-const host = 'localhost'
+const port = '3001'
+const host = `localhost:${port}`
 async function getAssets(): Promise<string> {
-  const assetsResponse = await axios.get(`http://${host}:3001/api/assets`)
+  const assetsResponse = await axios.get(`http://${host}/api/assets/getAll`)
   const data = assetsResponse.data
+  console.log(JSON.parse(JSON.stringify(data)))
   return JSON.stringify(data)
 }
 
-async function createAsset(req): Promise<string> {
-  const createAssetsRequest = await axios.post(
-    `http://${host}:3001/api/assets?${req}`
+// not work
+async function createAsset(
+  assetID: string,
+  roomList: string,
+  area: string,
+  location: string,
+  ownership: string
+): Promise<string> {
+  const assetData = `{"assetID":"${assetID}", "area":"${area}", "location":"${location}"}`
+  const createAssetsResponse = await axios.post(
+    `http://${host}/api/assets/create`,
+    assetData
   )
-  const data = createAssetsRequest.data
+  const data = createAssetsResponse.data
   return JSON.stringify(data)
 }
 
-async function deleteAsset(req): Promise<string> {
-  const deleteAssetsRequest = await axios.post(
-    `http://${host}:3001/api/assets?${req}`
+async function deleteAsset(assetID: string): Promise<string> {
+  const query = `?assetID=${assetID}`
+  const deleteAssetsResponse = await axios.delete(
+    `http://${host}/api/assets/delete${query}`
   )
-  const data = deleteAssetsRequest.data
+  const data = deleteAssetsResponse.data
   return JSON.stringify(data)
 }
 
 async function readAsset(assetID: string): Promise<string> {
-  const req = `?assetID=${assetID}`
+  const query = `?assetID=${assetID}`
   const readAssetRequest = await axios.get(
-    `http://${host}:3001/api/assets/read${req}`
+    `http://${host}/api/assets/read${query}`
   )
   const data = readAssetRequest.data
   const assetRead = JSON.stringify(data)
