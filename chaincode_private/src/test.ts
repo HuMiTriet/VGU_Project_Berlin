@@ -1,12 +1,8 @@
-import { Md5 } from 'ts-md5';
+const RED = '\x1b[31m\n';
+const RESET = '\x1b[0m';
+export function doFail(msgString: string): never {
+    console.error(`${RED}\t${msgString}${RESET}`);
+    throw new Error(msgString);
+}
 
-let md5 = new Md5();
-
-// Append incrementally your file or other input
-// Methods are chainable
-md5.appendStr('somestring')
-    .appendAsciiStr('a different string');
-
-// Generate the MD5 hex string
-md5.end()
-console.log(typeof md5.end() + `\n neko`)
+doFail("yes")

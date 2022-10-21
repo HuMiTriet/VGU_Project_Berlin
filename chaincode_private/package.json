@@ -1,7 +1,6 @@
 {
   "name": "chaincode_private",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --config nodemon.json src/test.ts"
@@ -11,5 +10,8 @@
   "dependencies": {
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1"
-  }
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "description": ""
 }
