@@ -178,21 +178,23 @@ export async function createAsset(
   roomList: string,
   area: string,
   location: string,
-  ownership: string
-): Promise<void> {
+  owners: string
+): Promise<string | undefined> {
   try {
     console.log('Create Asset')
-    await contract.submitTransaction(
+    const result = await contract.submitTransaction(
       'CreateAsset',
       assetID,
       roomList,
       area,
       location,
-      ownership
+      owners
     )
     console.log('*** Asset created')
+    return result.toString()
   } catch (error) {
     console.log(error)
+    return undefined
   }
 }
 

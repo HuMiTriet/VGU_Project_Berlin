@@ -7,6 +7,11 @@ dotenv.config()
 const port = process.env.PORT
 const host = `localhost:${port}`
 const app: Express = express()
+enum statusCode {
+  successful = 200,
+  serverFail = 400,
+  clientFail = 500
+}
 /**
  *
  */
@@ -20,8 +25,20 @@ async function main(): Promise<void> {
     console.log(`API server running on ${host}`)
   })
 
-  app.use(bodyParser.urlencoded({ extended: true }))
-
+  // to get req.body as a JSON object
+  app.use(bodyParser.json())
+  app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000') // update to match the domain you will make the request from
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept'
+    )
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET, POST, OPTIONS, PUT, DELETE'
+    )
+    next()
+  })
   /**
    * Get all assets
    * @author Thai Hoang Tam
@@ -29,7 +46,6 @@ async function main(): Promise<void> {
   app.get('/api/assets/getAll', async (req: Request, res: Response) => {
     console.log('Get all assets')
     try {
-      res.set('Access-Control-Allow-Origin', '*')
       const assets = await fabric.getAllAssets()
       // console.log(assets)
       return res.send(assets)
@@ -45,7 +61,7 @@ async function main(): Promise<void> {
    */
   app.get('/api/assets/read', async (req, res) => {
     try {
-      res.set('Access-Control-Allow-Origin', '*')
+      // res.set('Access-Control-Allow-Origin', '*')
       res.setHeader('Content-Type', 'application/json')
       const query = req.query
       const assetID = <string>query['assetID']
@@ -68,7 +84,7 @@ async function main(): Promise<void> {
    */
   app.get('/api/assets/exists', async (req, res) => {
     try {
-      res.set('Access-Control-Allow-Origin', '*')
+      // res.set('Access-Control-Allow-Origin', '*')
       const query = req.query
       const assetID = <string>query['assetID']
       if (assetID != undefined) {
@@ -90,22 +106,37 @@ async function main(): Promise<void> {
    */
   app.post('/api/assets/create', async (req: Request, res: Response) => {
     try {
-      res.set('Access-Control-Allow-Origin', '*')
-      res.set('Accept', 'application/json')
-      res.setHeader('Content-Type', 'application/json')
-      const body = JSON.stringify(req.body)
-      console.log('body ' + body)
-      console.log('JSON parse' + JSON.parse(body))
-      const query = req.query
-      const assetID: string = <string>query['assetID']
-      const area = query['area']
-      const location = query['location']
-      const roomList = query['roomList']
-      // const asset = await fabric.createAsset(assetID, area, location, roomList)
-      res.send('Create asset successfully')
+      console.log('Server Create Asset')
+      const bodyJson = req.body
+      console.log(bodyJson)
+      const assetID = bodyJson.assetID
+      console.log(assetID)
+
+      const area = bodyJson.area
+      console.log(area)
+
+      const location = bodyJson.location
+      console.log(location)
+
+      const roomList = JSON.stringify(bodyJson.roomList)
+      console.log(roomList)
+
+      const owners = JSON.stringify(bodyJson.owners)
+      console.log(owners)
+
+      const result = await fabric.createAsset(
+        assetID,
+        roomList,
+        area,
+        location,
+        owners
+      )
+      console.log(result)
+
+      result != undefined ? res.sendStatus(200) : res.sendStatus(500)
     } catch (error) {
       console.log(error)
-      res.send('Fail to create asset')
+      res.send(400)
     }
   })
 
@@ -123,11 +154,11 @@ async function main(): Promise<void> {
         const user = await fabric.createUser(userID, balance)
         return res.send(user)
       } else {
-        return res.send('Invalid query to create user')
+        return res.sendStatus(400)
       }
     } catch (error) {
       console.log(error)
-      res.send('Fail to create user')
+      res.send(500)
     }
   })
 
@@ -144,20 +175,18 @@ async function main(): Promise<void> {
     try {
       console.log('Delete Asset')
       res.set('Access-Control-Allow-Origin', '*')
-      res.set('Accept', 'application/json')
-      res.setHeader('Content-Type', 'application/json')
       const query = req.query
       const assetID: string = <string>query['assetID']
       if (assetID != undefined) {
         console.log(assetID)
-        const asset = await fabric.deleteAsset(assetID)
-        res.send(asset)
+        fabric.deleteAsset(assetID)
+        res.sendStatus(200)
       } else {
-        res.send('Invalid query to delete asset')
+        res.sendStatus(400)
       }
     } catch (error) {
       console.log(error)
-      res.send('Fail to delete asset')
+      res.sendStatus(500)
     }
   })
 }

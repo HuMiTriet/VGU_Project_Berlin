@@ -16,13 +16,49 @@ async function createAsset(
   location: string,
   ownership: string
 ): Promise<string> {
-  const assetData = `{"assetID":"${assetID}", "area":"${area}", "location":"${location}"}`
+  const assetData = {
+    assetID: assetID,
+    roomList: roomList,
+    area: area,
+    location: location,
+    ownership: ownership
+  }
+  const testData = {
+    area: '200',
+    assetID: 'asset123',
+    docType: 'asset',
+    location: 'Ho Chi Minh',
+    owners: [
+      {
+        isSeller: 'true',
+        ownerID: 'user1',
+        ownershipPercentage: '100',
+        sellPercentage: '50',
+        sellPrice: '1000',
+        sellThreshold: '5'
+      }
+    ],
+    roomList: {
+      numOfBathroom: '2',
+      numOfBedroom: '2',
+      numOfDiningroom: '2',
+      numOfLivingroom: '1'
+    }
+  }
   const createAssetsResponse = await axios.post(
     `http://${host}/api/assets/create`,
-    assetData
+    testData,
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
   )
   const data = createAssetsResponse.data
-  return JSON.stringify(data)
+  const status = createAssetsResponse.status
+  console.log(status)
+
+  return status.toString()
 }
 
 async function deleteAsset(assetID: string): Promise<string> {
