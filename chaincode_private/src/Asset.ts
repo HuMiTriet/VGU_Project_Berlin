@@ -7,48 +7,24 @@ import { Md5 } from 'ts-md5';
 @Object()
 export class RealEstate {
     @Property()
-    public static docType?: string
+    public docType?: string
 
     @Property()
-    private static assetID: string
-
-    public static getAssetID(): string {
-        return this.assetID
-    }
+    private assetID: string
 
     @Property()
-    private static area: number
-
-    public static getArea(): number {
-        return this.area
-    }
+    private area: number
 
     @Property()
-    public static location: string
-
-    public static getLocation(): string {
-        return this.location
-    }
+    public location: string
 
     @Property()
-    public static owner: string
-
-    public static getOwner(): string {
-        return this.owner;
-    }
-
-    public static setOwner(owner: string): void {
-        this.owner = owner
-    }
+    public owner: string
 
     @Property()
-    public static appraisedValues: number
+    public appraisedValues: number
 
-    public static getAppraisedValues(): number {
-        return this.appraisedValues
-    }
-
-    public static RealEstate(assetID: string,
+    constructor(assetID: string,
         area: number, location: string,
         owner: string, appraisedValues: number) {
         this.assetID = assetID;
@@ -58,7 +34,7 @@ export class RealEstate {
         this.appraisedValues = appraisedValues;
     }
 
-    public static hashCode(): string {
+    public hashCode(): string {
         let md5 = new Md5();
         md5.appendStr(this.assetID)
             .appendStr(<any>this.area)
@@ -66,7 +42,7 @@ export class RealEstate {
         return <string>md5.end()
     }
 
-    public static toString = (): string => {
-        return `Hash: ${RealEstate.hashCode()}\nAssetID: ${RealEstate.assetID}\nArea: ${RealEstate.area}\nLocation: ${RealEstate.location}`;
+    public toString = (): string => {
+        return `Hash: ${this.hashCode()}\nAssetID: ${this.assetID}\nArea: ${this.area}\nLocation: ${this.location}`;
     }
 }

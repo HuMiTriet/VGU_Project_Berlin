@@ -8,15 +8,7 @@ export class TransferAgreement {
     @Property()
     private buyerID: string;
 
-    public getAssetID(): string {
-        return this.assetID;
-    }
-
-    public getBuyerID(): string {
-        return this.buyerID;
-    }
-
-    public TransferAgreement(assetID: string, buyerID: string) {
+    constructor(assetID: string, buyerID: string) {
         this.assetID = assetID;
         this.buyerID = buyerID;
     }

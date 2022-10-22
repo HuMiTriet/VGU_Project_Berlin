@@ -7,6 +7,7 @@ import {
 import stringify from 'json-stringify-deterministic';
 import sortKeysRecursive from 'sort-keys-recursive';
 import { RealEstate } from './Asset'
+import { AssetPrivateDetails } from './PrivateDetails.ts'
 enum AssetTransferErrors {
     INCOMPLETE_INPUT,
     INVALID_ACCESS,
@@ -49,7 +50,7 @@ export class AssetTransfer extends Contract {
         const assetJSON = await ctx.stub.getState(id);
         return assetJSON && assetJSON.length > 0;
     }
-    public async CreateAsset(ctx: Context, assetID: string, area: number, location: string, owner: string): Promise<void> {
+    public async CreateAsset(ctx: Context, assetID: string, area: number, location: string, owner: string, appraisedValue: number): Promise<void> {
         const exists = await this.AssetExists(ctx, assetID);
         if (exists) {
             throw new Error(`The asset ${assetID} already exists`);
@@ -68,12 +69,13 @@ export class AssetTransfer extends Contract {
             doFail("Empty input: owner");
         }
 
-        let asset: RealEstate = {
-            assetID: assetID,
-            area: area,
-            location: location,
-            owner: owner
-        }
+        let asset: RealEstate = new RealEstate(assetID, area, location, owner, appraisedValue);
+        // let asset: RealEstate = {
+        //     assetID: assetID,
+        //     area: area,
+        //     location: location,
+        //     owner: owner
+        // }
         // {
         //     ownerID: 'user1',
         //         ownershipPercentage: 100,
@@ -87,20 +89,27 @@ export class AssetTransfer extends Contract {
         await ctx.stub.putState(assetID, Buffer.from(stringify(sortKeysRecursive(asset))));
 
         // Get ID of submitting client identity
-        let clientID: string = ctx.clientIdentity.getID();
+        let clientID: string = ctx.clientIdentity.getID()
 
         // Verify that the client is submitting request to peer in their organization
         // This is to ensure that a client from another org doesn't attempt to read or
         // write private data from this peer.
-        AssetTransfer.verifyClientOrgMatchesPeerOrg(ctx);
+        AssetTransfer.verifyClientOrgMatchesPeerOrg(ctx)
 
         //Make submitting client the owner
-        asset.setOwner(clientID);
-        console.log("CreateAsset Put: collection %s, ID %s\n", AssetTransfer.ASSET_COLLECTION_NAME, assetID);
-        console.log("Put: collection %s, ID %s\n", AssetTransfer.ASSET_COLLECTION_NAME, new String(asset.serialize()));
+        asset.owner = clientID
+        console.log(`CreateAsset Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}\n`);
+        console.log(`Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${<string>asset.serialize()}\n`);
         ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, assetID, asset.serialize());
 
         // Get collection name for this organization.
         let orgCollectionName: string = AssetTransfer.getCollectionName(ctx);
+
+        //Save AssetPrivateDetails to org collection
+        let assetPriv: AssetPrivateDetails = new AssetPrivateDetails(assetID, appraisedValue);
+        console.log("Put AssetPrivateDetails: collection ${orgCollectionName}, ${assetID}\n");
+        ctx.stub.putPrivateData(orgCollectionName, assetID, assetPriv.serialize());
+
+        return asset;
     }
 }
