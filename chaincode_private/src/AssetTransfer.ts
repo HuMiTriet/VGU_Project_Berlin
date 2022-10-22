@@ -21,10 +21,27 @@ export function doFail(msgString: string): never {
     throw new Error(msgString);
 }
 
+
 const utf8Decoder = new TextDecoder();
 export class AssetTransfer extends Contract {
     static ASSET_COLLECTION_NAME: string = "assetCollection"
     static AGREEMENT_KEYPREFIX: string = "transferAgreement";
+
+    private static verifyClientOrgMatchesPeerOrg(ctx: Context): void {
+        let clientMSPID: string = ctx.clientIdentity.getMSPID();
+        let peerMSPID: string = ctx.stub.getMspID();
+
+        if (peerMSPID != clientMSPID) {
+            doFail(`Client from org ${clientMSPID} is not authorized to read or write private data from an org ${peerMSPID} peer`);
+        }
+    }
+
+    private static getCollectionName(ctx: Context): string {
+        // Get the MSP ID of submitting client identity
+        let clientMSPID: string = ctx.clientIdentity.getMSPID();
+        // Create the collection name
+        return clientMSPID + "PrivateCollection";
+    }
 
     @Transaction(false)
     @Returns('boolean')
@@ -32,7 +49,7 @@ export class AssetTransfer extends Contract {
         const assetJSON = await ctx.stub.getState(id);
         return assetJSON && assetJSON.length > 0;
     }
-    public async CreateAsset(ctx: Context, assetID: string, area: number, location: string, owner: string, appraisedValue: number): Promise<void> {
+    public async CreateAsset(ctx: Context, assetID: string, area: number, location: string, owner: string): Promise<void> {
         const exists = await this.AssetExists(ctx, assetID);
         if (exists) {
             throw new Error(`The asset ${assetID} already exists`);
@@ -50,20 +67,40 @@ export class AssetTransfer extends Contract {
         if (owner == "") {
             doFail("Empty input: owner");
         }
-        if (appraisedValue <= 0) {
-            doFail("Empty input: appraisedValue");
-        }
 
-        const asset = {
+        let asset: RealEstate = {
             assetID: assetID,
             area: area,
             location: location,
-            owner: owner,
-            appraisedValue: appraisedValue,
-        };
+            owner: owner
+        }
+        // {
+        //     ownerID: 'user1',
+        //         ownershipPercentage: 100,
+        //             sellPercentage: 50,
+        //                 sellPrice: 1000,
+        //                     sellThreshold: 5,
+        //                         isSeller: true
+        // }
+
         // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
         await ctx.stub.putState(assetID, Buffer.from(stringify(sortKeysRecursive(asset))));
 
-        let clientID = ctx.getClientIdentity().getId();
+        // Get ID of submitting client identity
+        let clientID: string = ctx.clientIdentity.getID();
+
+        // Verify that the client is submitting request to peer in their organization
+        // This is to ensure that a client from another org doesn't attempt to read or
+        // write private data from this peer.
+        AssetTransfer.verifyClientOrgMatchesPeerOrg(ctx);
+
+        //Make submitting client the owner
+        asset.setOwner(clientID);
+        console.log("CreateAsset Put: collection %s, ID %s\n", AssetTransfer.ASSET_COLLECTION_NAME, assetID);
+        console.log("Put: collection %s, ID %s\n", AssetTransfer.ASSET_COLLECTION_NAME, new String(asset.serialize()));
+        ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, assetID, asset.serialize());
+
+        // Get collection name for this organization.
+        let orgCollectionName: string = AssetTransfer.getCollectionName(ctx);
     }
 }
