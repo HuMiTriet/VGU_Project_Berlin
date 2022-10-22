@@ -42,6 +42,11 @@ export class RealEstate {
         return <string>md5.end()
     }
 
+    public serialize(): Uint8Array {
+        let jsonStr: string = JSON.stringify(this);
+        return new TextEncoder().encode(jsonStr);
+    }
+
     public toString = (): string => {
         return `Hash: ${this.hashCode()}\nAssetID: ${this.assetID}\nArea: ${this.area}\nLocation: ${this.location}`;
     }

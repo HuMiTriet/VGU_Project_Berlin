@@ -12,4 +12,9 @@ export class AssetPrivateDetails {
         this.assetID = assetID;
         this.appraisedValue = appraisedValue;
     }
+
+    public serialize(): Uint8Array {
+        let jsonStr: string = JSON.stringify(this);
+        return new TextEncoder().encode(jsonStr);
+    }
 }

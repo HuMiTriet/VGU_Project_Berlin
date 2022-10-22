@@ -7,7 +7,7 @@ import {
 import stringify from 'json-stringify-deterministic';
 import sortKeysRecursive from 'sort-keys-recursive';
 import { RealEstate } from './Asset'
-import { AssetPrivateDetails } from './PrivateDetails.ts'
+import { AssetPrivateDetails } from './AssetPrivateDetails'
 enum AssetTransferErrors {
     INCOMPLETE_INPUT,
     INVALID_ACCESS,
@@ -50,7 +50,7 @@ export class AssetTransfer extends Contract {
         const assetJSON = await ctx.stub.getState(id);
         return assetJSON && assetJSON.length > 0;
     }
-    public async CreateAsset(ctx: Context, assetID: string, area: number, location: string, owner: string, appraisedValue: number): Promise<void> {
+    public async CreateAsset(ctx: Context, assetID: string, area: number, location: string, owner: string, appraisedValue: number): Promise<RealEstate> {
         const exists = await this.AssetExists(ctx, assetID);
         if (exists) {
             throw new Error(`The asset ${assetID} already exists`);
@@ -70,20 +70,6 @@ export class AssetTransfer extends Contract {
         }
 
         let asset: RealEstate = new RealEstate(assetID, area, location, owner, appraisedValue);
-        // let asset: RealEstate = {
-        //     assetID: assetID,
-        //     area: area,
-        //     location: location,
-        //     owner: owner
-        // }
-        // {
-        //     ownerID: 'user1',
-        //         ownershipPercentage: 100,
-        //             sellPercentage: 50,
-        //                 sellPrice: 1000,
-        //                     sellThreshold: 5,
-        //                         isSeller: true
-        // }
 
         // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
         await ctx.stub.putState(assetID, Buffer.from(stringify(sortKeysRecursive(asset))));
@@ -99,7 +85,7 @@ export class AssetTransfer extends Contract {
         //Make submitting client the owner
         asset.owner = clientID
         console.log(`CreateAsset Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}\n`);
-        console.log(`Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${<string>asset.serialize()}\n`);
+        console.log(`Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${asset.serialize()}\n`);
         ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, assetID, asset.serialize());
 
         // Get collection name for this organization.
