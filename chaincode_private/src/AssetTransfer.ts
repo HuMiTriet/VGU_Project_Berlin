@@ -115,6 +115,49 @@ export class AssetTransfer extends Contract {
         return asset;
     }
 
+    /**
+     * Retrieves the asset's AssetPrivateDetails details with the specified ID from the Collection.
+     *
+     * @param ctx        the transaction context
+     * @param collection the org's collection containing asset private details
+     * @param assetID    the ID of the asset
+     * @return the AssetPrivateDetails from the collection, if there was one
+     */
+    @Transaction()
+    public async ReadAssetPrivateDetails(ctx: Context, collection: string, assetID: string): Promise<AssetPrivateDetails> {
+        console.log(`ReadAssetPrivateDetails: collection %${collection}, ID ${assetID}\n`);
+        let assetPrvJSON: Uint8Array = await ctx.stub.getPrivateData(collection, assetID);
+
+        if (assetPrvJSON == null || assetPrvJSON.length == 0) {
+            console.log(`AssetPrivateDetails ${assetID} does not exist in collection ${collection}`);
+            return null;
+        }
+
+        let assetpd: AssetPrivateDetails = AssetPrivateDetails.deserialize(assetPrvJSON);
+        return assetpd;
+    }
+
+    /**
+     * ReadTransferAgreement gets the buyer's identity from the transfer agreement from collection
+     *
+     * @param ctx     the transaction context
+     * @param assetID the ID of the asset
+     * @return the AssetPrivateDetails from the collection, if there was one
+     */
+    @Transaction()
+    public async ReadTransferAgreement(ctx: Context, assetID: string): Promise<TransferAgreement> {
+        let aggKey: string = ctx.stub.createCompositeKey(AssetTransfer.AGREEMENT_KEYPREFIX, [assetID]);
+        console.log(`ReadTransferAgreement Get: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`);
+        let buyerIdentity: Uint8Array = await ctx.stub.getPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString());
+
+        if (buyerIdentity == null || buyerIdentity.length == 0) {
+            console.log(`BuyerIdentity for asset ${assetID} does not exist in TransferAgreement`);
+            return null;
+        }
+
+        return new TransferAgreement(assetID, <string><unknown>buyerIdentity);
+    }
+
     // /**
     //  * QueryAssetByOwner queries for assets based on assetType, owner.
     //  * This is an example of a parameterized query where the query logic is baked into the chaincode,
@@ -228,7 +271,7 @@ export class AssetTransfer extends Contract {
         let assetPriv: AssetPrivateDetails
         try {
             let json: JSON = JSON.parse(Buffer.from(transientAssetJSON).toString('utf8'))
-            assetID = json["assetID"].toString()
+            assetID = json["_assetID"].toString()
             assetPriv = new AssetPrivateDetails(assetID, <number>json["appraisedValue"])
         }
         catch (Error) { doFail(`TransientMap deserialized error: ${Error}`) }
@@ -255,27 +298,6 @@ export class AssetTransfer extends Contract {
         let aggKey: string = ctx.stub.createCompositeKey(AssetTransfer.AGREEMENT_KEYPREFIX, [assetID])
         console.log(`AgreeToTransfer Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`)
         ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString(), new TextEncoder().encode(clientID))
-    }
-
-    /**
-     * ReadTransferAgreement gets the buyer's identity from the transfer agreement from collection
-     *
-     * @param ctx     the transaction context
-     * @param assetID the ID of the asset
-     * @return the AssetPrivateDetails from the collection, if there was one
-     */
-    @Transaction()
-    public async ReadTransferAgreement(ctx: Context, assetID: string): Promise<TransferAgreement> {
-        let aggKey: string = ctx.stub.createCompositeKey(AssetTransfer.AGREEMENT_KEYPREFIX, [assetID]);
-        console.log(`ReadTransferAgreement Get: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`);
-        let buyerIdentity: Uint8Array = await ctx.stub.getPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString());
-
-        if (buyerIdentity == null || buyerIdentity.length == 0) {
-            console.log(`BuyerIdentity for asset ${assetID} does not exist in TransferAgreement`);
-            return null;
-        }
-
-        return new TransferAgreement(assetID, <string><unknown>buyerIdentity);
     }
 
     /**

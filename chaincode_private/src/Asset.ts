@@ -1,8 +1,12 @@
-import { Ownership } from '../../chaincode/resources/classOwnership'
-import { RoomType } from '../../chaincode/resources/classRoomType'
-
-import { Object, Property, Returns } from 'fabric-contract-api'
+import { Object, Property } from 'fabric-contract-api'
 import { Md5 } from 'ts-md5';
+
+const RED = '\x1b[31m\n';
+const RESET = '\x1b[0m';
+export function doFail(msgString: string): never {
+    console.error(`${RED}\t${msgString}${RESET}`);
+    throw new Error(msgString);
+}
 
 @Object()
 export class RealEstate {
@@ -60,7 +64,15 @@ export class RealEstate {
     }
 
     public static deserialize(assetJSON: Uint8Array): RealEstate {
-        return JSON.parse(Buffer.from(assetJSON).toString('utf8'));
+        try {
+            let json: JSON = JSON.parse(Buffer.from(assetJSON).toString('utf8'));
+            return new RealEstate(json['_assetID'].toString(),
+                json['_area'].toString(),
+                json['_owner'].toString(),
+                json['_location'].toString(),
+                json['_appraisedValues'].toString());
+        }
+        catch (err) { doFail(`Deserialize error DATA_ERROR: ${err}`) }
     }
     public toString = (): string => {
         return `Hash: ${this.hashCode()}\nAssetID: ${this._assetID}\nArea: ${this._area}\nLocation: ${this.location}`;

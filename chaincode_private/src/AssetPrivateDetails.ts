@@ -1,5 +1,12 @@
 import { Object, Property } from 'fabric-contract-api'
 
+const RED = '\x1b[31m\n';
+const RESET = '\x1b[0m';
+export function doFail(msgString: string): never {
+    console.error(`${RED}\t${msgString}${RESET}`);
+    throw new Error(msgString);
+}
+
 @Object()
 export class AssetPrivateDetails {
     @Property()
@@ -20,5 +27,12 @@ export class AssetPrivateDetails {
     public serialize(): Uint8Array {
         let jsonStr: string = JSON.stringify(this);
         return new TextEncoder().encode(jsonStr);
+    }
+
+    public static deserialize(assetJSON: Uint8Array): AssetPrivateDetails {
+        try {
+            let json: JSON = JSON.parse(Buffer.from(assetJSON).toString('utf8'));
+            return new AssetPrivateDetails(json['_assetID'].toString(), json['_appraisedValue'].toString())
+        } catch (err) { doFail(`Deserialize error DATA_ERROR: ${err}`) }
     }
 }
