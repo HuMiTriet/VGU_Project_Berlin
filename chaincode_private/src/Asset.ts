@@ -58,10 +58,7 @@ export class RealEstate {
         return <string>md5.end()
     }
 
-    public serialize(): Uint8Array {
-        let jsonStr: string = JSON.stringify(this);
-        return new TextEncoder().encode(jsonStr);
-    }
+    public serialize(): Uint8Array { return new TextEncoder().encode(JSON.stringify(this)); }
 
     public static deserialize(assetJSON: Uint8Array): RealEstate {
         try {
