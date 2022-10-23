@@ -1,6 +1,11 @@
 import axios from 'axios'
 const port = '3001'
 const host = `localhost:${port}`
+axios.defaults.headers.common = {
+  'X-API-Key': '', // can use userID as API key
+  'Content-Type': 'application/json'
+}
+
 async function getAssets(): Promise<string> {
   const assetsResponse = await axios.get(`http://${host}/api/assets/getAll`)
   const data = assetsResponse.data
@@ -8,55 +13,28 @@ async function getAssets(): Promise<string> {
   return JSON.stringify(data)
 }
 
-// not work
 async function createAsset(
   assetID: string,
   roomList: string,
   area: string,
   location: string,
-  ownership: string
+  owners: string
 ): Promise<string> {
   const assetData = {
     assetID: assetID,
     roomList: roomList,
     area: area,
     location: location,
-    ownership: ownership
-  }
-  const testData = {
-    area: '200',
-    assetID: 'asset123',
-    docType: 'asset',
-    location: 'Ho Chi Minh',
-    owners: [
-      {
-        isSeller: 'true',
-        ownerID: 'user1',
-        ownershipPercentage: '100',
-        sellPercentage: '50',
-        sellPrice: '1000',
-        sellThreshold: '5'
-      }
-    ],
-    roomList: {
-      numOfBathroom: '2',
-      numOfBedroom: '2',
-      numOfDiningroom: '2',
-      numOfLivingroom: '1'
-    }
+    owners: owners
   }
   const createAssetsResponse = await axios.post(
     `http://${host}/api/assets/create`,
-    testData,
-    {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
+    assetData
   )
   const data = createAssetsResponse.data
   const status = createAssetsResponse.status
   console.log(status)
+  console.log(data)
 
   return status.toString()
 }
@@ -67,6 +45,7 @@ async function deleteAsset(assetID: string): Promise<string> {
     `http://${host}/api/assets/delete${query}`
   )
   const data = deleteAssetsResponse.data
+  console.log(data)
   return JSON.stringify(data)
 }
 

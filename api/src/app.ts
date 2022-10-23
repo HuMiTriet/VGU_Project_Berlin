@@ -103,13 +103,13 @@ export async function main(): Promise<void> {
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await initLedger()
 
-    // await createAsset(
-    //   'asset18',
-    //   '{ "numOfBedroom": "0", "numOfLivingroom": "0", "numOfBathroom": "0", "numOfDiningroom": "0" }',
-    //   '420',
-    //   'Ben Cat',
-    //   '[ { "ownerID": "user1", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true },{ "ownerID": "user2", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true } ]'
-    // )
+    await createAsset(
+      'asset18',
+      '{ "numOfBedroom": "0", "numOfLivingroom": "0", "numOfBathroom": "0", "numOfDiningroom": "0" }',
+      '420',
+      'Ben Cat',
+      '[ { "ownerID": "user1", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true },{ "ownerID": "user2", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true } ]'
+    )
 
     // await getAllAssets()
   } finally {
@@ -254,7 +254,7 @@ export async function transferAssetAsync(
  * Return an asset read from world state
  * @author Thai Hoang Tam
  * @param assetID
- * @returns assetString
+ * @returns asset as json object
  */
 export async function readAsset(
   // contract: Contract,
@@ -275,13 +275,18 @@ export async function readAsset(
  * @param assetID
  * @returns
  */
-export async function deleteAsset(assetID: string) {
-  console.log('Delete asset')
-  const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
-  const resultJson = utf8Decoder.decode(resultBytes)
-  const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return result
+export async function deleteAsset(assetID: string): Promise<boolean> {
+  try {
+    console.log('Delete asset')
+    const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error) {
+    console.log(error)
+    return false
+  }
 }
 
 export async function assetExists(assetID: string): Promise<boolean> {
@@ -294,14 +299,32 @@ export async function assetExists(assetID: string): Promise<boolean> {
 }
 
 /**
- * Update an asset information
- *
+ * Update an asset
+ * @author Thai Hoang Tam
  * @param assetID
+ * @param roomList
+ * @param area
+ * @param location
+ * @param owners
  * @returns
  */
-export async function updateAsset(assetID: string) {
+export async function updateAsset(
+  // contract: Contract
+  assetID: string,
+  roomList: string,
+  area: string,
+  location: string,
+  owners: string
+) {
   console.log('Update Asset')
-  const resultBytes = await contract.evaluateTransaction('UpdateUser', assetID)
+  const resultBytes = await contract.evaluateTransaction(
+    'UpdateAsset',
+    assetID,
+    roomList,
+    area,
+    location,
+    owners
+  )
   const resultJson = utf8Decoder.decode(resultBytes)
   const result = JSON.parse(resultJson)
   console.log('*** Result:', result)
