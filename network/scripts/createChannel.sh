@@ -22,12 +22,13 @@ if [ ! -d "channel-artifacts" ]; then
 fi
 
 createChannelGenesisBlock() {
+  PROFILE=$1
   which configtxgen
   if [ "$?" -ne 0 ]; then
     fatalln "configtxgen tool not found."
   fi
   set -x
-  configtxgen -profile TwoOrgsApplicationGenesis -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
+  configtxgen -profile "$PROFILE" -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
   res=$?
   { set +x; } 2> /dev/null
   verifyResult $res "Failed to generate channel configuration transaction..."
@@ -81,7 +82,7 @@ FABRIC_CFG_PATH=${PWD}/configtx
 
 ## Create channel genesis block
 infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
-createChannelGenesisBlock
+createChannelGenesisBlock "TwoOrgsApplicationGenesis"
 
 FABRIC_CFG_PATH=$PWD/../config/
 BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
@@ -105,4 +106,29 @@ setAnchorPeer 2
 
 successln "Channel '$CHANNEL_NAME' joined"
 
-infoln "JOINING Org 1 and 2 to busines channel "
+CHANNEL_NAME="business"
+FABRIC_CFG_PATH=${PWD}/configtx
+
+## Create channel genesis block
+infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
+createChannelGenesisBlock "business"
+
+FABRIC_CFG_PATH=$PWD/../config/
+BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
+
+## Create channel
+infoln "Creating channel ${CHANNEL_NAME}"
+createChannel
+successln "Channel '$CHANNEL_NAME' created"
+
+## Join all the peers to the channel
+infoln "Joining org1 peer to the channel..."
+joinChannel 1
+infoln "Joining org2 peer to the channel..."
+joinChannel 2
+
+## Set the anchor peers for each org in the channel
+infoln "Setting anchor peer for org1..."
+setAnchorPeer 1
+infoln "Setting anchor peer for org2..."
+setAnchorPeer 2

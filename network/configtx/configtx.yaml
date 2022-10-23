@@ -315,10 +315,15 @@ Profiles:
             Capabilities: *ApplicationCapabilities
 
     business:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities: *OrdererCapabilities
         Application:
             <<: *ApplicationDefaults
             Organizations:
+                - *Org1
                 - *Org2
-                - *Org3
-            Capabilities:
-                <<: *ApplicationCapabilities
+            Capabilities: *ApplicationCapabilities
