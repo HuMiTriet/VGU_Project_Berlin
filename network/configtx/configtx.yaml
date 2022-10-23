@@ -313,3 +313,12 @@ Profiles:
                 - *Org1
                 - *Org2
             Capabilities: *ApplicationCapabilities
+
+    business:
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Org2
+                - *Org3
+            Capabilities:
+                <<: *ApplicationCapabilities
