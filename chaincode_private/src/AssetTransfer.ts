@@ -23,6 +23,48 @@ export function doFail(msgString: string): never {
     throw new Error(msgString);
 }
 
+function aligned16(a: Uint8Array) {
+    return (a.byteOffset % 2 === 0) && (a.byteLength % 2 === 0);
+}
+
+function aligned32(a: Uint8Array) {
+    return (a.byteOffset % 4 === 0) && (a.byteLength % 4 === 0);
+}
+
+function compare(a: string | any[] | Uint8Array | Uint16Array | Uint32Array, b: Uint8Array | Uint16Array | Uint32Array) {
+    for (let i = a.length; -1 < i; i -= 1) {
+        if ((a[i] !== b[i])) return false;
+    }
+    return true;
+}
+
+function equal8(a: Uint8Array, b: Uint8Array) {
+    const ua = new Uint8Array(a.buffer, a.byteOffset, a.byteLength);
+    const ub = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+    return compare(ua, ub);
+}
+function equal16(a: Uint8Array, b: Uint8Array) {
+    const ua = new Uint16Array(a.buffer, a.byteOffset, a.byteLength / 2);
+    const ub = new Uint16Array(b.buffer, b.byteOffset, b.byteLength / 2);
+    return compare(ua, ub);
+}
+function equal32(a: Uint8Array, b: Uint8Array) {
+    const ua = new Uint32Array(a.buffer, a.byteOffset, a.byteLength / 4);
+    const ub = new Uint32Array(b.buffer, b.byteOffset, b.byteLength / 4);
+    return compare(ua, ub);
+}
+
+function equal(a: Uint8Array, b: Uint8Array): boolean {
+    if (a instanceof ArrayBuffer) a = new Uint8Array(a, 0);
+    if (b instanceof ArrayBuffer) b = new Uint8Array(b, 0);
+    if (a.byteLength != b.byteLength) return false;
+    if (aligned32(a) && aligned32(b))
+        return equal32(a, b);
+    if (aligned16(a) && aligned16(b))
+        return equal16(a, b);
+    return equal8(a, b);
+}
+
 // const utf8Decoder = new TextDecoder();
 export class AssetTransfer extends Contract {
     static ASSET_COLLECTION_NAME: string = "assetCollection"
@@ -229,5 +271,86 @@ export class AssetTransfer extends Contract {
         let aggKey: string = ctx.stub.createCompositeKey(AssetTransfer.AGREEMENT_KEYPREFIX, [assetID]);
         console.log(`AgreeToTransfer Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`);
         ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString(), new TextEncoder().encode(clientID));
+    }
+
+    /**
+     * Deletes a asset & related details from the ledger.
+     * Input in transient map: asset_delete
+     *
+     * @param ctx the transaction context
+     */
+    @Transaction()
+    public async DeleteAsset(ctx: Context): Promise<void> {
+        let transientMap: Map<string, Uint8Array> = ctx.stub.getTransient();
+        if (!transientMap.has("asset_value")) {
+            doFail(`AgreetoTransfer call must specify \"asset_value\" in Transient map input`)
+        }
+        if (!transientMap.has("asset_delete")) {
+            doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nDeleteAsset call must specify 'asset_delete' in Transient map input`);
+        }
+
+        let transientAssetJSON: Uint8Array = transientMap.get("asset_delete");
+        let assetID: string;
+
+        try {
+            let json: JSON = JSON.parse(Buffer.from(transientAssetJSON).toString('utf8'))
+            assetID = json["assetID"].toString()
+        } catch (err) {
+            doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nTransientMap deserialized error: ${err}`);
+        }
+
+        console.log(`DeleteAsset: verify asset ${assetID} exists\n`)
+
+        let assetJSON: Uint8Array = await ctx.stub.getPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, assetID);
+
+        if (assetJSON == null || assetJSON.length == 0) {
+            doFail(`${AssetTransferErrors.ASSET_NOT_FOUND.toString()}\nAsset ${assetID} does not exist`)
+        }
+        let ownersCollectionName: string = AssetTransfer.getCollectionName(ctx);
+        let apdJSON: Uint8Array = await ctx.stub.getPrivateData(ownersCollectionName, assetID);
+
+        if (apdJSON == null || apdJSON.length == 0) {
+            doFail(`${AssetTransferErrors.ASSET_NOT_FOUND.toString()}\nFailed to read asset from owner's Collection ${ownersCollectionName}`)
+        }
+        AssetTransfer.verifyClientOrgMatchesPeerOrg(ctx);
+
+        // delete the key from asset collection
+        console.log(`DeleteAsset: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}\n`);
+        ctx.stub.deletePrivateData(AssetTransfer.ASSET_COLLECTION_NAME, assetID);
+
+        // Finally, delete private details of asset
+        ctx.stub.deletePrivateData(ownersCollectionName, assetID);
+    }
+
+    // Used by TransferAsset to verify that the transfer is being initiated by the owner and that
+    // the buyer has agreed to the same appraisal value as the owner
+    private async verifyAgreement(ctx: Context, assetID: string, owner: string, buyerMSP: string): Promise<void> {
+        let clienID: string = ctx.clientIdentity.getID();
+
+        // Check 1: verify that the transfer is being initiatied by the owner
+        if (!(clienID == owner)) {
+            doFail(`Submitting client identity does not own the asset: ${AssetTransferErrors.INVALID_ACCESS.toString()}`);
+        }
+
+        // Check 2: verify that the buyer has agreed to the appraised value
+        let collectionOwner: string = AssetTransfer.getCollectionName(ctx); // get owner collection from caller identity
+        let collectionBuyer: string = buyerMSP + "PrivateCollection";
+
+        // Get hash of owners agreed to value
+        let ownerAppraisedValueHash: Uint8Array = await ctx.stub.getPrivateDataHash(collectionOwner, assetID);
+        if (ownerAppraisedValueHash == null) {
+            doFail(`Hash of appraised value for ${assetID} does not exist in collection ${collectionOwner}`);
+        }
+
+        // Get hash of buyers agreed to value
+        let buyerAppraisedValueHash: Uint8Array = await ctx.stub.getPrivateDataHash(collectionBuyer, assetID);
+        if (buyerAppraisedValueHash == null) {
+            doFail(`Hash of appraised value for ${assetID} does not exist in collection ${collectionBuyer}. AgreeToTransfer must be called by the buyer first.`);
+        }
+
+        // Verify that the two hashes match
+        if (!equal(ownerAppraisedValueHash, buyerAppraisedValueHash)) {
+            doFail(`Hash for appraised value for owner ${ownerAppraisedValueHash} does not match value for seller ${buyerAppraisedValueHash}`);
+        }
     }
 }
