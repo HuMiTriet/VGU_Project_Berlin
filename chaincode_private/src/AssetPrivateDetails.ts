@@ -4,25 +4,13 @@ import { Object, Property } from 'fabric-contract-api'
 export class AssetPrivateDetails {
     @Property()
     private _assetID: string;
-
-    public get assetID(): string {
-        return this._assetID
-    }
-
-    public set assetID(value: string) {
-        this._assetID = value
-    }
+    public get assetID(): string { return this._assetID }
+    public set assetID(value: string) { this._assetID = value }
 
     @Property()
     private _appraisedValue: number
-
-    public get apprivsedValue(): number {
-        return this._appraisedValue
-    }
-
-    public set appraisedValue(value: number) {
-        this._appraisedValue = value
-    }
+    public get apprivsedValue(): number { return this._appraisedValue }
+    public set appraisedValue(value: number) { this._appraisedValue = value }
 
     constructor(assetID: string, appraisedValue: number) {
         this._assetID = assetID;

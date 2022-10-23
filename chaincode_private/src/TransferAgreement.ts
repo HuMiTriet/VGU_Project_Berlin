@@ -3,13 +3,17 @@ import { Object, Property } from 'fabric-contract-api'
 @Object()
 export class TransferAgreement {
     @Property()
-    private assetID: string;
+    private _assetID: string;
+    public get assetID(): string { return this._assetID; }
+    public set assetID(value: string) { this._assetID = value }
 
     @Property()
-    private buyerID: string;
+    private _buyerID: string;
+    public get buyerID(): string { return this._buyerID; }
+    public set buyerID(value: string) { this._buyerID = value }
 
     constructor(assetID: string, buyerID: string) {
-        this.assetID = assetID;
-        this.buyerID = buyerID;
+        this._assetID = assetID;
+        this._buyerID = buyerID;
     }
 }
