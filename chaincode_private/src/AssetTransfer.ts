@@ -8,6 +8,7 @@ import stringify from 'json-stringify-deterministic';
 import sortKeysRecursive from 'sort-keys-recursive';
 import { RealEstate } from './Asset'
 import { AssetPrivateDetails } from './AssetPrivateDetails'
+import { TransferAgreement } from './TransferAgreement';
 
 enum AssetTransferErrors {
     INCOMPLETE_INPUT,
@@ -165,23 +166,15 @@ export class AssetTransfer extends Contract {
      * @return the created asset
      */
     public async CreateAsset(ctx: Context, assetID: string, area: number, location: string, owner: string, appraisedValue: number): Promise<RealEstate> {
-        const exists = await this.AssetExists(ctx, assetID);
+        const exists = await this.AssetExists(ctx, assetID)
         if (exists) {
-            throw new Error(`The asset ${assetID} already exists`);
+            doFail(`The asset ${assetID} already exists`)
         }
         //input validations
-        if (assetID == "") {
-            doFail("Empty input: assetID");
-        }
-        if (area <= 0) {
-            doFail("Empty input: area");
-        }
-        if (location == "") {
-            doFail("Empty input: location");
-        }
-        if (owner == "") {
-            doFail("Empty input: owner");
-        }
+        if (assetID == "") { doFail("Empty input: assetID") }
+        if (area <= 0) { doFail("Empty input: area") }
+        if (location == "") { doFail("Empty input: location") }
+        if (owner == "") { doFail("Empty input: owner"); }
 
         let asset: RealEstate = new RealEstate(assetID, area, location, owner, appraisedValue);
 
@@ -226,7 +219,7 @@ export class AssetTransfer extends Contract {
     async AgreetoTransfer(ctx: Context): Promise<void> {
         let transientMap: Map<string, Uint8Array> = ctx.stub.getTransient()
         if (!transientMap.has("asset_value")) {
-            doFail(`AgreetoTransfer call must specify \"asset_value\" in Transient map input`)
+            doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nAgreetoTransfer call must specify \"asset_value\" in Transient map input`)
         }
 
         let transientAssetJSON: Uint8Array = transientMap.get("asset_value")
@@ -238,39 +231,115 @@ export class AssetTransfer extends Contract {
             assetID = json["assetID"].toString()
             assetPriv = new AssetPrivateDetails(assetID, <number>json["appraisedValue"])
         }
-        catch (Error) {
-            doFail(`TransientMap deserialized error: ${Error}`);
-        }
+        catch (Error) { doFail(`TransientMap deserialized error: ${Error}`) }
 
-        if (assetID == "") {
-            doFail("Invalid input in Transient map: assetID");
-        }
-
-        if (assetPriv.appraisedValue < 0) {
-            doFail("Input must be positive integer: appraisedValue");
-        }
+        if (assetID == "") { doFail("Invalid input in Transient map: assetID") }
+        if (assetPriv.appraisedValue < 0) { doFail("Input must be positive integer: appraisedValue") }
 
         console.log(`AgreeToTransfer: verify asset ${assetID} exists\n`)
 
         let existing: RealEstate = await this.ReadAsset(ctx, assetID);
-        if (existing == null) {
-            doFail(`Asset does not exist in the collection: ${assetID}`)
-        }
+        if (existing == null) { doFail(`Asset does not exist in the collection: ${assetID}`) }
 
         // Get collection name for this organization.
-        let orgCollectionName: string = AssetTransfer.getCollectionName(ctx);
+        let orgCollectionName: string = AssetTransfer.getCollectionName(ctx)
 
         AssetTransfer.verifyClientOrgMatchesPeerOrg(ctx);
 
         //Save AssetPrivateDetails to org collection
-        console.log(`Put AssetPrivateDetails: collection ${orgCollectionName}, ID ${assetID}\n`);
-        ctx.stub.putPrivateData(orgCollectionName, assetID, assetPriv.serialize());
+        console.log(`Put AssetPrivateDetails: collection ${orgCollectionName}, ID ${assetID}\n`)
+        ctx.stub.putPrivateData(orgCollectionName, assetID, assetPriv.serialize())
 
-        let clientID: string = ctx.clientIdentity.getID();
+        let clientID: string = ctx.clientIdentity.getID()
         //Write the AgreeToTransfer key in assetCollection
+        let aggKey: string = ctx.stub.createCompositeKey(AssetTransfer.AGREEMENT_KEYPREFIX, [assetID])
+        console.log(`AgreeToTransfer Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`)
+        ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString(), new TextEncoder().encode(clientID))
+    }
+
+    /**
+     * ReadTransferAgreement gets the buyer's identity from the transfer agreement from collection
+     *
+     * @param ctx     the transaction context
+     * @param assetID the ID of the asset
+     * @return the AssetPrivateDetails from the collection, if there was one
+     */
+    @Transaction()
+    public async ReadTransferAgreement(ctx: Context, assetID: string): Promise<TransferAgreement> {
         let aggKey: string = ctx.stub.createCompositeKey(AssetTransfer.AGREEMENT_KEYPREFIX, [assetID]);
-        console.log(`AgreeToTransfer Put: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`);
-        ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString(), new TextEncoder().encode(clientID));
+        console.log(`ReadTransferAgreement Get: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`);
+        let buyerIdentity: Uint8Array = await ctx.stub.getPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString());
+
+        if (buyerIdentity == null || buyerIdentity.length == 0) {
+            console.log(`BuyerIdentity for asset ${assetID} does not exist in TransferAgreement`);
+            return null;
+        }
+
+        return new TransferAgreement(assetID, <string><unknown>buyerIdentity);
+    }
+
+    /**
+     * TransferAsset transfers the asset to the new owner by setting a new owner ID based on
+     * AgreeToTransfer data
+     *
+     * @param ctx the transaction context
+     * @return none
+     */
+    @Transaction()
+    public async TransferAsset(ctx: Context): Promise<void> {
+        let transientMap: Map<string, Uint8Array> = ctx.stub.getTransient()
+
+        if (!transientMap.has("asset_value")) {
+            doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nAgreetoTransfer call must specify \"asset_value\" in Transient map input`)
+        }
+
+        let transientAssetJSON: Uint8Array = transientMap.get("asset_owner")
+        let assetID: string
+        let buyerMSP: string
+
+        try {
+            let json: JSON = JSON.parse(Buffer.from(transientAssetJSON).toString('utf8'))
+            assetID = json["assetID"].toString()
+            buyerMSP = json["buyerMSP"].toString()
+
+        } catch (err) { doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nTransientMap deserialized error ${err}`) }
+
+        if (assetID == "") { doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nInvalid input in Transient map: assetID`) }
+        if (buyerMSP == "") { doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nInvalid input in Transient map: buyerMSP`) }
+
+        console.log(`TransferAsset: verify asset ${assetID} exists\n`)
+        let assetJSON: Uint8Array = await ctx.stub.getPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, assetID);
+
+        if (assetJSON == null || assetJSON.length == 0) {
+            doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nAsset ${assetID} does not exist in the collection`)
+        }
+
+        AssetTransfer.verifyClientOrgMatchesPeerOrg(ctx);
+        let thisAsset: RealEstate = RealEstate.deserialize(assetJSON)
+        // Verify transfer details and transfer owner
+        this.verifyAgreement(ctx, assetID, thisAsset.owner, buyerMSP)
+
+        let transferAgreement: TransferAgreement = await this.ReadTransferAgreement(ctx, assetID);
+        if (transferAgreement == null) {
+            doFail(`${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nTransferAgreement does not exist for asset: ${assetID}`)
+        }
+
+        // Transfer asset in private data collection to new owner
+        let newOwner: string = transferAgreement.buyerID
+        thisAsset.owner = newOwner
+
+        //Save updated Asset to collection
+        console.log(`Transfer Asset: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID} to owner ${newOwner}\n`);
+        ctx.stub.putPrivateData(AssetTransfer.ASSET_COLLECTION_NAME, assetID, thisAsset.serialize());
+
+        // delete the key from owners collection
+        let ownersCollectionName: string = AssetTransfer.getCollectionName(ctx);
+        ctx.stub.deletePrivateData(ownersCollectionName, assetID);
+
+        //Delete the transfer agreement from the asset collection
+        let aggKey: string = ctx.stub.createCompositeKey(AssetTransfer.AGREEMENT_KEYPREFIX, [assetID]);
+        console.log(`AgreeToTransfer deleteKey: collection ${AssetTransfer.ASSET_COLLECTION_NAME}, ID ${assetID}, Key ${aggKey}\n`);
+        ctx.stub.deletePrivateData(AssetTransfer.ASSET_COLLECTION_NAME, aggKey.toString());
     }
 
     /**
