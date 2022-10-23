@@ -14,5 +14,8 @@
     "ts-node": "^10.9.1"
   },
   "keywords": [],
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^18.11.3"
+  }
 }
