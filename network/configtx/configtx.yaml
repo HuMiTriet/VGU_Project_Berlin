@@ -313,3 +313,17 @@ Profiles:
                 - *Org1
                 - *Org2
             Capabilities: *ApplicationCapabilities
+
+    business:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities: *OrdererCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Org1
+                - *Org2
+            Capabilities: *ApplicationCapabilities
