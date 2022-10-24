@@ -23,5 +23,5 @@ export class RealEstate {
   public owners: Ownership[]
 
   @Property()
-  public membershipThreshold = 0
+  public membershipThreshold: number
 }

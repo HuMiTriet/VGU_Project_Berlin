@@ -145,7 +145,8 @@ export class AssetTransferContract extends Contract {
     roomListString: string,
     areaString: string,
     location: string,
-    OwnersString: string
+    OwnersString: string,
+    membershipThreshold: number
   ) {
     const exists = await this.AssetExists(ctx, AssetID)
     if (exists) {
@@ -158,16 +159,18 @@ export class AssetTransferContract extends Contract {
 
     const owners: Array<Ownership> = JSON.parse(OwnersString)
 
-    const asset = {
-      AssetID: AssetID,
+    const realEstate: RealEstate = {
+      id: AssetID,
       roomList: roomList,
       area: area,
       location: location,
-      Owners: owners
+      owners: owners,
+      membershipThreshold: membershipThreshold
     }
+
     await ctx.stub.putState(
       AssetID,
-      Buffer.from(stringify(sortKeysRecursive(asset)))
+      Buffer.from(stringify(sortKeysRecursive(realEstate)))
     )
   }
 
@@ -223,7 +226,8 @@ export class AssetTransferContract extends Contract {
     roomListString: string, // RoomType
     areaString: string, // number
     location: string,
-    OwnersString: string // Ownership[]
+    ownersString: string,
+    membershipThreshold: number
   ): Promise<void> {
     const exists = await this.AssetExists(ctx, AssetID)
     if (!exists) {
@@ -237,7 +241,7 @@ export class AssetTransferContract extends Contract {
 
     const area: number = parseFloat(areaString)
 
-    const owners: Array<Ownership> = JSON.parse(OwnersString)
+    const owners: Array<Ownership> = JSON.parse(ownersString)
 
     // // console log out all owners
     // for (const owner of owners) {
@@ -252,18 +256,19 @@ export class AssetTransferContract extends Contract {
     // console.log(`PAIN PEKO: ${roomList.numOfBedroom + 1} `)
 
     // overwriting original asset with new asset
-    const updatedAsset = {
-      AssetID: AssetID,
+    const updatedRealEstate: RealEstate = {
+      id: AssetID,
       roomList: roomList,
       area: area,
       location: location,
-      Owners: owners
+      owners: owners,
+      membershipThreshold: membershipThreshold
     }
     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
 
     return ctx.stub.putState(
       AssetID,
-      Buffer.from(stringify(sortKeysRecursive(updatedAsset)))
+      Buffer.from(stringify(sortKeysRecursive(updatedRealEstate)))
     )
   }
 
@@ -271,7 +276,8 @@ export class AssetTransferContract extends Contract {
   public async UpdateUser(
     ctx: Context,
     userID: string,
-    balanceString: string
+    balanceString: string,
+    membershipScoreString: string
   ): Promise<void> {
     const exists = await this.AssetExists(ctx, userID)
     if (!exists) {
@@ -279,6 +285,8 @@ export class AssetTransferContract extends Contract {
     }
 
     const balance = parseFloat(balanceString)
+
+    const membershipScore = parseInt(membershipScoreString)
 
     // const updatedUser: User = {
     //   userID: userID,
@@ -290,7 +298,7 @@ export class AssetTransferContract extends Contract {
       docType: 'user',
       id: userID,
       balance: balance,
-      membershipScore: 0
+      membershipScore: membershipScore
     }
     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
     return ctx.stub.putState(
@@ -312,8 +320,8 @@ export class AssetTransferContract extends Contract {
   // AssetExists returns true when asset with given ID exists in world state.
   @Transaction(false)
   @Returns('boolean')
-  public async AssetExists(ctx: Context, AssetID: string): Promise<boolean> {
-    const assetJSON = await ctx.stub.getState(AssetID)
+  public async AssetExists(ctx: Context, id: string): Promise<boolean> {
+    const assetJSON = await ctx.stub.getState(id)
     return assetJSON && assetJSON.length > 0
   }
 
@@ -344,6 +352,7 @@ export class AssetTransferContract extends Contract {
     console.log('Info of Buyer:')
     console.log("Buyer's ID:" + buyer.id)
     console.log("Buyer's Balance:" + buyer.balance)
+    console.log("Buyer's membershipScore:" + buyer.membershipScore)
 
     //convert buyPercentage to String
     const buyPercentage = parseFloat(buyPercentageString)
@@ -494,6 +503,8 @@ export class AssetTransferContract extends Contract {
     )
     console.log('Successfully updates Asset')
 
+    buyer.membershipScore += 1
+
     const participants: User[] = [
       {
         id: seller.id,
@@ -506,6 +517,7 @@ export class AssetTransferContract extends Contract {
         membershipScore: buyer.membershipScore
       }
     ]
+
     for (const participant of participants) {
       await ctx.stub.putState(
         participant.id,
@@ -513,6 +525,13 @@ export class AssetTransferContract extends Contract {
       )
     }
     console.log('Successfully updates participants in Transaction')
+
+    console.log(
+      'current membershipScore of buyer: ' +
+        buyer.id +
+        'score: ' +
+        buyer.membershipScore
+    )
 
     return (
       'Transaction successful. Buyer' +
