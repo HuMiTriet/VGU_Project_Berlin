@@ -55,7 +55,7 @@ export class AssetTransferContract extends Contract {
       numOfLivingroom: 2
     }
 
-    const assets: RealEstate[] = [
+    const realEstate: RealEstate[] = [
       {
         id: 'asset1',
         area: 200,
@@ -70,23 +70,23 @@ export class AssetTransferContract extends Contract {
         location: 'Dong Nai',
         owners: ownerships,
         roomList: roomType2,
-        membershipThreshold: 0
+        membershipThreshold: 5
       }
     ]
 
-    for (const asset of assets) {
-      asset.docType = 'asset'
+    for (const oneRealEstate of realEstate) {
+      oneRealEstate.docType = 'asset'
       console.log('DEBUG: ONE ASSET BEFORE ADDED')
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
       // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
       await ctx.stub.putState(
-        asset.id,
-        Buffer.from(stringify(sortKeysRecursive(asset)))
+        oneRealEstate.id,
+        Buffer.from(stringify(sortKeysRecursive(oneRealEstate)))
       )
       console.log('DEBUG: ONE ASSET ADDED')
-      console.info(`Asset ${asset.id} initialized`)
+      console.info(`Asset ${oneRealEstate.id} initialized`)
     }
   }
 
@@ -109,7 +109,7 @@ export class AssetTransferContract extends Contract {
       {
         id: 'user1',
         balance: 1000,
-        membershipScore: 0
+        membershipScore: 10
       },
       {
         id: 'user2',
@@ -319,7 +319,7 @@ export class AssetTransferContract extends Contract {
 
   // TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
   @Transaction()
-  public async TransferAsset(
+  public async TransferRealEstate(
     ctx: Context,
     AssetID: string,
     sellerID: string,
