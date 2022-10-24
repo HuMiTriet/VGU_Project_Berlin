@@ -1,0 +1,25 @@
+@import "~antd/dist/antd.css";
+
+.container-fluid {
+  margin: 0 auto;
+  max-width: 1000px;
+  padding: 0 15px;
+}
+
+.block {
+  padding: 100px 0px 20px 0px;
+}
+
+.paginationBlock {
+  padding: 20px 0px 20px 0px;
+}
+
+.houseType {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.price {
+  font-size: 16px;
+  font-weight: 600;
+}
