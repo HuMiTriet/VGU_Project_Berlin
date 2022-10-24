@@ -133,7 +133,7 @@ export class AssetTransferContract extends Contract {
   }
 
   @Transaction()
-  public async CreateAsset(
+  public async CreateRealEstate(
     ctx: Context,
     AssetID: string,
     roomListString: string,
@@ -190,19 +190,9 @@ export class AssetTransferContract extends Contract {
     )
   }
 
-  // ReadAsset returns the asset stored in the world state with given id.
-  @Transaction(false)
-  public async ReadAsset(ctx: Context, AssetID: string): Promise<string> {
-    const assetJSON = await ctx.stub.getState(AssetID) // get the asset from chaincode state
-    if (!assetJSON || assetJSON.length === 0) {
-      throw new Error(`The asset ${AssetID} does not exist`)
-    }
-    return assetJSON.toString()
-  }
-
   // UpdateAsset updates an existing asset in the world state with provided parameters.
   @Transaction()
-  public async UpdateAsset(
+  public async UpdateRealEstate(
     ctx: Context,
     AssetID: string,
     roomListString: string, // RoomType
@@ -281,6 +271,16 @@ export class AssetTransferContract extends Contract {
       updatedUser.userID,
       Buffer.from(stringify(sortKeysRecursive(updatedUser)))
     )
+  }
+
+  // ReadAsset returns the asset stored in the world state with given id.
+  @Transaction(false)
+  public async ReadAsset(ctx: Context, AssetID: string): Promise<string> {
+    const assetJSON = await ctx.stub.getState(AssetID) // get the asset from chaincode state
+    if (!assetJSON || assetJSON.length === 0) {
+      throw new Error(`The asset ${AssetID} does not exist`)
+    }
+    return assetJSON.toString()
   }
 
   // DeleteAsset deletes an given asset from the world state.
