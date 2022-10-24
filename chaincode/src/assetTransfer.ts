@@ -299,7 +299,6 @@ export class AssetTransferContract extends Contract {
     )
   }
 
-
   // DeleteAsset deletes an given asset from the world state.
   @Transaction()
   public async DeleteAsset(ctx: Context, AssetID: string): Promise<void> {
