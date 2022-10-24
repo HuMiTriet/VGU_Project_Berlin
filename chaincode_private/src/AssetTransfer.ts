@@ -236,19 +236,33 @@ export class AssetTransfer extends Contract {
    *            Transient map with asset_properties key with asset json as value
    * @return the created asset
    */
-  public async CreateAsset(
-    ctx: Context,
-    assetID: string,
-    area: number,
-    location: string,
-    owner: string,
-    appraisedValue: number
-  ): Promise<RealEstate> {
+  public async CreateAsset(ctx: Context): Promise<RealEstate> {
     let transientMap: Map<string, Uint8Array> = ctx.stub.getTransient();
 
     if (!transientMap.has("asset_properties")) {
       doFail(
         `${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nreateAsset call must specify asset_properties in Transient map input`
+      );
+    }
+
+    let transientAssetJSON: Uint8Array = transientMap.get("asset_properties");
+    let assetID: string;
+    let area: number;
+    let location: string;
+    let owner: string;
+    let appraisedValue: number;
+    try {
+      let json: JSON = JSON.parse(
+        Buffer.from(transientAssetJSON).toString("utf8")
+      );
+      assetID = <string>json["assetID"];
+      area = <number>json["area"];
+      location = <string>json["location"];
+      owner = <string>json["owner"];
+      appraisedValue = <number>json["appraisedValue"];
+    } catch (err) {
+      doFail(
+        `${AssetTransferErrors.INCOMPLETE_INPUT.toString()}\nTransientMap deserialized error: ${err}`
       );
     }
 
