@@ -21,5 +21,12 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^18.11.3"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "none",
+    "printWidth": 80,
+    "semi": false,
+    "arrowParens": "avoid"
   }
 }
