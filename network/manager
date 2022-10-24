@@ -263,9 +263,9 @@ if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
       h | ?)
         errorln "Invalid option"
         infoln "Usage: manager u|d|c -t private|public -c mychannel|business
+                -t public: deploy public data chaincode (default)
                 -t private: deploy private data chaincode
-                -t public: deploy public data chaincode
-                -c mychannel: deploy chaincode on mychannel
+                -c mychannel: deploy chaincode on mychannel (default)
                 -c business: deploy chaincode on business channel"
         exit 1
         ;;
