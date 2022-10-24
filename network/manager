@@ -16,14 +16,14 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-# check if manager script exist then add it into /usr/bin
-if [[ ! -f /usr/bin/manager ]]; then
-  infoln "manager script not found, adding it into /usr/bin"
-  ln -s "${PWD}"/manager /usr/bin/manager
-  successln "Installation success you can now just type 'manager' in any folder inside VGU_Project_Berlin and it will just work"
-else
-  infoln "manager script found, skipping"
-fi
+# # check if manager script exist then add it into /usr/bin
+# if [[ ! -f /usr/bin/manager ]]; then
+#   infoln "manager script not found, adding it into /usr/bin"
+#   ln -s "${PWD}"/manager /usr/bin/manager
+#   successln "Installation success you can now just type 'manager' in any folder inside VGU_Project_Berlin and it will just work"
+# else
+#   infoln "manager script found, skipping"
+# fi
 
 # find out the terminal emulator that user is using
 if [[ -n $DISPLAY ]]; then
