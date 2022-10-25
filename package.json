@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "react-router-dom": "^6.4.2"
+  },
+  "dependencies": {
+    "antd": "^4.23.6"
+  }
+}

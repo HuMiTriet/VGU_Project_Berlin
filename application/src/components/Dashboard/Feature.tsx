@@ -1,6 +1,6 @@
 import React from 'react';
 import './Dashboard.css'
-import image from '../../assets/images/Duplex.jpg';
+import image from '../assets/images/Duplex.jpg';
 
 import { Row, Col, Card, Pagination } from 'antd';
 
