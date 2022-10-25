@@ -67,6 +67,79 @@ export class AssetTransfer extends Contract {
   static ASSET_COLLECTION_NAME: string = 'assetCollection'
   static AGREEMENT_KEYPREFIX: string = 'transferAgreement'
 
+  @Transaction()
+  public async InitLedger(ctx: Context): Promise<void> {
+    await this.InitLedgerAsset(ctx)
+    // await this.InitLedgerUser(ctx)
+  } // end InitLedger
+
+  @Transaction()
+  public async InitLedgerAsset(ctx: Context): Promise<void> {
+    const assets: Array<RealEstate> = [
+      new RealEstate('asset1', 100, 'location1', 'user1', 10000),
+      new RealEstate('asset2', 200, 'location2', 'user2', 20000),
+      new RealEstate('asset3', 300, 'location3', 'user3', 30000)
+    ]
+
+    for (const asset of assets) {
+      asset.docType = 'asset'
+      console.log('DEBUG: ONE ASSET BEFORE ADDED')
+      // example of how to write to world state deterministically
+      // use convetion of alphabetic order
+      // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+      // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
+      await ctx.stub.putState(
+        asset.assetID,
+        Buffer.from(stringify(sortKeysRecursive(asset)))
+      )
+      console.log('DEBUG: ONE ASSET ADDED')
+      console.info(`Asset ${asset.assetID} initialized`)
+    }
+  }
+
+  // @Transaction()
+  // public async InitLedgerUser(ctx: Context): Promise<void> {
+  //   // const user1: User = {
+  //   //   userID: 'user1',
+  //   //   balance: 1000
+  //   // }
+  //   // const user2: User = {
+  //   //   userID: 'user2',
+  //   //   balance: 500
+  //   // }
+  //   // const user3: User = {
+  //   //   userID: 'user3',
+  //   //   balance: 3000
+  //   // }
+  //   const assets: User[] = [
+  //     {
+  //       userID: 'user1',
+  //       balance: 1000
+  //     },
+  //     {
+  //       userID: 'user2',
+  //       balance: 500
+  //     },
+  //     {
+  //       userID: 'user3',
+  //       balance: 3000
+  //     }
+  //   ]
+  //   for (const asset of assets) {
+  //     asset.docType = 'user'
+  //     // example of how to write to world state deterministically
+  //     // use convetion of alphabetic order
+  //     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+  //     // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
+  //     await ctx.stub.putState(
+  //       asset.userID,
+  //       Buffer.from(stringify(sortKeysRecursive(asset)))
+  //     )
+  //     console.log('DEBUG: ONE ASSET-USER ADDED')
+  //     console.info(`Asset ${asset.userID} initialized`)
+  //   }
+  // }
+
   private static verifyClientOrgMatchesPeerOrg(ctx: Context): void {
     let clientMSPID: string = ctx.clientIdentity.getMSPID()
     let peerMSPID: string = ctx.stub.getMspID()
