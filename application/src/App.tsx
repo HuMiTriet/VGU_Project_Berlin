@@ -12,10 +12,17 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* <Route path="/" element={<Login />} />
+          {/* <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/reset" element={<Reset />} />
           <Route path="/dashboard" element={<Dashboard />} /> */}
+          
+          {/* Order of pages
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/propertyinfo" element={<PropertyInfo />} />
+          <Route path="/Contract" element={<Contract />} /> */}
+
         </Routes>
       </Router>
     </div>
