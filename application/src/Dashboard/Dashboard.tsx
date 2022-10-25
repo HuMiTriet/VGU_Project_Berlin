@@ -12,11 +12,10 @@ import {
 } from '../API_handler/api'
 
 function Dashboard() {
-  const [user, loading, error] = useAuthState(auth)
+  const [user, loading] = useAuthState(auth)
   const [name, setName] = useState('')
   const [allAssets, setAllAssets] = useState('')
   const [assetRead, setReadAsset] = useState('')
-  const [userID, setUserID] = useState('')
   const [assetID, setInputAssetID] = useState('')
   const navigate = useNavigate()
   // const fetchUserName = async () => {
@@ -78,10 +77,7 @@ function Dashboard() {
             onInput={(e: any) => setInputAssetID(e.target.value)}
           ></input>
         </form>
-        <button
-          className="readAsset"
-          onClick={(e: any) => handleReadAsset(assetID)}
-        >
+        <button className="readAsset" onClick={() => handleReadAsset(assetID)}>
           Read Asset
         </button>
         <div>
@@ -94,7 +90,29 @@ function Dashboard() {
         </div>
         <button
           className="createAsset"
-          onClick={(e: any) => createAsset('asset20', '', '200', 'Ben Cat', '')}
+          onClick={() =>
+            createAsset(
+              'asset209',
+              JSON.stringify({
+                numOfBathroom: '2',
+                numOfBedroom: '2',
+                numOfDiningroom: '2',
+                numOfLivingroom: '1'
+              }),
+              '200',
+              'Ben Cat',
+              JSON.stringify([
+                {
+                  isSeller: 'true',
+                  ownerID: 'user1',
+                  ownershipPercentage: '100',
+                  sellPercentage: '50',
+                  sellPrice: '1000',
+                  sellThreshold: '5'
+                }
+              ])
+            )
+          }
         >
           Create Asset
         </button>
@@ -105,10 +123,7 @@ function Dashboard() {
             onInput={(e: any) => setInputAssetID(e.target.value)}
           ></input>
         </form>
-        <button
-          className="deleteAsset"
-          onClick={(e: any) => deleteAsset(assetID)}
-        >
+        <button className="deleteAsset" onClick={() => deleteAsset(assetID)}>
           Delete Asset
         </button>
       </div>
