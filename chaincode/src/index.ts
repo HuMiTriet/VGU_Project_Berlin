@@ -6,7 +6,8 @@
 
 'use strict'
 
-import { TokenERC20Contract } from './tokenHandler'
+import { AssetTransferContract } from './assetTransfer'
 
-module.exports.TokenERC20Contract = TokenERC20Contract
-module.exports.contracts = [TokenERC20Contract]
+export { AssetTransferContract } from './assetTransfer'
+
+export const contracts: any[] = [AssetTransferContract]
