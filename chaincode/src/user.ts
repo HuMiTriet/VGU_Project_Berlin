@@ -8,8 +8,5 @@ export class User {
   public id: string
 
   @Property()
-  public balance: number
-
-  @Property()
   public membershipScore: number
 }

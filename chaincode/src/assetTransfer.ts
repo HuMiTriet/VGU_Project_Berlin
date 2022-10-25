@@ -92,33 +92,17 @@ export class AssetTransferContract extends Contract {
 
   @Transaction()
   public async InitLedgerUser(ctx: Context): Promise<void> {
-    // const user1: User = {
-    //   userID: 'user1',
-    //   balance: 1000
-    // }
-    // const user2: User = {
-    //   userID: 'user2',
-    //   balance: 500
-    // }
-    // const user3: User = {
-    //   userID: 'user3',
-    //   balance: 3000
-    // }
-
     const assets: User[] = [
       {
         id: 'user1',
-        balance: 1000,
         membershipScore: 10
       },
       {
         id: 'user2',
-        balance: 500,
         membershipScore: 0
       },
       {
         id: 'user3',
-        balance: 3000,
         membershipScore: 0
       }
     ]
@@ -175,24 +159,16 @@ export class AssetTransferContract extends Contract {
   }
 
   @Transaction()
-  public async CreateUser(ctx: Context, userID: string, balanceString: string) {
+  public async CreateUser(ctx: Context, userID: string) {
     const exists = await this.AssetExists(ctx, userID)
     if (exists) {
       throw new Error(`The User ${userID} already exists`)
     }
 
-    const balance = parseFloat(balanceString)
-
-    // const user: User = {
-    //   userID: userID,
-    //   balance: balance
-    // }
-
     const user: User = {
       membershipScore: 0,
       docType: 'user',
-      id: userID,
-      balance: balance
+      id: userID
     }
 
     await ctx.stub.putState(
@@ -276,7 +252,6 @@ export class AssetTransferContract extends Contract {
   public async UpdateUser(
     ctx: Context,
     userID: string,
-    balanceString: string,
     membershipScoreString: string
   ): Promise<void> {
     const exists = await this.AssetExists(ctx, userID)
@@ -284,20 +259,12 @@ export class AssetTransferContract extends Contract {
       throw new Error(`The user ${userID} does not exist`)
     }
 
-    const balance = parseFloat(balanceString)
-
     const membershipScore = parseInt(membershipScoreString)
-
-    // const updatedUser: User = {
-    //   userID: userID,
-    //   balance: balance
-    // }
 
     // overwriting original asset with new asset
     const updatedUser: User = {
       docType: 'user',
       id: userID,
-      balance: balance,
       membershipScore: membershipScore
     }
     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
@@ -351,7 +318,6 @@ export class AssetTransferContract extends Contract {
 
     console.log('Info of Buyer:')
     console.log("Buyer's ID:" + buyer.id)
-    console.log("Buyer's Balance:" + buyer.balance)
     console.log("Buyer's membershipScore:" + buyer.membershipScore)
 
     //convert buyPercentage to String
@@ -380,7 +346,6 @@ export class AssetTransferContract extends Contract {
 
     console.log('Info of Seller:')
     console.log("Seller's ID: " + seller.id)
-    console.log("Seller's Balance: " + seller.balance)
 
     //Check if buyer has the same ID as seller
     if (sellerID === buyerID) {
@@ -434,10 +399,10 @@ export class AssetTransferContract extends Contract {
 
     const payment = (sellerOwnership.sellPrice / 100) * buyPercentage
 
-    console.log('Buyer will have to pay ' + payment + ' to the seller')
-    if (buyer.balance < payment) {
-      throw new Error('Buyer does not have enough balance.')
-    }
+    console.log('Buyer payed ' + payment + ' to the seller')
+    // if (buyer.balance < payment) {
+    //   throw new Error('Buyer does not have enough balance.')
+    // }
 
     //Check if buyer has already bought this asset once or more.
     let buyerOwnership: Ownership = realEstate.owners.find((obj: Ownership) => {
@@ -475,11 +440,11 @@ export class AssetTransferContract extends Contract {
     console.log(
       "Seller's ownership percentage: " + sellerOwnership.ownershipPercentage
     )
-    console.log('Updating balance')
-    buyer.balance -= payment
-    console.log("Buyer's balance: " + buyer.balance)
-    seller.balance += payment
-    console.log("Seller's balance: " + seller.balance)
+    // console.log('Updating balance')
+    // buyer.balance -= payment
+    // console.log("Buyer's balance: " + buyer.balance)
+    // seller.balance += payment
+    // console.log("Seller's balance: " + seller.balance)
     console.log('Updating sell percentage of seller.')
     sellerOwnership.sellPercentage -= buyPercentage
     console.log("Seller's sell percentage: " + sellerOwnership.sellPercentage)
@@ -508,12 +473,10 @@ export class AssetTransferContract extends Contract {
     const participants: User[] = [
       {
         id: seller.id,
-        balance: seller.balance,
         membershipScore: seller.membershipScore
       },
       {
         id: buyer.id,
-        balance: buyer.balance,
         membershipScore: buyer.membershipScore
       }
     ]
