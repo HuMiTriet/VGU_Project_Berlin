@@ -7,14 +7,13 @@ const Contact = () => {
     <> <Navbar/> 
     <Row align='middle' justify='center'>
       <div id="contact" className="block contactBlock">
-        <Card bodyStyle={{ backgroundColor: '#F3F3FA'}} style={{borderRadius: "20px", overflow: "hidden", width: 1000}}>
+        <Card bodyStyle={{ backgroundColor: '#F3F3FA'}} style={{borderRadius: "20px", overflow: "hidden", width: 900}}>
         <div className="container-fluid">
           <div className="titleHolder">
             <h2>Contract</h2>
           </div>
-          <Row>
+          <Row >
             <Col span={12}>
-            <div className="contactForm">
             <Card bodyStyle={{ backgroundColor: '#fff' }} style={{borderRadius: "20px", overflow: "hidden", width: 300}}>
               <p>User: 161517
               <br/>Own: 70%
@@ -22,7 +21,6 @@ const Contact = () => {
               <br/>No remain:
               </p>
             </Card>
-            </div>
             </Col>
             <Col span={12}>
             <Form initialValues={{ remember: true }}>

@@ -1,4 +1,4 @@
-@import "~antd/dist/antd.css";
+@import '~antd/dist/antd.css';
 /* 
 general 
 -------
@@ -13,7 +13,7 @@ general
   font-variant: tabular-nums;
   line-height: 1.5715;
   list-style: none;
-  font-feature-settings: "tnum";
+  font-feature-settings: 'tnum';
   position: relative;
   top: 0.2em;
   line-height: 1;
@@ -37,7 +37,7 @@ general
   visibility: hidden;
   animation: antCheckboxEffect 0.36s ease-in-out;
   animation-fill-mode: backwards;
-  content: "";
+  content: '';
 }
 .ant-checkbox:hover::after,
 .ant-checkbox-wrapper:hover .ant-checkbox::after {
@@ -70,7 +70,7 @@ general
   transform: rotate(45deg) scale(0) translate(-50%, -50%);
   opacity: 0;
   transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6), opacity 0.1s;
-  content: " ";
+  content: ' ';
 }
 .ant-checkbox-input {
   position: absolute;
@@ -93,7 +93,7 @@ general
   transform: rotate(45deg) scale(1) translate(-50%, -50%);
   opacity: 1;
   transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
-  content: " ";
+  content: ' ';
 }
 .ant-checkbox-checked .ant-checkbox-inner {
   background-color: #370257;
@@ -136,7 +136,7 @@ general
   font-variant: tabular-nums;
   line-height: 1.5715;
   list-style: none;
-  font-feature-settings: "tnum";
+  font-feature-settings: 'tnum';
   display: inline-flex;
   align-items: baseline;
   line-height: unset;
@@ -146,7 +146,7 @@ general
   display: inline-block;
   width: 0;
   overflow: hidden;
-  content: "\a0";
+  content: '\a0';
 }
 .ant-checkbox-wrapper.ant-checkbox-wrapper-disabled {
   cursor: not-allowed;
@@ -154,7 +154,7 @@ general
 .ant-checkbox-wrapper + .ant-checkbox-wrapper {
   margin-left: 8px;
 }
-.ant-checkbox-wrapper.ant-checkbox-wrapper-in-form-item input[type="checkbox"] {
+.ant-checkbox-wrapper.ant-checkbox-wrapper-in-form-item input[type='checkbox'] {
   width: 14px;
   height: 14px;
 }
@@ -171,7 +171,7 @@ general
   font-variant: tabular-nums;
   line-height: 1.5715;
   list-style: none;
-  font-feature-settings: "tnum";
+  font-feature-settings: 'tnum';
   display: inline-block;
 }
 .ant-checkbox-group-item {
@@ -196,7 +196,7 @@ general
   border: 0;
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
-  content: " ";
+  content: ' ';
 }
 .ant-checkbox-indeterminate.ant-checkbox-disabled .ant-checkbox-inner::after {
   background-color: rgba(0, 0, 0, 0.25);
@@ -233,7 +233,7 @@ general
   bottom: 0;
   left: 0;
   background: transparent;
-  content: "";
+  content: '';
 }
 .ant-btn-primary:hover,
 .ant-btn-primary:focus {
@@ -253,7 +253,7 @@ general
   bottom: 0;
   left: 0;
   background: transparent;
-  content: "";
+  content: '';
 }
 .ant-btn-primary:active {
   color: #fff;
@@ -270,7 +270,7 @@ general
   bottom: 0;
   left: 0;
   background: transparent;
-  content: "";
+  content: '';
 }
 .ant-btn-primary[disabled],
 .ant-btn-primary[disabled]:hover,
@@ -298,7 +298,7 @@ general
   bottom: 0;
   left: 0;
   background: transparent;
-  content: "";
+  content: '';
 }
 .ant-btn-group .ant-btn-primary:not(:first-child):not(:last-child) {
   border-right-color: #6f00b2;
@@ -352,7 +352,7 @@ body {
 
 .container-fluid {
   margin: 0 auto;
-  max-width: 1000px;
+  max-width: 900px;
   padding: 0 15px;
 }
 
@@ -396,7 +396,7 @@ title holder
 
 .titleHolder:after {
   transform: translateX(-50%);
-  content: "";
+  content: '';
   background: #7b21b1;
   position: absolute;
   bottom: 0;
@@ -464,7 +464,7 @@ header
 
 .header .ant-anchor-link:before,
 .header .ant-anchor-link:after {
-  content: "";
+  content: '';
   background: #fff;
   width: 1px;
   position: absolute;
@@ -505,7 +505,7 @@ header
 
 .header .ant-menu li.ant-menu-item:before,
 .header .ant-menu li.ant-menu-item:after {
-  content: "";
+  content: '';
   background: #fff;
   width: 1px;
   position: absolute;
@@ -598,6 +598,7 @@ block
 ----- 
 */
 .block {
+  size: 100px;
   padding: 100px 0px 20px 0px;
 }
 
@@ -635,7 +636,7 @@ how it works
 */
 
 .worksBlock:before {
-  content: "";
+  content: '';
   background: rgba(0, 0, 0, 0.5);
   position: absolute;
   top: 0;
@@ -817,4 +818,14 @@ Contract
 
 .Contract {
   position: center;
+}
+
+.ant-form {
+  width: 380px;
+  margin: auto;
+}
+
+.ant-card {
+  width: 380px;
+  margin: auto;
 }
