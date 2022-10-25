@@ -4,12 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 import { auth, db, logout } from '../firebase'
 import { query, collection, getDocs, where } from 'firebase/firestore'
-import {
-  getAssets,
-  readAsset,
-  createAsset,
-  deleteAsset
-} from '../API_handler/api'
+import * as api from '../API_handler/api'
 
 function Dashboard() {
   const [user, loading] = useAuthState(auth)
@@ -31,13 +26,13 @@ function Dashboard() {
   // }
   const [isShown, setIsShown] = useState(false)
   const handleGetAssets = async () => {
-    setAllAssets(await getAssets())
+    setAllAssets(await api.getAllAssets())
     setIsShown(current => !current)
   }
 
   const handleReadAsset = async (assetID: string) => {
     console.log('Read Asset')
-    const asset = await readAsset(assetID)
+    const asset = await api.readAsset(assetID)
     console.log(asset)
     setReadAsset(asset)
   }
@@ -91,7 +86,7 @@ function Dashboard() {
         <button
           className="createAsset"
           onClick={() =>
-            createAsset(
+            api.createRealEstate(
               'asset209',
               JSON.stringify({
                 numOfBathroom: '2',
@@ -110,7 +105,8 @@ function Dashboard() {
                   sellPrice: '1000',
                   sellThreshold: '5'
                 }
-              ])
+              ]),
+              '0'
             )
           }
         >
@@ -123,7 +119,10 @@ function Dashboard() {
             onInput={(e: any) => setInputAssetID(e.target.value)}
           ></input>
         </form>
-        <button className="deleteAsset" onClick={() => deleteAsset(assetID)}>
+        <button
+          className="deleteAsset"
+          onClick={() => api.deleteAsset(assetID)}
+        >
           Delete Asset
         </button>
       </div>
