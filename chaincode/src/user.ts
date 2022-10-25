@@ -11,5 +11,5 @@ export class User {
   public balance: number
 
   @Property()
-  public membershipScore = 0
+  public membershipScore: number
 }
