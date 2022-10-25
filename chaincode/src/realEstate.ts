@@ -11,6 +11,9 @@ export class RealEstate {
   public id: string
 
   @Property()
+  public name: string
+
+  @Property()
   public roomList: RoomType
 
   @Property()

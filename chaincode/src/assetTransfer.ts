@@ -58,6 +58,7 @@ export class AssetTransferContract extends Contract {
 
     const realEstate: RealEstate[] = [
       {
+        name: 'Beautiful Duplex Apartment',
         docType: realEstateDocType,
         id: 'asset1',
         area: 200,
@@ -67,6 +68,7 @@ export class AssetTransferContract extends Contract {
         membershipThreshold: 0
       },
       {
+        name: 'Gorgeous Triplex Apartment',
         docType: realEstateDocType,
         id: 'asset2',
         area: 500,
@@ -97,16 +99,19 @@ export class AssetTransferContract extends Contract {
   public async InitLedgerUser(ctx: Context): Promise<void> {
     const assets: User[] = [
       {
+        name: 'Thinh Le',
         docType: userDocType,
         id: 'user1',
         membershipScore: 10
       },
       {
+        name: 'John Doe',
         docType: userDocType,
         id: 'user2',
         membershipScore: 0
       },
       {
+        name: 'James Washington',
         docType: userDocType,
         id: 'user3',
         membershipScore: 0
@@ -131,16 +136,17 @@ export class AssetTransferContract extends Contract {
   @Transaction()
   public async CreateRealEstate(
     ctx: Context,
-    AssetID: string,
+    id: string,
+    name: string,
     roomListString: string,
     areaString: string,
     location: string,
     OwnersString: string,
-    membershipThreshold: number
+    membershipThresholdString: string
   ) {
-    const exists = await this.AssetExists(ctx, AssetID)
+    const exists = await this.AssetExists(ctx, id)
     if (exists) {
-      throw new Error(`The asset ${AssetID} already exists`)
+      throw new Error(`The realEstate ${id} already exists`)
     }
 
     const roomList: RoomType = JSON.parse(roomListString)
@@ -149,9 +155,12 @@ export class AssetTransferContract extends Contract {
 
     const owners: Array<Ownership> = JSON.parse(OwnersString)
 
+    const membershipThreshold: number = parseInt(membershipThresholdString)
+
     const realEstate: RealEstate = {
+      name: name,
       docType: realEstateDocType,
-      id: AssetID,
+      id: id,
       roomList: roomList,
       area: area,
       location: location,
@@ -160,22 +169,23 @@ export class AssetTransferContract extends Contract {
     }
 
     await ctx.stub.putState(
-      AssetID,
+      id,
       Buffer.from(stringify(sortKeysRecursive(realEstate)))
     )
   }
 
   @Transaction()
-  public async CreateUser(ctx: Context, userID: string) {
-    const exists = await this.AssetExists(ctx, userID)
+  public async CreateUser(ctx: Context, id: string, name: string) {
+    const exists = await this.AssetExists(ctx, id)
     if (exists) {
-      throw new Error(`The User ${userID} already exists`)
+      throw new Error(`The user ${id} already exists`)
     }
 
     const user: User = {
+      name: name,
       membershipScore: 0,
-      docType: 'user',
-      id: userID
+      docType: userDocType,
+      id: id
     }
 
     await ctx.stub.putState(
@@ -205,16 +215,17 @@ export class AssetTransferContract extends Contract {
   @Transaction()
   public async UpdateRealEstate(
     ctx: Context,
-    AssetID: string,
+    id: string,
+    name: string,
     roomListString: string, // RoomType
     areaString: string, // number
     location: string,
     ownersString: string,
-    membershipThreshold: number
+    membershipThresholdString: string
   ): Promise<void> {
-    const exists = await this.AssetExists(ctx, AssetID)
+    const exists = await this.AssetExists(ctx, id)
     if (!exists) {
-      throw new Error(`The asset ${AssetID} does not exist`)
+      throw new Error(`The asset ${id} does not exist`)
     }
 
     // code to test this method
@@ -226,22 +237,13 @@ export class AssetTransferContract extends Contract {
 
     const owners: Array<Ownership> = JSON.parse(ownersString)
 
-    // // console log out all owners
-    // for (const owner of owners) {
-    //   console.log('DEBUG: OWNER')
-    //   console.log(owner)
-    // }
-
-    // console.log('DEBUG: roomList', roomList)
-
-    // console.log(typeof roomList.numOfBedroom)
-
-    // console.log(`PAIN PEKO: ${roomList.numOfBedroom + 1} `)
+    const membershipThreshold = parseInt(membershipThresholdString)
 
     // overwriting original asset with new asset
     const updatedRealEstate: RealEstate = {
+      name: name,
       docType: realEstateDocType,
-      id: AssetID,
+      id: id,
       roomList: roomList,
       area: area,
       location: location,
@@ -251,7 +253,7 @@ export class AssetTransferContract extends Contract {
     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
 
     return ctx.stub.putState(
-      AssetID,
+      id,
       Buffer.from(stringify(sortKeysRecursive(updatedRealEstate)))
     )
   }
@@ -259,20 +261,22 @@ export class AssetTransferContract extends Contract {
   @Transaction()
   public async UpdateUser(
     ctx: Context,
-    userID: string,
+    id: string,
+    name: string,
     membershipScoreString: string
   ): Promise<void> {
-    const exists = await this.AssetExists(ctx, userID)
+    const exists = await this.AssetExists(ctx, id)
     if (!exists) {
-      throw new Error(`The user ${userID} does not exist`)
+      throw new Error(`The user ${id} does not exist`)
     }
 
     const membershipScore = parseInt(membershipScoreString)
 
     // overwriting original asset with new asset
     const updatedUser: User = {
-      docType: 'user',
-      id: userID,
+      name: name,
+      docType: userDocType,
+      id: id,
       membershipScore: membershipScore
     }
     // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
@@ -480,11 +484,13 @@ export class AssetTransferContract extends Contract {
 
     const participants: User[] = [
       {
+        name: seller.name,
         docType: userDocType,
         id: seller.id,
         membershipScore: seller.membershipScore
       },
       {
+        name: buyer.name,
         docType: userDocType,
         id: buyer.id,
         membershipScore: buyer.membershipScore
@@ -511,7 +517,7 @@ export class AssetTransferContract extends Contract {
       buyerOwnership.ownerID +
       ' obtained ' +
       buyPercentage +
-      ' of Asset ' +
+      '% of Asset ' +
       realEstate.id +
       ' from Seller ' +
       sellerOwnership.ownerID
