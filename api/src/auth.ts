@@ -32,15 +32,10 @@ export const authenticateApiKey = (
   res: Response,
   next: NextFunction
 ): void => {
-  res.header('Access-Control-Allow-Origin', '*') // update to match the domain you will make the request from
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, X-API-KEY, x-api-key, Accept-Encoding'
-  )
-  res.header(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD'
-  )
+  // Allow all OPTIONS method to go through authentication
+  if (req.method == 'OPTIONS') {
+    return next()
+  }
 
   passport.authenticate(
     'headerapikey',

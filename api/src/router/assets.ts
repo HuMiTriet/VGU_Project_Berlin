@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express'
-import * as fabric from '../fabric'
 import { StatusCodes } from 'http-status-codes'
+import * as fabric from '../fabric'
 const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, OK } = StatusCodes
 
 export const assetsRouter: Router = express.Router()
@@ -15,6 +15,10 @@ assetsRouter.use(function (req: Request, res: Response, next) {
     'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD'
   )
   next()
+})
+
+assetsRouter.options('/getAll', (req, res) => {
+  res.status(200).send('OK')
 })
 
 /**
@@ -40,7 +44,7 @@ assetsRouter.options('/getAll', async (req: Request, res: Response) => {
     return res
       .status(OK)
       .set({
-        Allow: 'DELETE,GET,OPTIONS,PATCH,PUT'
+        Allow: 'DELETE,GET,OPTIONS,PATCH,PUT, POST'
       })
       .json({
         status: OK,
@@ -93,6 +97,7 @@ assetsRouter.get('/exists', async (req, res) => {
     res.status(INTERNAL_SERVER_ERROR).send(error)
   }
 })
+
 /**
  * Create new asset
  * @author Thai Hoang Tam
@@ -106,15 +111,17 @@ assetsRouter.post('/create', async (req: Request, res: Response) => {
     const location = bodyJson.location
     const roomList = JSON.stringify(bodyJson.roomList)
     const owners = JSON.stringify(bodyJson.owners)
+    const membershipScore = bodyJson.membershipScore
     if (!(assetID && area && location && roomList && owners)) {
       return res.status(BAD_REQUEST).send('Invalid data to create asset')
     }
-    const result = await fabric.createAsset(
+    const result = await fabric.createRealEstate(
       assetID,
       roomList,
       area,
       location,
-      owners
+      owners,
+      membershipScore
     )
     console.log(result)
     return res.status(ACCEPTED).send('Create asset successfully')
@@ -137,18 +144,19 @@ assetsRouter.put('/update', async (req, res) => {
     const location = bodyJson.location
     const roomList = JSON.stringify(bodyJson.roomList)
     const owners = JSON.stringify(bodyJson.owners)
+    const membershipScore = bodyJson.membershipScore
     if (!(assetID && area && location && roomList && owners)) {
       return res.status(BAD_REQUEST).send('Invalid data to create asset')
     }
-    const result = await fabric.updateAsset(
+    const result = await fabric.updateRealEstate(
       assetID,
       roomList,
       area,
       location,
-      owners
+      owners,
+      membershipScore
     )
     console.log(result)
-
     return res.status(ACCEPTED).send('Create asset successfully')
   } catch (error) {
     console.log(error)

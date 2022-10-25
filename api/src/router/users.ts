@@ -12,17 +12,39 @@ export const usersRouter: Router = express.Router()
 usersRouter.post('/create', async (req: Request, res: Response) => {
   try {
     console.log(req.body)
-    const query = req.query
-    const userID: string = <string>query['userID']
-    const balance: string = <string>query['balance']
+    const body = req.body
+    const userID: string = body.userID
+    const balance: string = body.balance
     if (userID != undefined && balance != undefined) {
       const user = await fabric.createUser(userID, balance)
       return res.status(ACCEPTED).send(user)
     } else {
-      return res.status(BAD_REQUEST).send('Invalid query format to create user')
+      return res.status(BAD_REQUEST).send('Invalid data format to create user')
     }
   } catch (error) {
     console.log(error)
-    res.status(INTERNAL_SERVER_ERROR).send('Server fail to create user')
+    res.status(INTERNAL_SERVER_ERROR).send(error)
+  }
+})
+
+/**
+ * Update user
+ * @author Thai Hoang Tam
+ */
+usersRouter.post('/update', async (req: Request, res: Response) => {
+  try {
+    console.log(req.body)
+    const body = req.body
+    const userID: string = body.userID
+    const balance: string = body.balance
+    const membershipScore: string = body.membershipScore
+    if (!(userID && balance && membershipScore)) {
+      const user = await fabric.updateUser(userID, balance, membershipScore)
+      return res.status(ACCEPTED).send(user)
+    }
+    return res.status(BAD_REQUEST).send('Invalid data format to create user')
+  } catch (error) {
+    console.log(error)
+    res.status(INTERNAL_SERVER_ERROR).send(error)
   }
 })
