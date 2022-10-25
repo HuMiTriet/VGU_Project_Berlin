@@ -38,10 +38,10 @@ function Dashboard() {
                 {AppFeature(allRealEstate)}
               </Tabs.TabPane>
               <Tabs.TabPane tab="Triplex" key="2">
-                <AppFeature />
+                {AppFeature(allRealEstate)}
               </Tabs.TabPane>
               <Tabs.TabPane tab="Land" key="3">
-                <AppFeature />
+                {AppFeature(allRealEstate)}
               </Tabs.TabPane>
             </Tabs>
           </div>
