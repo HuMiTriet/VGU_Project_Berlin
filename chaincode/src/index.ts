@@ -1,15 +1,12 @@
 /*
+ * Copyright IBM Corp. All Rights Reserved.
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// import { AssetTransferContract } from './assetTransfer'
-
-// export { AssetTransferContract } from './assetTransfer'
-
-// export const contracts: any[] = [AssetTransferContract]
+'use strict'
 
 import { TokenERC20Contract } from './tokenHandler'
 
-export { TokenERC20Contract } from './tokenHandler'
-
-export const contracts: any[] = [TokenERC20Contract]
+module.exports.TokenERC20Contract = TokenERC20Contract
+module.exports.contracts = [TokenERC20Contract]

@@ -4,24 +4,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-'use strict'
-//import { Ownership } from './resources/classOwnership'
-import { Context, Contract, Info, Transaction } from 'fabric-contract-api'
+import { Contract, Transaction } from 'fabric-contract-api'
 
 // Define objectType names for prefix
 const balancePrefix = 'balance'
 const allowancePrefix = 'allowance'
 
 // Define key names for options
-const nameKey = 'my awesome wallet'
-const symbolKey = 'curry wurst'
+const nameKey = 'name'
+const symbolKey = 'symbol'
 const decimalsKey = 'decimals'
 const totalSupplyKey = 'totalSupply'
 
-@Info({
-  title: 'TokenHandler',
-  description: 'Smart contract for trading token'
-})
 export class TokenERC20Contract extends Contract {
   /**
    * Return the name of the token - e.g. "MyToken".
@@ -30,9 +24,9 @@ export class TokenERC20Contract extends Contract {
    * As a work around, we use `TokenName` as an alternative function name.
    *
    * @param {Context} ctx the transaction context
-   * @returns {string} Returns the name of the token
+   * @returns {String} Returns the name of the token
    */
-  async TokenName(ctx: Context) {
+  async TokenName(ctx) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -45,9 +39,9 @@ export class TokenERC20Contract extends Contract {
    * Return the symbol of the token. E.g. “HIX”.
    *
    * @param {Context} ctx the transaction context
-   * @returns {string} Returns the symbol of the token
+   * @returns {String} Returns the symbol of the token
    */
-  async Symbol(ctx: Context) {
+  async Symbol(ctx) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -60,9 +54,9 @@ export class TokenERC20Contract extends Contract {
    * e.g. 8, means to divide the token amount by 100000000 to get its user representation.
    *
    * @param {Context} ctx the transaction context
-   * @returns {number} Returns the number of decimals
+   * @returns {Number} Returns the number of decimals
    */
-  async Decimals(ctx: Context) {
+  async Decimals(ctx) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -75,9 +69,9 @@ export class TokenERC20Contract extends Contract {
    * Return the total token supply.
    *
    * @param {Context} ctx the transaction context
-   * @returns {number} Returns the total token supply
+   * @returns {Number} Returns the total token supply
    */
-  async TotalSupply(ctx: Context) {
+  async TotalSupply(ctx) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -90,10 +84,10 @@ export class TokenERC20Contract extends Contract {
    * BalanceOf returns the balance of the given account.
    *
    * @param {Context} ctx the transaction context
-   * @param {string} owner The owner from which the balance will be retrieved
-   * @returns {number} Returns the account balance
+   * @param {String} owner The owner from which the balance will be retrieved
+   * @returns {Number} Returns the account balance
    */
-  async BalanceOf(ctx: Context, owner: string): Promise<number> {
+  async BalanceOf(ctx, owner) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -103,7 +97,7 @@ export class TokenERC20Contract extends Contract {
     if (!balanceBytes || balanceBytes.length === 0) {
       throw new Error(`the account ${owner} does not exist`)
     }
-    const balance = parseFloat(balanceBytes.toString())
+    const balance = parseInt(balanceBytes.toString())
 
     return balance
   }
@@ -113,16 +107,11 @@ export class TokenERC20Contract extends Contract {
    *  recipient account must be a valid clientID as returned by the ClientAccountID() function.
    *
    * @param {Context} ctx the transaction context
-   * @param {string} to The recipient
-   * @param {string} value The amount of token to be transferred (in string format)
-   * @returns {boolean} Return whether the transfer was successful or not
+   * @param {String} to The recipient
+   * @param {Integer} value The amount of token to be transferred
+   * @returns {Boolean} Return whether the transfer was successful or not
    */
-  @Transaction()
-  public async Transfer(
-    ctx: Context,
-    to: string,
-    value: string
-  ): Promise<boolean> {
+  async Transfer(ctx, to, value) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -134,7 +123,7 @@ export class TokenERC20Contract extends Contract {
     }
 
     // Emit the Transfer event
-    const transferEvent = { from, to, value }
+    const transferEvent = { from, to, value: parseInt(value) }
     ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)))
 
     return true
@@ -199,15 +188,15 @@ export class TokenERC20Contract extends Contract {
     return true
   }
 
-  async _transfer(ctx: Context, from: string, to: string, value: string) {
+  async _transfer(ctx, from, to, value) {
     if (from === to) {
       throw new Error('cannot transfer to and from same client account')
     }
 
     // Convert value from string to int
-    const valueFloat = parseFloat(value)
+    const valueInt = parseInt(value)
 
-    if (valueFloat < 0) {
+    if (valueInt < 0) {
       // transfer of 0 is allowed in ERC20, so just validate against negative amounts
       throw new Error('transfer amount cannot be negative')
     }
@@ -223,7 +212,7 @@ export class TokenERC20Contract extends Contract {
     const fromCurrentBalance = parseInt(fromCurrentBalanceBytes.toString())
 
     // Check if the sender has enough tokens to spend.
-    if (fromCurrentBalance < valueFloat) {
+    if (fromCurrentBalance < valueInt) {
       throw new Error(`client account ${from} has insufficient funds.`)
     }
 
@@ -240,8 +229,8 @@ export class TokenERC20Contract extends Contract {
     }
 
     // Update the balance
-    const fromUpdatedBalance = this.sub(fromCurrentBalance, valueFloat)
-    const toUpdatedBalance = this.add(toCurrentBalance, valueFloat)
+    const fromUpdatedBalance = this.sub(fromCurrentBalance, valueInt)
+    const toUpdatedBalance = this.add(toCurrentBalance, valueInt)
 
     await ctx.stub.putState(
       fromBalanceKey,
@@ -270,7 +259,7 @@ export class TokenERC20Contract extends Contract {
    * @param {Integer} value The amount of tokens to be approved for transfer
    * @returns {Boolean} Return whether the approval was successful or not
    */
-  async Approve(ctx: Context, spender: string, value: string) {
+  async Approve(ctx, spender, value) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -330,15 +319,9 @@ export class TokenERC20Contract extends Contract {
    * @param {String} totalSupply The totalSupply of the token
    */
   @Transaction()
-  public async Initialize(
-    ctx: Context,
-    name: string,
-    symbol: string,
-    decimals: string
-  ): Promise<boolean> {
+  public async Initialize(ctx, name, symbol, decimals) {
     // Check minter authorization - this sample assumes Org1 is the central banker with privilege to set Options for these tokens
     // const clientMSPID = ctx.clientIdentity.getMSPID()
-
     // if (clientMSPID !== 'Org1MSP') {
     //   throw new Error('client is not authorized to initialize contract')
     // }
@@ -366,11 +349,11 @@ export class TokenERC20Contract extends Contract {
    * @param {Integer} amount amount of tokens to be minted
    * @returns {Object} The balance
    */
-  async Mint(ctx, amount) {
+  public async Mint(ctx, amount) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
-    // Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
+    // // Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
     // const clientMSPID = ctx.clientIdentity.getMSPID()
     // if (clientMSPID !== 'Org1MSP') {
     //   throw new Error('client is not authorized to mint new tokens')
@@ -379,9 +362,9 @@ export class TokenERC20Contract extends Contract {
     // Get ID of submitting client identity
     const minter = ctx.clientIdentity.getID()
 
-    const amountFloat = parseFloat(amount)
-    if (amountFloat <= 0) {
-      throw new Error('mint amount must be a positive number')
+    const amountInt = parseInt(amount)
+    if (amountInt <= 0) {
+      throw new Error('mint amount must be a positive integer')
     }
 
     const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [minter])
@@ -392,9 +375,9 @@ export class TokenERC20Contract extends Contract {
     if (!currentBalanceBytes || currentBalanceBytes.length === 0) {
       currentBalance = 0
     } else {
-      currentBalance = parseFloat(currentBalanceBytes.toString())
+      currentBalance = parseInt(currentBalanceBytes.toString())
     }
-    const updatedBalance = this.add(currentBalance, amountFloat)
+    const updatedBalance = this.add(currentBalance, amountInt)
 
     await ctx.stub.putState(balanceKey, Buffer.from(updatedBalance.toString()))
 
@@ -405,13 +388,13 @@ export class TokenERC20Contract extends Contract {
       console.log('Initialize the tokenSupply')
       totalSupply = 0
     } else {
-      totalSupply = parseFloat(totalSupplyBytes.toString())
+      totalSupply = parseInt(totalSupplyBytes.toString())
     }
-    totalSupply = this.add(totalSupply, amountFloat)
+    totalSupply = this.add(totalSupply, amountInt)
     await ctx.stub.putState(totalSupplyKey, Buffer.from(totalSupply.toString()))
 
     // Emit the Transfer event
-    const transferEvent = { from: '0x0', to: minter, value: amountFloat }
+    const transferEvent = { from: '0x0', to: minter, value: amountInt }
     ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)))
 
     console.log(
@@ -439,7 +422,7 @@ export class TokenERC20Contract extends Contract {
 
     const minter = ctx.clientIdentity.getID()
 
-    const amountFloat = parseFloat(amount)
+    const amountInt = parseInt(amount)
 
     const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [minter])
 
@@ -447,8 +430,8 @@ export class TokenERC20Contract extends Contract {
     if (!currentBalanceBytes || currentBalanceBytes.length === 0) {
       throw new Error('The balance does not exist')
     }
-    const currentBalance = parseFloat(currentBalanceBytes.toString())
-    const updatedBalance = this.sub(currentBalance, amountFloat)
+    const currentBalance = parseInt(currentBalanceBytes.toString())
+    const updatedBalance = this.sub(currentBalance, amountInt)
 
     await ctx.stub.putState(balanceKey, Buffer.from(updatedBalance.toString()))
 
@@ -458,13 +441,13 @@ export class TokenERC20Contract extends Contract {
       throw new Error('totalSupply does not exist.')
     }
     const totalSupply = this.sub(
-      parseFloat(totalSupplyBytes.toString()),
-      amountFloat
+      parseInt(totalSupplyBytes.toString()),
+      amountInt
     )
     await ctx.stub.putState(totalSupplyKey, Buffer.from(totalSupply.toString()))
 
     // Emit the Transfer event
-    const transferEvent = { from: minter, to: '0x0', value: amountFloat }
+    const transferEvent = { from: minter, to: '0x0', value: amountInt }
     ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)))
 
     console.log(
@@ -479,7 +462,7 @@ export class TokenERC20Contract extends Contract {
    * @param {Context} ctx the transaction context
    * @returns {Number} Returns the account balance
    */
-  public async ClientAccountBalance(ctx: Context): Promise<number> {
+  async ClientAccountBalance(ctx) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -501,7 +484,7 @@ export class TokenERC20Contract extends Contract {
   // ClientAccountID returns the id of the requesting client's account.
   // In this implementation, the client account ID is the clientId itself.
   // Users can use this function to get their own account id, which they can then give to others as the payment address
-  public async ClientAccountID(ctx: Context): Promise<string> {
+  async ClientAccountID(ctx) {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
