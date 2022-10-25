@@ -1,50 +1,44 @@
-import express, { Express, Request, Response } from 'express'
-import * as fabric from './app'
-import dotenv from 'dotenv'
 import bodyParser from 'body-parser'
+import dotenv from 'dotenv'
+import express, { Express, Request, Response } from 'express'
+import { StatusCodes } from 'http-status-codes'
+import passport from 'passport'
+import { authenticateApiKey, fabricAPIKeyStrategy } from './auth'
 import { assetsRouter } from './router/assets'
 import { usersRouter } from './router/users'
-import { StatusCodes } from 'http-status-codes'
 const { NOT_FOUND } = StatusCodes
 dotenv.config()
-
-const port = process.env.PORT
-const host = `localhost:${port}`
-const app: Express = express()
 
 /**
  * API server using Express.js to get request from React front-end and return
  * response from chaincode
  * @author Thai Hoang Tam
  */
-async function main(): Promise<void> {
-  // run the fabric gateway to connect to the HF
-  fabric.main().catch(error => {
-    console.error('******** FAILED to run the fabric application:', error)
-    process.exitCode = 1
-  })
-
-  app.listen(port, () => {
-    console.log(`API server running on ${host}`)
-  })
-
+export const server = async (): Promise<Express> => {
+  const app: Express = express()
   // to get req.body as a JSON object
   app.use(bodyParser.json())
   app.use(function (req: Request, res: Response, next) {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000') // update to match the domain you will make the request from
+    res.header('Access-Control-Allow-Origin', '*') // update to match the domain you will make the request from
     res.header(
       'Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept, X-API-KEY'
+      'Origin, X-Requested-With, Content-Type, Accept, X-API-KEY, Accept-Encoding, x-api-key'
     )
     res.header(
       'Access-Control-Allow-Methods',
-      'GET, POST, OPTIONS, PUT, DELETE'
+      'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD'
     )
     next()
   })
 
-  app.use('/api/assets', assetsRouter)
-  app.use('/api/users', usersRouter)
+  //define passport startegy
+  passport.use(fabricAPIKeyStrategy)
+
+  //initialize passport js
+  app.use(passport.initialize())
+
+  app.use('/api/assets', authenticateApiKey, assetsRouter)
+  app.use('/api/users', authenticateApiKey, usersRouter)
   // For everything else
   app.use((_req, res) =>
     res.status(NOT_FOUND).json({
@@ -52,9 +46,6 @@ async function main(): Promise<void> {
       timestamp: new Date().toISOString()
     })
   )
-}
 
-main().catch(error => {
-  console.error('******** FAILED to run the application:', error)
-  process.exitCode = 1
-})
+  return app
+}

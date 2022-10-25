@@ -16,10 +16,11 @@ import * as crypto from 'crypto'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import { TextDecoder } from 'util'
+import { env } from './env'
 
-const channelName = envOrDefault('CHANNEL_NAME', 'mychannel')
-const chaincodeName = envOrDefault('CHAINCODE_NAME', 'basic')
-const mspId = envOrDefault('MSP_ID', 'Org1MSP')
+const channelName = env.CHANNEL_NAME
+const chaincodeName = env.CHAINCODE_NAME
+const mspId = env.MSP_ID_ORG1
 
 // Path to crypto materials.
 const cryptoPath = envOrDefault(
@@ -103,13 +104,14 @@ export async function main(): Promise<void> {
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await initLedger()
 
-    await createAsset(
-      'asset18',
-      '{ "numOfBedroom": "0", "numOfLivingroom": "0", "numOfBathroom": "0", "numOfDiningroom": "0" }',
-      '420',
-      'Ben Cat',
-      '[ { "ownerID": "user1", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true },{ "ownerID": "user2", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true } ]'
-    )
+    // await createAsset(
+    //   'asset18',
+    //   '{ "numOfBedroom": "0", "numOfLivingroom": "0", "numOfBathroom": "0", "numOfDiningroom": "0" }',
+    //   '420',
+    //   'Ben Cat',
+    //   '[ { "ownerID": "user1", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true },{ "ownerID": "user2", "ownershipPercentage": 69, "sellPercentage": 10, "sellPrice": 69420, "sellThreshold": 69, "isSeller": true } ]'
+    // )
+    // await readAsset('user4')
 
     // await getAllAssets()
   } finally {
@@ -208,7 +210,7 @@ export async function createAsset(
 export async function createUser(userID: string, balance: string) {
   console.log('Create user')
   const resultBytes = await contract.submitTransaction(
-    'CreateAsset',
+    'CreateRealEstate',
     userID,
     balance
   )
@@ -222,32 +224,38 @@ export async function createUser(userID: string, balance: string) {
  * Submit transaction asynchronously, allowing the application to process the smart contract response (e.g. update a UI)
  * while waiting for the commit notification.
  */
-export async function transferAssetAsync(
+export async function transferRealEstate(
   // contract: Contract,
-  assetID: string
-): Promise<void> {
-  console.log(
-    '\n--> Async Submit Transaction: TransferAsset, updates existing asset owner'
-  )
-
-  const commit = await contract.submitAsync('TransferAsset', {
-    arguments: [assetID, 'Saptha']
-  })
-  const oldOwner = utf8Decoder.decode(commit.getResult())
-
-  console.log(
-    `*** Successfully submitted transaction to transfer ownership from ${oldOwner} to Saptha`
-  )
-  console.log('*** Waiting for transaction commit')
-
-  const status = await commit.getStatus()
-  if (!status.successful) {
-    throw new Error(
-      `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
+  assetID: string,
+  sellerID: string,
+  buyerID: string,
+  buyPercentage: string
+): Promise<string> {
+  let result
+  try {
+    console.log(
+      '\n--> Async Submit Transaction: TransferAsset, updates existing asset owner'
     )
-  }
 
-  console.log('*** Transaction committed successfully')
+    const commit = await contract.submitAsync('TransferAsset', {
+      arguments: [assetID, sellerID, buyerID, buyPercentage]
+    })
+    result = utf8Decoder.decode(commit.getResult())
+
+    // console.log('*** Waiting for transaction commit')
+
+    const status = await commit.getStatus()
+    if (!status.successful) {
+      throw new Error(
+        `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
+      )
+    }
+    console.log('*** Transaction committed successfully')
+    return result
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
 }
 
 /**
@@ -261,12 +269,19 @@ export async function readAsset(
   assetID: string
 ): Promise<string> {
   console.log('Read Asset')
-  const resultBytes = await contract.evaluateTransaction('ReadAsset', assetID)
-  const resultJson = utf8Decoder.decode(resultBytes)
-  console.log(resultJson)
-  const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return result
+  let result
+  try {
+    const resultBytes = await contract.evaluateTransaction('ReadAsset', assetID)
+    const resultJson = utf8Decoder.decode(resultBytes)
+    console.log(resultJson)
+    result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: any) {
+    console.log(error)
+    console.log('error ' + error.details[0].message)
+    return error.details[0].message
+  }
 }
 
 /**
@@ -275,7 +290,7 @@ export async function readAsset(
  * @param assetID
  * @returns
  */
-export async function deleteAsset(assetID: string): Promise<boolean> {
+export async function deleteAsset(assetID: string): Promise<string> {
   try {
     console.log('Delete asset')
     const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
@@ -283,19 +298,32 @@ export async function deleteAsset(assetID: string): Promise<boolean> {
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error) {
+  } catch (error: any) {
     console.log(error)
-    return false
+    return error
   }
 }
 
-export async function assetExists(assetID: string): Promise<boolean> {
-  console.log('Asset Exist')
-  const resultBytes = await contract.evaluateTransaction('AssetExists', assetID)
-  const resultJson = utf8Decoder.decode(resultBytes)
-  const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return result
+/**
+ * Check if asset exists
+ * @param assetID
+ * @returns
+ */
+export async function assetExists(assetID: string): Promise<string> {
+  try {
+    console.log('Asset Exist')
+    const resultBytes = await contract.evaluateTransaction(
+      'AssetExists',
+      assetID
+    )
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
 }
 
 /**
@@ -316,19 +344,24 @@ export async function updateAsset(
   location: string,
   owners: string
 ) {
-  console.log('Update Asset')
-  const resultBytes = await contract.evaluateTransaction(
-    'UpdateAsset',
-    assetID,
-    roomList,
-    area,
-    location,
-    owners
-  )
-  const resultJson = utf8Decoder.decode(resultBytes)
-  const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return result
+  try {
+    console.log('Update Asset')
+    const resultBytes = await contract.evaluateTransaction(
+      'UpdateAsset',
+      assetID,
+      roomList,
+      area,
+      location,
+      owners
+    )
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error) {
+    console.log(error)
+    return error
+  }
 }
 
 /**
@@ -338,18 +371,22 @@ export async function updateAsset(
  * @returns
  */
 export async function updateUser(assetID: string): Promise<string> {
-  console.log('Update User')
-  const resultBytes = await contract.evaluateTransaction('UpdateUser', assetID)
-  const resultJson = utf8Decoder.decode(resultBytes)
-  const result = JSON.parse(resultJson)
-  console.log('*** Result:', result)
-  return result
+  try {
+    console.log('Update User')
+    const resultBytes = await contract.evaluateTransaction(
+      'UpdateUser',
+      assetID
+    )
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
 }
-
-/**
- * envOrDefault() will return the value of an environment variable, or a default value if the variable is undefined.
- */
-function envOrDefault(key: string, defaultValue: string): string {
+function envOrDefault(key: string, defaultValue: string) {
   return process.env[key] || defaultValue
 }
 
