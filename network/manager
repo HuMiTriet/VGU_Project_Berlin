@@ -392,24 +392,11 @@ case "$OPTION" in
   monitor | m)
     ./monitordocker.sh fabric_test
     ;;
-  # deploy_mint | dm)
-  #   ./network.sh deployCC_business -ccn token_utxo -ccp ../token-utxo/chaincode-go/ -ccl go
-  #   warnln "no UTXO coin has been minted yet, please run manager mint to mint coins"
-  #   ;;
-  # mint | mi)
-  #   echo "currently working on business channel"
-  #   infoln "generating new minter identity for Org1 (dunno if it overwrites the old one)"
-  #   PATH=${PWD}/../bin:${PWD}:$PATH
-  #   FABRIC_CFG_PATH=$PWD/../config/
-  #   FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example.com/
-  #   fabric-ca-client register --caname ca-org1 --id.name minter --id.secret minterpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
-  #   info "Generating minter identity of Org1"
-  #   fabric-ca-client enroll -u https://minter:minterpw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
-  #   cp "${PWD}/organizations/peerOrganizations/org1.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp/config.yaml"
+  test)
+    source ./scripts/mint.sh
+    mint
+    ;;
 
-  #   infoln "Generating new recipient"
-
-  #   ;;
   *)
     # option with flags
     infoln "Usage: manager.sh {installed|committed|deploy|upgrade|down|reset or up|o1|o2|o3}

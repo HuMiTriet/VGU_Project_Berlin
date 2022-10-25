@@ -6,7 +6,7 @@
 
 'use strict'
 //import { Ownership } from './resources/classOwnership'
-import { Context, Contract } from 'fabric-contract-api'
+import { Context, Contract, Info, Transaction } from 'fabric-contract-api'
 
 // Define objectType names for prefix
 const balancePrefix = 'balance'
@@ -18,6 +18,10 @@ const symbolKey = 'curry wurst'
 const decimalsKey = 'decimals'
 const totalSupplyKey = 'totalSupply'
 
+@Info({
+  title: 'TokenHandler',
+  description: 'Smart contract for trading token'
+})
 export class TokenERC20Contract extends Contract {
   /**
    * Return the name of the token - e.g. "MyToken".
@@ -113,7 +117,12 @@ export class TokenERC20Contract extends Contract {
    * @param {string} value The amount of token to be transferred (in string format)
    * @returns {boolean} Return whether the transfer was successful or not
    */
-  async Transfer(ctx: Context, to: string, value: string) {
+  @Transaction()
+  public async Transfer(
+    ctx: Context,
+    to: string,
+    value: string
+  ): Promise<boolean> {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -320,7 +329,13 @@ export class TokenERC20Contract extends Contract {
    * @param {String} decimals The decimals of the token
    * @param {String} totalSupply The totalSupply of the token
    */
-  async Initialize(ctx, name, symbol, decimals) {
+  @Transaction()
+  public async Initialize(
+    ctx: Context,
+    name: string,
+    symbol: string,
+    decimals: string
+  ): Promise<boolean> {
     // Check minter authorization - this sample assumes Org1 is the central banker with privilege to set Options for these tokens
     // const clientMSPID = ctx.clientIdentity.getMSPID()
 
@@ -464,7 +479,7 @@ export class TokenERC20Contract extends Contract {
    * @param {Context} ctx the transaction context
    * @returns {Number} Returns the account balance
    */
-  async ClientAccountBalance(ctx) {
+  public async ClientAccountBalance(ctx: Context): Promise<number> {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
@@ -486,7 +501,7 @@ export class TokenERC20Contract extends Contract {
   // ClientAccountID returns the id of the requesting client's account.
   // In this implementation, the client account ID is the clientId itself.
   // Users can use this function to get their own account id, which they can then give to others as the payment address
-  async ClientAccountID(ctx) {
+  public async ClientAccountID(ctx: Context): Promise<string> {
     //check contract options are already set first to execute the function
     await this.CheckInitialized(ctx)
 
