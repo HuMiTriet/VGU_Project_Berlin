@@ -10,8 +10,7 @@ export function doFail(msgString: string): never {
 
 @Object()
 export class RealEstate {
-  @Property()
-  private _docType?: string
+  @Property() private _docType?: string
   public get docType(): string {
     return this._docType
   }
@@ -19,8 +18,7 @@ export class RealEstate {
     this._docType = value
   }
 
-  @Property()
-  private _assetID: string
+  @Property() private _assetID: string
   public get assetID(): string {
     return this._assetID
   }
@@ -28,8 +26,7 @@ export class RealEstate {
     this._assetID = value
   }
 
-  @Property()
-  private _area: number
+  @Property() private _area: number
   public get area(): number {
     return this._area
   }
@@ -37,8 +34,7 @@ export class RealEstate {
     this._area = value
   }
 
-  @Property()
-  private _location: string
+  @Property() private _location: string
   public get location(): string {
     return this._location
   }
@@ -46,8 +42,7 @@ export class RealEstate {
     this._location = value
   }
 
-  @Property()
-  private _owner: string
+  @Property() private _owner: string
   public get owner(): string {
     return this._owner
   }
@@ -55,8 +50,7 @@ export class RealEstate {
     this._owner = value
   }
 
-  @Property()
-  private _appraisedValues: number
+  @Property() private _appraisedValues: number
   public get appraisedValues(): number {
     return this._appraisedValues
   }
@@ -109,5 +103,37 @@ export class RealEstate {
     return `Hash: ${this.hashCode()}\nAssetID: ${this._assetID}\nArea: ${
       this._area
     }\nLocation: ${this.location}`
+  }
+}
+
+@Object()
+export class User {
+  @Property() private _docType?: string
+  public get docType(): string {
+    return this._docType
+  }
+  public set docType(value: string) {
+    this._docType = value
+  }
+
+  @Property() private _userID: string
+  public get userID(): string {
+    return this._userID
+  }
+  public set userID(value: string) {
+    this._userID = value
+  }
+
+  @Property() private _balance: number
+  public get balance(): number {
+    return this._balance
+  }
+  public set balance(value: number) {
+    this._balance = value
+  }
+
+  constructor(userID: string, balance: number) {
+    this._userID = userID
+    this._balance = balance
   }
 }
