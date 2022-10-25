@@ -1,7 +1,7 @@
 import './App.css'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Login from './Authentication/Login/Login'
-import Dashboard from './Authentication/Dashboard/Dashboard'
+import Dashboard from './Dashboard/Dashboard'
 import Reset from './Authentication/Reset/Reset'
 import Register from './Authentication/Register/Register'
 

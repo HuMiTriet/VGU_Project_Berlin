@@ -2,17 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useNavigate } from 'react-router-dom'
 import './Dashboard.css'
-import { auth, db, logout } from '../../firebase'
+import { auth, db, logout } from '../firebase'
 import { query, collection, getDocs, where } from 'firebase/firestore'
-import {
-  getAssets,
-  readAsset,
-  createAsset,
-  deleteAsset
-} from '../../API_handler/api'
+import * as api from '../API_handler/api'
 
 function Dashboard() {
-  const [user, loading, error] = useAuthState(auth)
+  const [user, loading] = useAuthState(auth)
   const [name, setName] = useState('')
   const [allAssets, setAllAssets] = useState('')
   const [assetRead, setReadAsset] = useState('')
@@ -24,7 +19,6 @@ function Dashboard() {
   //     const doc = await getDocs(q)
   //     const data = doc.docs[0].data()
   //     setName(data.name)
-  //     asset = await getAssets()
   //   } catch (err) {
   //     console.error(err)
   //     alert('An error occured while fetching user data')
@@ -32,12 +26,15 @@ function Dashboard() {
   // }
   const [isShown, setIsShown] = useState(false)
   const handleGetAssets = async () => {
-    setAllAssets(await getAssets())
+    setAllAssets(await api.getAllAssets())
     setIsShown(current => !current)
   }
 
-  const handleReadAsset = async (req: string) => {
-    setReadAsset(await readAsset(req))
+  const handleReadAsset = async (assetID: string) => {
+    console.log('Read Asset')
+    const asset = await api.readAsset(assetID)
+    console.log(asset)
+    setReadAsset(asset)
   }
 
   useEffect(() => {
@@ -51,6 +48,7 @@ function Dashboard() {
         Logged in as
         <div>{name}</div>
         <div>{user?.email}</div>
+        <div>{user.uid}</div>
         <button className="dashboard__btn" onClick={logout}>
           Logout
         </button>
@@ -74,10 +72,7 @@ function Dashboard() {
             onInput={(e: any) => setInputAssetID(e.target.value)}
           ></input>
         </form>
-        <button
-          className="readAsset"
-          onClick={(e: any) => handleReadAsset(assetID)}
-        >
+        <button className="readAsset" onClick={() => handleReadAsset(assetID)}>
           Read Asset
         </button>
         <div>
@@ -88,6 +83,48 @@ function Dashboard() {
             </div>
           }
         </div>
+        <button
+          className="createAsset"
+          onClick={() =>
+            api.createRealEstate(
+              'asset209',
+              JSON.stringify({
+                numOfBathroom: '2',
+                numOfBedroom: '2',
+                numOfDiningroom: '2',
+                numOfLivingroom: '1'
+              }),
+              '200',
+              'Ben Cat',
+              JSON.stringify([
+                {
+                  isSeller: 'true',
+                  ownerID: 'user1',
+                  ownershipPercentage: '100',
+                  sellPercentage: '50',
+                  sellPrice: '1000',
+                  sellThreshold: '5'
+                }
+              ]),
+              '0'
+            )
+          }
+        >
+          Create Asset
+        </button>
+        <form>
+          Delete AssetID
+          <input
+            value={assetID}
+            onInput={(e: any) => setInputAssetID(e.target.value)}
+          ></input>
+        </form>
+        <button
+          className="deleteAsset"
+          onClick={() => api.deleteAsset(assetID)}
+        >
+          Delete Asset
+        </button>
       </div>
     </div>
   )
