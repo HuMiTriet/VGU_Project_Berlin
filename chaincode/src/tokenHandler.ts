@@ -18,7 +18,7 @@ const symbolKey = 'curry wurst'
 const decimalsKey = 'decimals'
 const totalSupplyKey = 'totalSupply'
 
-class TokenERC20Contract extends Contract {
+export class TokenERC20Contract extends Contract {
   /**
    * Return the name of the token - e.g. "MyToken".
    * The original function name is `name` in ERC20 specification.
