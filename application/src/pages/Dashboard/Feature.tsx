@@ -5,86 +5,88 @@ import { Row, Col, Card, Pagination } from 'antd'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 
-function AppFeature() {
+function AppFeature(realEstates) {
+  realEstates = JSON.parse(realEstates)
+  realEstates = [realEstates[0], realEstates[1]]
   const html = []
-  const realEstates: Array<RealEstate> = [
-    {
-      area: 300,
-      id: 'asset1',
-      location: 'Ben Cat 941',
-      membershipThreshold: 0,
-      owners: [
-        {
-          isSeller: true,
-          ownerID: 'user2',
-          ownershipPercentage: 100,
-          sellPercentage: 50,
-          sellPrice: 2000,
-          sellThreshold: 5
-        },
-        {
-          isSeller: true,
-          ownerID: 'user1',
-          ownershipPercentage: 100,
-          sellPercentage: 50,
-          sellPrice: 1000,
-          sellThreshold: 5
-        },
-        {
-          isSeller: true,
-          ownerID: 'user1',
-          ownershipPercentage: 100,
-          sellPercentage: 10,
-          sellPrice: 100000,
-          sellThreshold: 5
-        }
-      ],
-      roomList: {
-        numOfBathroom: 2,
-        numOfBedroom: 2,
-        numOfDiningroom: 1,
-        numOfLivingroom: 1
-      }
-    },
-    {
-      area: 400,
-      id: 'asset2',
-      location: 'Ben Cat 941',
-      membershipThreshold: 0,
-      owners: [
-        {
-          isSeller: true,
-          ownerID: 'user2',
-          ownershipPercentage: 100,
-          sellPercentage: 50,
-          sellPrice: 2000,
-          sellThreshold: 5
-        },
-        {
-          isSeller: true,
-          ownerID: 'user1',
-          ownershipPercentage: 100,
-          sellPercentage: 50,
-          sellPrice: 1000,
-          sellThreshold: 5
-        },
-        {
-          isSeller: true,
-          ownerID: 'user1',
-          ownershipPercentage: 100,
-          sellPercentage: 10,
-          sellPrice: 100000,
-          sellThreshold: 5
-        }
-      ],
-      roomList: {
-        numOfBathroom: 2,
-        numOfBedroom: 2,
-        numOfDiningroom: 1,
-        numOfLivingroom: 1
-      }
-    }
-  ]
+  // realEstates: Array<RealEstate> = [
+  //   {
+  //     area: 300,
+  //     id: 'asset1',
+  //     location: 'Ben Cat 941',
+  //     membershipThreshold: 0,
+  //     owners: [
+  //       {
+  //         isSeller: true,
+  //         ownerID: 'user2',
+  //         ownershipPercentage: 100,
+  //         sellPercentage: 50,
+  //         sellPrice: 2000,
+  //         sellThreshold: 5
+  //       },
+  //       {
+  //         isSeller: true,
+  //         ownerID: 'user1',
+  //         ownershipPercentage: 100,
+  //         sellPercentage: 50,
+  //         sellPrice: 1000,
+  //         sellThreshold: 5
+  //       },
+  //       {
+  //         isSeller: true,
+  //         ownerID: 'user1',
+  //         ownershipPercentage: 100,
+  //         sellPercentage: 10,
+  //         sellPrice: 100000,
+  //         sellThreshold: 5
+  //       }
+  //     ],
+  //     roomList: {
+  //       numOfBathroom: 2,
+  //       numOfBedroom: 2,
+  //       numOfDiningroom: 1,
+  //       numOfLivingroom: 1
+  //     }
+  //   },
+  //   {
+  //     area: 400,
+  //     id: 'asset2',
+  //     location: 'Ben Cat 941',
+  //     membershipThreshold: 0,
+  //     owners: [
+  //       {
+  //         isSeller: true,
+  //         ownerID: 'user2',
+  //         ownershipPercentage: 100,
+  //         sellPercentage: 50,
+  //         sellPrice: 2000,
+  //         sellThreshold: 5
+  //       },
+  //       {
+  //         isSeller: true,
+  //         ownerID: 'user1',
+  //         ownershipPercentage: 100,
+  //         sellPercentage: 50,
+  //         sellPrice: 1000,
+  //         sellThreshold: 5
+  //       },
+  //       {
+  //         isSeller: true,
+  //         ownerID: 'user1',
+  //         ownershipPercentage: 100,
+  //         sellPercentage: 10,
+  //         sellPrice: 100000,
+  //         sellThreshold: 5
+  //       }
+  //     ],
+  //     roomList: {
+  //       numOfBathroom: 2,
+  //       numOfBedroom: 2,
+  //       numOfDiningroom: 1,
+  //       numOfLivingroom: 1
+  //     }
+  //   }
+  // ]
   realEstates.forEach(function (testRealEstate: RealEstate) {
     console.log(testRealEstate.id)
 
@@ -114,6 +116,7 @@ function AppFeature() {
       </Col>
     )
   })
+
   return (
     <div id="feature">
       <div className="container-fluid">
