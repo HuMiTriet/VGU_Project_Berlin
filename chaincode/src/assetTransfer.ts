@@ -16,6 +16,7 @@ import { RealEstate } from './realEstate'
 
 import { Ownership } from './resources/classOwnership'
 import { RoomType } from './resources/classRoomType'
+import { realEstateDocType, userDocType } from './docType'
 
 @Info({
   title: 'AssetTransfer',
@@ -57,6 +58,7 @@ export class AssetTransferContract extends Contract {
 
     const realEstate: RealEstate[] = [
       {
+        docType: realEstateDocType,
         id: 'asset1',
         area: 200,
         location: 'Ben Cat',
@@ -65,6 +67,7 @@ export class AssetTransferContract extends Contract {
         membershipThreshold: 0
       },
       {
+        docType: realEstateDocType,
         id: 'asset2',
         area: 500,
         location: 'Dong Nai',
@@ -75,7 +78,7 @@ export class AssetTransferContract extends Contract {
     ]
 
     for (const oneRealEstate of realEstate) {
-      oneRealEstate.docType = 'asset'
+      //oneRealEstate.docType = realEstateDocType
       console.log('DEBUG: ONE ASSET BEFORE ADDED')
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
@@ -94,21 +97,24 @@ export class AssetTransferContract extends Contract {
   public async InitLedgerUser(ctx: Context): Promise<void> {
     const assets: User[] = [
       {
+        docType: userDocType,
         id: 'user1',
         membershipScore: 10
       },
       {
+        docType: userDocType,
         id: 'user2',
         membershipScore: 0
       },
       {
+        docType: userDocType,
         id: 'user3',
         membershipScore: 0
       }
     ]
 
     for (const asset of assets) {
-      asset.docType = 'user'
+      // asset.docType = userDocType
       // example of how to write to world state deterministically
       // use convetion of alphabetic order
       // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
@@ -144,6 +150,7 @@ export class AssetTransferContract extends Contract {
     const owners: Array<Ownership> = JSON.parse(OwnersString)
 
     const realEstate: RealEstate = {
+      docType: realEstateDocType,
       id: AssetID,
       roomList: roomList,
       area: area,
@@ -233,6 +240,7 @@ export class AssetTransferContract extends Contract {
 
     // overwriting original asset with new asset
     const updatedRealEstate: RealEstate = {
+      docType: realEstateDocType,
       id: AssetID,
       roomList: roomList,
       area: area,
@@ -472,10 +480,12 @@ export class AssetTransferContract extends Contract {
 
     const participants: User[] = [
       {
+        docType: userDocType,
         id: seller.id,
         membershipScore: seller.membershipScore
       },
       {
+        docType: userDocType,
         id: buyer.id,
         membershipScore: buyer.membershipScore
       }
