@@ -1,4 +1,4 @@
-module github.com/hyperledger/fabric-samples/token-utxo/chaincode-go
+module github.com/hyperledger/fabric-samples/token-erc-20/chaincode-go
 
 go 1.14
 
