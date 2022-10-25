@@ -1,4 +1,4 @@
-export class Ownership {
+export interface Ownership {
   ownerID: string
   ownershipPercentage: number
   sellPercentage: number

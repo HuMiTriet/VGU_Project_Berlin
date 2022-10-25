@@ -1,6 +1,6 @@
-export class RoomType {
-  numOfBedroom = 0
-  numOfLivingroom = 0
-  numOfBathroom = 0
-  numOfDiningroom = 0
+export interface RoomType {
+  numOfBedroom: number
+  numOfLivingroom: number
+  numOfBathroom: number
+  numOfDiningroom: number
 }
