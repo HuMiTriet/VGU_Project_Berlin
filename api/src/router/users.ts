@@ -42,7 +42,7 @@ usersRouter.post('/create', async (req: Request, res: Response) => {
  * Update user
  * @author Thai Hoang Tam
  */
-usersRouter.post('/update', async (req: Request, res: Response) => {
+usersRouter.put('/update', async (req: Request, res: Response) => {
   try {
     console.log(req.body)
     const body = req.body

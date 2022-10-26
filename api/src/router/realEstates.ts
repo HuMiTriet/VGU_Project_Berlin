@@ -94,7 +94,7 @@ realEstatesRouter.put('/update', async (req: Request, res: Response) => {
       membershipThreshold
     )
     console.log(result)
-    return res.status(ACCEPTED).send('Create asset successfully')
+    return res.status(ACCEPTED).send('Update asset successfully')
   } catch (error) {
     console.log(error)
     res.status(INTERNAL_SERVER_ERROR).send('Fail to update asset')

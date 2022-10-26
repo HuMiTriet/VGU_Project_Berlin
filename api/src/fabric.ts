@@ -360,7 +360,7 @@ export async function updateRealEstate(
 ) {
   try {
     console.log('Update Real Estate')
-    const resultBytes = await contract.evaluateTransaction(
+    const resultBytes = await contract.submitTransaction(
       'UpdateRealEstate',
       id,
       roomList,
@@ -394,7 +394,7 @@ export async function updateUser(
 ): Promise<string> {
   try {
     console.log('Update User')
-    const resultBytes = await contract.evaluateTransaction(
+    const resultBytes = await contract.submitTransaction(
       'UpdateUser',
       id,
       name,
