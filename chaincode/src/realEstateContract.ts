@@ -23,8 +23,13 @@ import { User } from './user'
 export class RealEstateContract extends Contract {
   private assetContractOther: AssetContractOther = new AssetContractOther()
 
+  /**
+   * InitLedgerRealEstate initializes data of Real Estate in the World State
+   * @param ctx
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
-  public async InitLedgerAsset(ctx: Context): Promise<void> {
+  public async InitLedgerRealEstate(ctx: Context): Promise<void> {
     const ownerships: Array<Ownership> = [
       {
         ownerID: 'user1',
@@ -75,20 +80,26 @@ export class RealEstateContract extends Contract {
 
     for (const oneRealEstate of realEstate) {
       //oneRealEstate.docType = realEstateDocType
-      console.log('DEBUG: ONE ASSET BEFORE ADDED')
-      // example of how to write to world state deterministically
-      // use convetion of alphabetic order
-      // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
-      // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
       await ctx.stub.putState(
         oneRealEstate.id,
         Buffer.from(stringify(sortKeysRecursive(oneRealEstate)))
       )
-      console.log('DEBUG: ONE ASSET ADDED')
       console.info(`Asset ${oneRealEstate.id} initialized`)
     }
   }
 
+  /**
+   * CreateRealEstate creates a new Real Estate
+   * @param ctx
+   * @param id
+   * @param name
+   * @param roomListString
+   * @param areaString
+   * @param location
+   * @param OwnersString
+   * @param membershipThresholdString
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async CreateRealEstate(
     ctx: Context,
@@ -129,6 +140,20 @@ export class RealEstateContract extends Contract {
       Buffer.from(stringify(sortKeysRecursive(realEstate)))
     )
   }
+
+  /**
+   * UpdateRealEstate updates an already existed Real Estate
+   * @param ctx
+   * @param id
+   * @param name
+   * @param roomListString
+   * @param areaString
+   * @param location
+   * @param ownersString
+   * @param membershipThresholdString
+   * @returns
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async UpdateRealEstate(
     ctx: Context,
@@ -175,21 +200,26 @@ export class RealEstateContract extends Contract {
     )
   }
 
-  // TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
-  @Transaction()
-  public async TransferRealEstate(
+  /**
+   * canTransferRealEstate returns true if the transaction of A Real Estate will be successful.
+   * This function must be run before TransferRealEstate
+   * @param {Context} ctx The transaction context
+   * @param {string} realEstateID The ID of the Real Estate that will be transacted
+   * @param {string} sellerID The ID of the Seller
+   * @param {string} buyerID The ID of the Buyer
+   * @param {string} buyPercentageString The Percentage of the Real Estate that Buyer wants to buy
+   * @returns {Promise<boolean>} successful message
+   * @author Dinh Minh Hoang
+   * */
+  @Transaction(false)
+  @Returns('boolean')
+  public async canTransferRealEstate(
     ctx: Context,
-    AssetID: string,
+    realEstateID: string,
     sellerID: string,
     buyerID: string,
     buyPercentageString: string
-  ): Promise<string> {
-    console.log('Starting transfer asset')
-    console.log('Asset ID:' + AssetID)
-    console.log('seller ID: ' + sellerID)
-    console.log('buyer ID: ' + buyerID)
-    console.log('Buy Percentage: ' + buyPercentageString)
-
+  ) {
     //Check if buyer exists
     const buyerInfoJSON = await this.assetContractOther.ReadAsset(ctx, buyerID)
     if (buyerInfoJSON === undefined) {
@@ -198,25 +228,6 @@ export class RealEstateContract extends Contract {
     console.log('Buyer exists')
 
     const buyer: User = JSON.parse(buyerInfoJSON)
-
-    console.log('Info of Buyer:')
-    console.log("Buyer's ID:" + buyer.id)
-    console.log("Buyer's membershipScore:" + buyer.membershipScore)
-
-    //convert buyPercentage to String
-    const buyPercentage = parseFloat(buyPercentageString)
-    console.log('Buyer wants to buy ' + buyPercentage + '%')
-
-    const assetString = await this.assetContractOther.ReadAsset(ctx, AssetID)
-
-    console.log('--> Object AssetString to parse: ' + assetString)
-
-    const realEstate: RealEstate = JSON.parse(assetString)
-    console.log('Asset exists, AssetID:' + realEstate.id)
-
-    if (realEstate.membershipThreshold > buyer.membershipScore) {
-      throw new Error('Buyer does not have enough membership score')
-    }
 
     //Check if seller exists
     const sellerInfoJSON = await this.assetContractOther.ReadAsset(
@@ -228,16 +239,29 @@ export class RealEstateContract extends Contract {
     }
     console.log('Seller exists')
 
-    const seller: User = JSON.parse(sellerInfoJSON)
-
-    console.log('Info of Seller:')
-    console.log("Seller's ID: " + seller.id)
+    //const seller: User = JSON.parse(sellerInfoJSON)
 
     //Check if buyer has the same ID as seller
     if (sellerID === buyerID) {
       throw new Error('Buyer has the same ID as Seller')
     }
     console.log('Buyer is not the same as Seller')
+
+    //convert buyPercentage to String
+    const buyPercentage = parseFloat(buyPercentageString)
+    console.log('Buyer wants to buy ' + buyPercentage + '%')
+
+    //Get Real Estate
+    const realEstateString = await this.assetContractOther.ReadAsset(
+      ctx,
+      realEstateID
+    )
+    const realEstate: RealEstate = JSON.parse(realEstateString)
+    console.log('Real Estate exists, ID:' + realEstate.id)
+
+    if (realEstate.membershipThreshold > buyer.membershipScore) {
+      throw new Error('Buyer does not have enough membership score')
+    }
 
     //Get the seller's Ownership data
     const sellerOwnership: Ownership = realEstate.owners.find(
@@ -248,7 +272,10 @@ export class RealEstateContract extends Contract {
 
     if (sellerOwnership === undefined) {
       throw new Error(
-        'Seller with ID:' + sellerID + ' does not own asset with ID:' + AssetID
+        'Seller with ID:' +
+          sellerID +
+          ' does not own asset with ID:' +
+          realEstateID
       )
     }
     console.log('Seller owns this asset')
@@ -257,6 +284,13 @@ export class RealEstateContract extends Contract {
       throw new Error('Asset is not for sale according to Seller.')
     }
     console.log('Seller is selling this asset')
+
+    //Check if buyer wants to buy MORE than seller's sellPercentage
+    if (buyPercentage > sellerOwnership.sellPercentage) {
+      throw new Error(
+        "Buyer wants to buy more percentage than Seller's sell percentage"
+      )
+    }
 
     const sellerRemainOwnershipPercentage =
       sellerOwnership.sellPercentage - buyPercentage
@@ -272,23 +306,63 @@ export class RealEstateContract extends Contract {
     ) {
       throw new Error(
         "Seller's remaining ownership percentage is smaller than seller's sell threshhold." +
-          " OR buyer's does not buy all"
+          ' AND the remaining ownership percentage is not 0'
       )
     }
 
-    //Check if buyer wants to buy MORE than seller's sellPercentage
-    if (buyPercentage > sellerOwnership.sellPercentage) {
-      throw new Error(
-        "Buyer wants to buy more percentage than Seller's sell percentage"
-      )
-    }
+    return true
+  }
 
+  /**
+   * TransferRealEstate will transfer A Real Estate From a Seller to a Buyer.
+   * Note that canTransferRealEstate must be run (and return true) before this function can be run correctly.
+   * Seller's and Buyer's balance are NOT updated here, refer to token-erc-20 chaincode for transferring money/token.
+   * @param {Context} ctx The transaction context
+   * @param {string} realEstateID The ID of the Real Estate that will be transacted
+   * @param {string} sellerID The ID of the Seller
+   * @param {string} buyerID The ID of the Buyer
+   * @param {string} buyPercentageString The Percentage of the Real Estate that Buyer wants to buy
+   * @returns {Prosmise<string>} successful message
+   * @author Dinh Minh Hoang, Huynh Minh Triet
+   */
+  @Transaction()
+  public async TransferRealEstate(
+    ctx: Context,
+    AssetID: string,
+    sellerID: string,
+    buyerID: string,
+    buyPercentageString: string
+  ): Promise<string> {
+    //Get real estate from ID
+    const realEstateString = await this.assetContractOther.ReadAsset(
+      ctx,
+      AssetID
+    )
+    const realEstate: RealEstate = JSON.parse(realEstateString)
+
+    //Get the seller's Ownership data
+    const sellerOwnership: Ownership = realEstate.owners.find(
+      (obj: Ownership) => {
+        return obj.ownerID === sellerID
+      }
+    )
+
+    //convert buyPercentage to String
+    const buyPercentage = parseFloat(buyPercentageString)
     const payment = (sellerOwnership.sellPrice / 100) * buyPercentage
 
-    console.log('Buyer payed ' + payment + ' to the seller')
-    // if (buyer.balance < payment) {
-    //   throw new Error('Buyer does not have enough balance.')
-    // }
+    console.log('Buyer pays ' + payment + ' to the Seller')
+
+    //Get buyer
+    const buyerInfoJSON = await this.assetContractOther.ReadAsset(ctx, buyerID)
+    const buyer: User = JSON.parse(buyerInfoJSON)
+
+    //Get Seller
+    const sellerInfoJSON = await this.assetContractOther.ReadAsset(
+      ctx,
+      sellerID
+    )
+    const seller: User = JSON.parse(sellerInfoJSON)
 
     //Check if buyer has already bought this asset once or more.
     let buyerOwnership: Ownership = realEstate.owners.find((obj: Ownership) => {
@@ -326,11 +400,7 @@ export class RealEstateContract extends Contract {
     console.log(
       "Seller's ownership percentage: " + sellerOwnership.ownershipPercentage
     )
-    // console.log('Updating balance')
-    // buyer.balance -= payment
-    // console.log("Buyer's balance: " + buyer.balance)
-    // seller.balance += payment
-    // console.log("Seller's balance: " + seller.balance)
+
     console.log('Updating sell percentage of seller.')
     sellerOwnership.sellPercentage -= buyPercentage
     console.log("Seller's sell percentage: " + sellerOwnership.sellPercentage)
@@ -347,12 +417,11 @@ export class RealEstateContract extends Contract {
       }
     }
 
-    // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
     await ctx.stub.putState(
       AssetID,
       Buffer.from(stringify(sortKeysRecursive(realEstate)))
     )
-    console.log('Successfully updates Asset')
+    console.log('Successfully updates Real Estate')
 
     buyer.membershipScore += 1
 
@@ -398,7 +467,12 @@ export class RealEstateContract extends Contract {
     )
   }
 
-  // GetAllRealEstate returns all Real Estates found in the world state.
+  /**
+   * GetAllRealEstate returns all Real Estates found in the world state.
+   * @param ctx
+   * @returns {string} JSON format of Real Estates
+   * @author Dinh Minh Hoang
+   */
   @Transaction(false)
   @Returns('string')
   public async GetAllRealEstate(ctx: Context): Promise<string> {

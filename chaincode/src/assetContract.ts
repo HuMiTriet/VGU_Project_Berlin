@@ -31,7 +31,7 @@ export class AssetContract extends Contract {
 
   @Transaction()
   public async InitLedgerAsset(ctx: Context): Promise<void> {
-    await this.realEstateContract.InitLedgerAsset(ctx)
+    await this.realEstateContract.InitLedgerRealEstate(ctx)
   }
 
   @Transaction()
