@@ -5,19 +5,6 @@ const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes
 
 export const realEstatesRouter: Router = express.Router()
 
-realEstatesRouter.use(function (req: Request, res: Response, next) {
-  res.header('Access-Control-Allow-Origin', '*') // update to match the domain you will make the request from
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, X-API-KEY, Accept-Encoding, x-api-key'
-  )
-  res.header(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD'
-  )
-  next()
-})
-
 /**
  * Get all real estates
  * @author Thai Hoang Tam
