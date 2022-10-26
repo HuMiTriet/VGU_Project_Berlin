@@ -127,6 +127,24 @@ export class AssetContract extends Contract {
     return this.assetContractOther.AssetExists(ctx, id)
   }
 
+  @Transaction(false)
+  @Returns('boolean')
+  public async canTransferRealEstate(
+    ctx: Context,
+    realEstateID: string,
+    sellerID: string,
+    buyerID: string,
+    buyPercentageString: string
+  ) {
+    return await this.realEstateContract.canTransferRealEstate(
+      ctx,
+      realEstateID,
+      sellerID,
+      buyerID,
+      buyPercentageString
+    )
+  }
+
   // TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
   @Transaction()
   public async TransferRealEstate(
