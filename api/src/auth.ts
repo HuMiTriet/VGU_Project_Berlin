@@ -32,7 +32,7 @@ export const authenticateApiKey = (
   res: Response,
   next: NextFunction
 ): void => {
-  // Allow all OPTIONS method to go through authentication
+  // Allow all OPTIONS method to go through authentication, prevent CORS policy
   if (req.method == 'OPTIONS') {
     return next()
   }

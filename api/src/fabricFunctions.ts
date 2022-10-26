@@ -14,6 +14,7 @@ export async function initLedger(contract: Contract): Promise<void> {
 /**
  * Get all assets (Real estate and user)
  * @author Thai Hoang Tam
+ * @param contract
  * @return all assets from ledger
  */
 export async function getAllAssets(contract: Contract): Promise<string> {
@@ -33,6 +34,7 @@ export async function getAllAssets(contract: Contract): Promise<string> {
 /**
  * Get all real estate
  * @author Thai Hoang Tam
+ * @param contract
  * @return all real estate from ledger
  */
 export async function getAllRealEstate(contract: Contract): Promise<string> {
@@ -52,6 +54,7 @@ export async function getAllRealEstate(contract: Contract): Promise<string> {
 /**
  * Create new Real Estate
  * @author Thai Hoang Tam
+ * @param contract
  * @param id
  * @param name
  * @param roomList
@@ -96,6 +99,7 @@ export async function createRealEstate(
 /**
  * Create a new user with a starting balance
  * @author Thai Hoang Tam
+ * @param contract
  * @param id
  * @param name
  * @returns
@@ -117,6 +121,12 @@ export async function createUser(contract: Contract, id: string, name: string) {
 /**
  * Transfer real estate
  * @author Thai Hoang Tam
+ * @param contract
+ * @param id
+ * @param sellerID
+ * @param buyerID
+ * @param buyPercentage
+ * @returns
  */
 export async function transferRealEstate(
   contract: Contract,
@@ -149,6 +159,7 @@ export async function transferRealEstate(
 /**
  * Return an asset read from world state
  * @author Thai Hoang Tam
+ * @param contract
  * @param id
  * @returns asset as json object
  */
@@ -174,10 +185,14 @@ export async function readAsset(
 /**
  * Delete an asset from the world state
  * @author Thai Hoang Tam
+ * @param contract
  * @param id
  * @returns
  */
-export async function deleteAsset(contract: Contract, id: string): Promise<string> {
+export async function deleteAsset(
+  contract: Contract,
+  id: string
+): Promise<string> {
   try {
     console.log('*** Delete asset')
     const resultBytes = await contract.submitTransaction('DeleteAsset', id)
@@ -194,10 +209,15 @@ export async function deleteAsset(contract: Contract, id: string): Promise<strin
 
 /**
  * Check if asset exists
+ * @author Thai Hoang Tam
+ * @param contract
  * @param id
  * @returns
  */
-export async function assetExists(contract: Contract, id: string): Promise<string> {
+export async function assetExists(
+  contract: Contract,
+  id: string
+): Promise<string> {
   try {
     console.log('*** Asset Exist')
     const resultBytes = await contract.evaluateTransaction('AssetExists', id)
@@ -214,6 +234,7 @@ export async function assetExists(contract: Contract, id: string): Promise<strin
 /**
  * Update an real estate
  * @author Thai Hoang Tam
+ * @param contract
  * @param id
  * @param name
  * @param roomList
@@ -258,6 +279,7 @@ export async function updateRealEstate(
 /**
  * Update a user information
  * @author Thai Hoang Tam
+ * @param contract
  * @param id
  * @param name
  * @param membershipScore
