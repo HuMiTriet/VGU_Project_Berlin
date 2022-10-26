@@ -22,13 +22,13 @@ export async function transferToken(
       arguments: [to, value]
     })
     result = <boolean><unknown>utf8Decoder.decode(commit.getResult())
-    const status = await commit.getStatus()
-    if (!status.successful) {
-      throw new Error(
-        `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
-      )
-    }
-    console.log('*** Result:', result)
+    // const status = await commit.getStatus()
+    // if (!status.successful) {
+    //   throw new Error(
+    //     `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
+    //   )
+    // }
+    // console.log('*** Result:', result)
     return result
   } catch (error: unknown) {
     console.log('*** Error:', error)
@@ -57,12 +57,12 @@ export async function canTransferToken(
       arguments: [from, to, value]
     })
     result = <boolean><unknown>utf8Decoder.decode(commit.getResult())
-    const status = await commit.getStatus()
-    if (!status.successful) {
-      throw new Error(
-        `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
-      )
-    }
+    // const status = await commit.getStatus()
+    // if (!status.successful) {
+    //   throw new Error(
+    //     `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
+    //   )
+    // }
     console.log('*** Result:', result)
     return result
   } catch (error: unknown) {
