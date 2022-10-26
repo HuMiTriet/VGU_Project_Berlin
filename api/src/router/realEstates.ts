@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import * as fabric from '../fabric'
+import * as fabric from '../fabricFunctions'
 const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes
 
 export const realEstatesRouter: Router = express.Router()
@@ -11,7 +11,9 @@ export const realEstatesRouter: Router = express.Router()
  */
 realEstatesRouter.get('/getAll', async (req: Request, res: Response) => {
   try {
-    const realEstate = await fabric.getAllRealEstate()
+    const msp = <string>req.user
+    const contract = req.app.locals[msp]
+    const realEstate = await fabric.getAllRealEstate(contract)
     return res.status(ACCEPTED).send(realEstate)
   } catch (error) {
     console.log(error)

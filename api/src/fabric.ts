@@ -15,11 +15,13 @@ import {
 import * as crypto from 'crypto'
 import { promises as fs } from 'fs'
 import * as path from 'path'
-import { TextDecoder } from 'util'
+import * as fabric from './fabricFunctions'
 import { env } from './env'
 
 const channelName = env.CHANNEL_NAME
+const channelNameBusiness = env.CHANNEL_NAME_BUSINESS
 const chaincodeName = env.CHAINCODE_NAME
+const chaincodeNameBusiness = env.CHAINCODE_NAME_BUSINESS
 const mspId = env.MSP_ID_ORG1
 
 // Path to crypto materials.
@@ -67,17 +69,21 @@ const peerEndpoint = envOrDefault('PEER_ENDPOINT', 'localhost:7051')
 // Gateway peer SSL host name override.
 const peerHostAlias = envOrDefault('PEER_HOST_ALIAS', 'peer0.org1.example.com')
 
-const utf8Decoder = new TextDecoder()
-let contract: Contract
+export let contract: Contract
+export let contractBusiness: Contract
 export async function main(): Promise<void> {
   await displayInputParameters()
 
   // The gRPC client connection should be shared by all Gateway connections to this endpoint.
-  const client = await newGrpcConnection()
+  const client = await newGrpcConnection(
+    tlsCertPath,
+    peerEndpoint,
+    peerHostAlias
+  )
 
   const gateway = connect({
     client,
-    identity: await newIdentity(),
+    identity: await newIdentity(certPath),
     signer: await newSigner(),
     // Default timeouts for different gRPC calls
     evaluateOptions: () => {
@@ -94,22 +100,46 @@ export async function main(): Promise<void> {
     }
   })
 
+  const gateway2 = connect({
+    client,
+    identity: await newIdentity(certPath),
+    signer: await newSigner(),
+    // Default timeouts for different gRPC calls
+    evaluateOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    endorseOptions: () => {
+      return { deadline: Date.now() + 15000 } // 15 seconds
+    },
+    submitOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    commitStatusOptions: () => {
+      return { deadline: Date.now() + 60000 } // 1 minute
+    }
+  })
   try {
     // Get a network instance representing the channel where the smart contract is deployed.
     const network = gateway.getNetwork(channelName)
+    const businessNerwork = gateway2.getNetwork(channelNameBusiness)
+    contractBusiness = businessNerwork.getContract(chaincodeNameBusiness)
 
     // Get the smart contract from the network.
     contract = network.getContract(chaincodeName)
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
-    await initLedger()
+    await fabric.initLedger(contract)
   } finally {
     // gateway.close()
     // client.close()
   }
 }
 
-async function newGrpcConnection(): Promise<grpc.Client> {
+async function newGrpcConnection(
+  tlsCertPath: string,
+  peerEndpoint: string,
+  peerHostAlias: string
+): Promise<grpc.Client> {
   const tlsRootCert = await fs.readFile(tlsCertPath)
   const tlsCredentials = grpc.credentials.createSsl(tlsRootCert)
   return new grpc.Client(peerEndpoint, tlsCredentials, {
@@ -117,7 +147,7 @@ async function newGrpcConnection(): Promise<grpc.Client> {
   })
 }
 
-async function newIdentity(): Promise<Identity> {
+async function newIdentity(certPath: string): Promise<Identity> {
   const credentials = await fs.readFile(certPath)
   return { mspId, credentials }
 }
@@ -128,290 +158,6 @@ async function newSigner(): Promise<Signer> {
   const privateKeyPem = await fs.readFile(keyPath)
   const privateKey = crypto.createPrivateKey(privateKeyPem)
   return signers.newPrivateKeySigner(privateKey)
-}
-
-/**
- * Initialize the ledger to get some Real Estate and Users
- */
-export async function initLedger(): Promise<void> {
-  console.log('*** Init ledger')
-  await contract.submitTransaction('InitLedger')
-  console.log('*** Init ledger successfully')
-}
-
-/**
- * Get all assets (Real estate and user)
- * @author Thai Hoang Tam
- * @return all assets from ledger
- */
-export async function getAllAssets(): Promise<string> {
-  try {
-    console.log('*** Get all assets')
-    const resultBytes = await contract.evaluateTransaction('GetAllAssets')
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return <string>error
-  }
-}
-
-/**
- * Get all real estate
- * @author Thai Hoang Tam
- * @return all real estate from ledger
- */
-export async function getAllRealEstate(): Promise<string> {
-  try {
-    console.log('*** Get all real estate')
-    const resultBytes = await contract.evaluateTransaction('GetAllRealEstate')
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return <string>error
-  }
-}
-
-/**
- * Create new Real Estate
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @param roomList
- * @param area
- * @param location
- * @param owners
- * @param membershipThreshold
- */
-export async function createRealEstate(
-  // contract: Contract,
-  id: string,
-  name: string,
-  roomList: string,
-  area: string,
-  location: string,
-  owners: string,
-  membershipThreshold: string
-): Promise<string> {
-  try {
-    console.log('*** Create Real Estate')
-    const resultBytes = await contract.submitTransaction(
-      'CreateRealEstate',
-      id,
-      name,
-      roomList,
-      area,
-      location,
-      owners,
-      membershipThreshold
-    )
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    console.log('*** Real Estate created')
-    return result
-  } catch (error: unknown) {
-    console.log(error)
-    return <string>error
-  }
-}
-
-/**
- * Create a new user with a starting balance
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @returns
- */
-export async function createUser(id: string, name: string) {
-  try {
-    console.log('*** Create user')
-    const resultBytes = await contract.submitTransaction('CreateUser', id, name)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Transfer real estate
- * @author Thai Hoang Tam
- */
-export async function transferRealEstate(
-  // contract: Contract,
-  id: string,
-  sellerID: string,
-  buyerID: string,
-  buyPercentage: string
-): Promise<string> {
-  let result
-  try {
-    console.log('*** Transfer Real Estate')
-    const commit = await contract.submitAsync('TransferRealEstate', {
-      arguments: [id, sellerID, buyerID, buyPercentage]
-    })
-    result = utf8Decoder.decode(commit.getResult())
-    const status = await commit.getStatus()
-    if (!status.successful) {
-      throw new Error(
-        `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
-      )
-    }
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return <string>error
-  }
-}
-
-/**
- * Return an asset read from world state
- * @author Thai Hoang Tam
- * @param id
- * @returns asset as json object
- */
-export async function readAsset(
-  // contract: Contract,
-  id: string
-): Promise<string> {
-  console.log('*** Read Asset')
-  let result
-  try {
-    const resultBytes = await contract.evaluateTransaction('ReadAsset', id)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    console.log(resultJson)
-    result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return <string>error
-  }
-}
-
-/**
- * Delete an asset from the world state
- * @author Thai Hoang Tam
- * @param id
- * @returns
- */
-export async function deleteAsset(id: string): Promise<string> {
-  try {
-    console.log('*** Delete asset')
-    const resultBytes = await contract.submitTransaction('DeleteAsset', id)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log(error)
-    console.log('*** Error:', error)
-    return <string>error
-  }
-}
-
-/**
- * Check if asset exists
- * @param id
- * @returns
- */
-export async function assetExists(id: string): Promise<string> {
-  try {
-    console.log('*** Asset Exist')
-    const resultBytes = await contract.evaluateTransaction('AssetExists', id)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return <string>error
-  }
-}
-
-/**
- * Update an real estate
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @param roomList
- * @param area
- * @param location
- * @param owners
- * @param membershipThreshold
- * @returns
- */
-export async function updateRealEstate(
-  // contract: Contract
-  id: string,
-  name: string,
-  roomList: string,
-  area: string,
-  location: string,
-  owners: string,
-  membershipThreshold: string
-): Promise<string> {
-  try {
-    console.log('Update Real Estate')
-    const resultBytes = await contract.submitTransaction(
-      'UpdateRealEstate',
-      id,
-      name,
-      roomList,
-      area,
-      location,
-      owners,
-      membershipThreshold
-    )
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return <string>error
-  }
-}
-
-/**
- * Update a user information
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @param membershipScore
- * @returns
- */
-export async function updateUser(
-  id: string,
-  name: string,
-  membershipScore: string
-): Promise<string> {
-  try {
-    console.log('Update User')
-    const resultBytes = await contract.submitTransaction(
-      'UpdateUser',
-      id,
-      name,
-      membershipScore
-    )
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return <string>error
-  }
 }
 
 function envOrDefault(key: string, defaultValue: string) {
