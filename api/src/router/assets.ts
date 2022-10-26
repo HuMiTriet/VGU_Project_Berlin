@@ -17,10 +17,6 @@ assetsRouter.use(function (req: Request, res: Response, next) {
   next()
 })
 
-assetsRouter.options('/getAll', (req, res) => {
-  res.status(200).send('OK')
-})
-
 /**
  * Get all assets
  * @author Thai Hoang Tam
@@ -73,100 +69,6 @@ assetsRouter.get('/exists', async (req, res) => {
   } catch (error) {
     console.log(error)
     res.status(INTERNAL_SERVER_ERROR).send(error)
-  }
-})
-
-/**
- * Create new asset
- * @author Thai Hoang Tam
- */
-assetsRouter.post('/create', async (req: Request, res: Response) => {
-  try {
-    const bodyJson = req.body
-    console.log(bodyJson)
-    const id = bodyJson.id
-    const area = bodyJson.area
-    const location = bodyJson.location
-    const roomList = JSON.stringify(bodyJson.roomList)
-    const owners = JSON.stringify(bodyJson.owners)
-    const membershipThreshold = bodyJson.membershipThreshold
-    if (!(id && area && location && roomList && owners)) {
-      return res.status(BAD_REQUEST).send('Invalid data to create asset')
-    }
-    const result = await fabric.createRealEstate(
-      id,
-      roomList,
-      area,
-      location,
-      owners,
-      membershipThreshold
-    )
-    console.log(result)
-    return res.status(ACCEPTED).send('Create asset successfully')
-  } catch (error) {
-    console.log(error)
-    return res.status(INTERNAL_SERVER_ERROR).send('Server fail to create asset')
-  }
-})
-
-/**
- * Update real estate
- * @author Thai Hoang Tam
- */
-assetsRouter.put('/update', async (req, res) => {
-  try {
-    const bodyJson = req.body
-    console.log(bodyJson)
-    const id = bodyJson.id
-    const area = bodyJson.area
-    const location = bodyJson.location
-    const roomList = JSON.stringify(bodyJson.roomList)
-    const owners = JSON.stringify(bodyJson.owners)
-    const membershipThreshold = bodyJson.membershipThreshold
-    if (!(id && area && location && roomList && owners)) {
-      return res.status(BAD_REQUEST).send('Invalid data to create asset')
-    }
-    const result = await fabric.updateRealEstate(
-      id,
-      roomList,
-      area,
-      location,
-      owners,
-      membershipThreshold
-    )
-    console.log(result)
-    return res.status(ACCEPTED).send('Create asset successfully')
-  } catch (error) {
-    console.log(error)
-    res.status(INTERNAL_SERVER_ERROR).send('Fail to update asset')
-  }
-})
-
-/**
- * Transfer real estate
- * @author Thai Hoang Tam
- */
-assetsRouter.put('/transfer', async (req: Request, res: Response) => {
-  try {
-    console.log('Transfer asset')
-    const body = req.body
-    const id = body.id
-    const sellerID = body.sellerID
-    const buyerID = body.buyerID
-    const buyPercentage = body.buyPercentage
-    if (!(id && sellerID && buyerID && buyPercentage)) {
-      return res.status(BAD_REQUEST).send('Invalid data to transfer asset')
-    }
-    const result = await fabric.transferRealEstate(
-      id,
-      sellerID,
-      buyerID,
-      buyPercentage
-    )
-    return res.status(ACCEPTED).send(result)
-  } catch (error) {
-    console.log(error)
-    return res.status(INTERNAL_SERVER_ERROR).send(error)
   }
 })
 

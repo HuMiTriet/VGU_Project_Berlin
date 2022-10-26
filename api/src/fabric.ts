@@ -346,7 +346,7 @@ export async function assetExists(id: string): Promise<string> {
  * @param area
  * @param location
  * @param owners
- * @param membershipScore
+ * @param membershipThreshold
  * @returns
  */
 export async function updateRealEstate(
@@ -356,7 +356,7 @@ export async function updateRealEstate(
   area: string,
   location: string,
   owners: string,
-  membershipScore: string
+  membershipThreshold: string
 ) {
   try {
     console.log('Update Real Estate')
@@ -367,7 +367,7 @@ export async function updateRealEstate(
       area,
       location,
       owners,
-      membershipScore
+      membershipThreshold
     )
     const resultJson = utf8Decoder.decode(resultBytes)
     const result = JSON.parse(resultJson)
