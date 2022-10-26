@@ -157,14 +157,14 @@ check_channel_exit() {
 compile_typescript() {
   if [[ "$CHAINCODE_TYPE" == "public" ]]; then
     directory="chaincode"
+    cd "$(git rev-parse --show-toplevel)/${directory}" || exit
+    infoln "Compiling typescript files"
+    tsc
+    successln "compiled successfully!!"
+    cd "$(git rev-parse --show-toplevel)/network" || exit
   else
-    directory="chaincode_private"
+    successln "token-erc-20 chaincode is written in javascript, no need to compile"
   fi
-  cd "$(git rev-parse --show-toplevel)/${directory}" || exit
-  infoln "Compiling typescript files"
-  tsc
-  successln "compiled successfully!!"
-  cd "$(git rev-parse --show-toplevel)/network" || exit
 }
 
 commit_chaincode() {
@@ -232,23 +232,24 @@ OPTION="$1"
 
 CHAINCODE_TYPE="public"
 CHANNEL_NAME="mychannel"
+TOKEN_CHAINCODE=false
 
 if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
   "$OPTION" == "u" || "$OPTION" == "upgrade" ||
   "$OPTION" == "c" || "$OPTION" == "committed" ]]; then
   shift
-  # long flag name -private
   while getopts 't:c:h' FLAG; do
     case "$FLAG" in
       t)
-        if [[ "$OPTARG" == "private" ]]; then
-          CHAINCODE_TYPE="private"
-          directory="chaincode_private"
+        if [[ "$OPTARG" == "token" ]]; then
+          CHAINCODE_TYPE="token"
+          directory="token-erc-20"
+          TOKEN_CHAINCODE=true
         elif [[ "$OPTARG" == "public" ]]; then
           CHAINCODE_TYPE="public"
           directory="chaincode"
         else
-          fatalln "Invalid chaincode type either -c private or -c public"
+          fatalln "Invalid chaincode type either -c token or -c public"
         fi
         ;;
       c)
@@ -263,9 +264,9 @@ if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
 
       h | ?)
         errorln "Invalid option"
-        infoln "Usage: manager u|d|c -t private|public -c mychannel|business
+        infoln "Usage: manager u|d|c -t token|public -c mychannel|business
                 -t public: deploy public data chaincode (default)
-                -t private: deploy private data chaincode
+                -t token: deploy responisble for fungible token transfer
                 -c mychannel: deploy chaincode on mychannel (default)
                 -c business: deploy chaincode on business channel"
         exit 1
@@ -305,12 +306,27 @@ case "$OPTION" in
     switch_to_org1
     peer lifecycle chaincode querycommitted --channelID "$CHANNEL_NAME"
 
-    read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
+    if [[ "$CHAINCODE_TYPE" == "public" ]]; then
+      CHAINCODE_NAME="basic"
+    elif [[ "$CHAINCODE_TYPE" == "token" ]]; then
+      CHAINCODE_NAME="token_erc20"
+    fi
+    # read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
     CHAINCODE_VERSION="1"
 
-    commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
+    if [[ "$TOKEN_CHAINCODE" && "$CHANNEL_NAME" == "business" ]]; then
+      echo "deploying token chaincode on business channel"
+      ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
+    else
+      commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
+    fi
     ;;
 
+  mint | mi)
+    source ./scripts/mint.sh
+    mint
+
+    ;;
   upgrade | u)
     check_channel_exit
 
@@ -345,17 +361,40 @@ case "$OPTION" in
     ;;
   down | o)
     ./network.sh down
-    # docker rm -f $(docker ps -aq)
-    # docker rmi -f $(docker images -q)
+    cd ./addOrg3 || exit
+    ./addOrg3.sh down
+    # echo "${PWD}"
+    cd ..
+
+    cd "${PWD}/organizations/fabric-ca/" || exit
+    rm -r "${PWD}/org3"
+    # # # docker rm -f $(docker ps -aq)
+    # # # docker rmi -f $(docker images -q)
+
     ;;
   reset | up | r)
     ./network.sh down
+    cd ./addOrg3 || exit
+    ./addOrg3.sh down
+    # echo "${PWD}"
+    cd ..
+
+    cd "${PWD}/organizations/fabric-ca/" || exit
+    rm -r "${PWD}/org3"
+    cd ../../
     # docker rm -f $(docker ps -aq)
     # docker rmi -f $(docker images -q)
-    ./network.sh up createChannel -s couchdb -ca
+    "${PWD}/network.sh" up createChannel -s couchdb -ca
     infoln "adding Org 3 !!"
-    cd addOrg3 || exit
-    ./addOrg3.sh up -c mychannel -s couchdb -ca
+    cd "${PWD}/addOrg3" || exit
+    "${PWD}/addOrg3.sh" generate -c mychannel -s couchdb -ca
+    "${PWD}/addOrg3.sh" up -c mychannel -s couchdb -ca
+    cd ..
+
+    infoln "coping Org3 fabric-ca over to same folder as Org1 and Org2"
+    cp -r "${PWD}/addOrg3/fabric-ca/org3" "${PWD}/organizations/fabric-ca/org3"
+    chmod +x "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
+
     successln "exist three organizations each with 1 peer use o1, o2, o3 to switch between"
     warnln "no UTXO coin has been minted yet (ask Triet and Hoang if you dont know what UTXO is)
     please run manager dm first to deploy the chaincode that is responsible for minting UTXO coin
