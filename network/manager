@@ -157,14 +157,14 @@ check_channel_exit() {
 compile_typescript() {
   if [[ "$CHAINCODE_TYPE" == "public" ]]; then
     directory="chaincode"
+    cd "$(git rev-parse --show-toplevel)/${directory}" || exit
+    infoln "Compiling typescript files"
+    tsc
+    successln "compiled successfully!!"
+    cd "$(git rev-parse --show-toplevel)/network" || exit
   else
-    directory="chaincode_private"
+    successln "token-erc-20 chaincode is written in javascript, no need to compile"
   fi
-  cd "$(git rev-parse --show-toplevel)/${directory}" || exit
-  infoln "Compiling typescript files"
-  tsc
-  successln "compiled successfully!!"
-  cd "$(git rev-parse --show-toplevel)/network" || exit
 }
 
 commit_chaincode() {
@@ -228,27 +228,96 @@ commit_chaincode() {
   successln "chaincode $CHAINCODE_NAME:$CHAINCODE_VERSION committed on channel '$CHANNEL_NAME'"
 }
 
+register_org1() {
+  export FABRIC_CFG_PATH=$PWD/../config/
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example.com/
+  fabric-ca-client register --caname ca-org1 --id.name minter --id.secret minterpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client enroll -u https://minter:minterpw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client enroll -u https://minter:minterpw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  cp "${PWD}/organizations/peerOrganizations/org1.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp/config.yaml"
+}
+
+register_org2() {
+  export PATH=${PWD}/../bin:${PWD}:$PATH
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org2.example.com/
+  fabric-ca-client register --caname ca-org2 --id.name recipient --id.secret recipientpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
+  fabric-ca-client enroll -u https://recipient:recipientpw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
+  cp "${PWD}/organizations/peerOrganizations/org2.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp/config.yaml"
+}
+
+register_org3() {
+  export PATH=${PWD}/../bin:${PWD}:$PATH
+  export FABRIC_CFG_PATH=$PWD/../config/
+
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org3.example.com/
+
+  fabric-ca-client register --caname ca-org3 --id.name recipient --id.secret recipient --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org3/tls-cert.pem"
+
+  fabric-ca-client enroll -u https://recipient:recipientpw@localhost:11054 --caname ca-org3 -M "${PWD}/organizations/peerOrganizations/org3.example.com/users/recipient@org3.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org3/tls-cert.pem"
+
+  cp "${PWD}/organizations/peerOrganizations/org3.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org3.example.com/users/minter@org3.example.com/msp/config.yaml"
+}
+
+switch_to_org1_token() {
+  local CHANNEL_NAME="$1"
+  export CORE_PEER_LOCALMSPID="Org1MSP"
+  export CORE_PEER_TLS_ENABLED=true
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+  export CORE_PEER_ADDRESS=localhost:7051
+  if [[ "$CHANNEL_NAME" == "business" ]]; then
+    export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt")
+  elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
+    export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" --peerAddresses localhost:11051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt")
+  fi
+}
+
+# sw
+
+mint() {
+  CHANNEL_NAME=business
+  switch_to_org1_token $CHANNEL_NAME
+  infoln "initialize the token chaincode on $CHANNEL_NAME"
+  peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Initialize","Args":["intial mint", "currywurst", "2"]}'
+
+  peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["10000"]}'
+  infoln "ORG1 initialized the contract"
+  peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
+
+  export RECIPIENT="x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com"
+  peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Transfer","Args":[ "'"$RECIPIENT"'","5000"]}'
+
+  export FABRIC_CFG_PATH=$PWD/../config/
+  export CORE_PEER_TLS_ENABLED=true
+  export CORE_PEER_LOCALMSPID="Org2MSP"
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+  export CORE_PEER_ADDRESS=localhost:9051
+}
+peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
+
 OPTION="$1"
 
 CHAINCODE_TYPE="public"
 CHANNEL_NAME="mychannel"
+TOKEN_CHAINCODE=false
 
 if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
   "$OPTION" == "u" || "$OPTION" == "upgrade" ||
   "$OPTION" == "c" || "$OPTION" == "committed" ]]; then
   shift
-  # long flag name -private
   while getopts 't:c:h' FLAG; do
     case "$FLAG" in
       t)
-        if [[ "$OPTARG" == "private" ]]; then
-          CHAINCODE_TYPE="private"
-          directory="chaincode_private"
+        if [[ "$OPTARG" == "token" ]]; then
+          CHAINCODE_TYPE="token"
+          directory="token-erc-20"
+          TOKEN_CHAINCODE=true
         elif [[ "$OPTARG" == "public" ]]; then
           CHAINCODE_TYPE="public"
           directory="chaincode"
         else
-          fatalln "Invalid chaincode type either -c private or -c public"
+          fatalln "Invalid chaincode type either -c token or -c public"
         fi
         ;;
       c)
@@ -263,9 +332,9 @@ if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
 
       h | ?)
         errorln "Invalid option"
-        infoln "Usage: manager u|d|c -t private|public -c mychannel|business
+        infoln "Usage: manager u|d|c -t token|public -c mychannel|business
                 -t public: deploy public data chaincode (default)
-                -t private: deploy private data chaincode
+                -t token: deploy responisble for fungible token transfer
                 -c mychannel: deploy chaincode on mychannel (default)
                 -c business: deploy chaincode on business channel"
         exit 1
@@ -305,10 +374,20 @@ case "$OPTION" in
     switch_to_org1
     peer lifecycle chaincode querycommitted --channelID "$CHANNEL_NAME"
 
-    read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
+    if [[ "$CHAINCODE_TYPE" == "public" ]]; then
+      CHAINCODE_NAME="basic"
+    elif [[ "$CHAINCODE_TYPE" == "token" ]]; then
+      CHAINCODE_NAME="token_erc20"
+    fi
+    # read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
     CHAINCODE_VERSION="1"
 
-    commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
+    if [[ "$TOKEN_CHAINCODE" && "$CHANNEL_NAME" == "business" ]]; then
+      echo "deploying token chaincode on business channel"
+      ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
+    else
+      commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
+    fi
     ;;
 
   upgrade | u)
@@ -335,32 +414,69 @@ case "$OPTION" in
     # warnln "please increment this version for the upgrade"
     # read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
 
-    commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
+    if [[ "$TOKEN_CHAINCODE" && "$CHANNEL_NAME" == "business" ]]; then
+      echo "deploying token chaincode on business channel"
+      ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
+    else
+      commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
+    fi
 
     ;;
   purge)
-    ./network.sh down
-    docker rm -f $(docker ps -aq)
-    docker rmi -f $(docker images -q)
+    # ./network.sh down
+    # docker rm -f $(docker ps -aq)
+    # docker rmi -f $(docker images -q)
     ;;
   down | o)
     ./network.sh down
-    # docker rm -f $(docker ps -aq)
-    # docker rmi -f $(docker images -q)
+    cd ./addOrg3 || exit
+    ./addOrg3.sh down
+    # echo "${PWD}"
+    cd ..
+
+    cd "${PWD}/organizations/fabric-ca/" || exit
+    rm -r "${PWD}/org3"
+    # # # docker rm -f $(docker ps -aq)
+    # # # docker rmi -f $(docker images -q)
+
     ;;
   reset | up | r)
     ./network.sh down
+    cd ./addOrg3 || exit
+    ./addOrg3.sh down
+    # echo "${PWD}"
+    cd ..
+
+    cd "${PWD}/organizations/fabric-ca/" || exit
+    rm -r "${PWD}/org3"
+    cd ../../
     # docker rm -f $(docker ps -aq)
     # docker rmi -f $(docker images -q)
-    ./network.sh up createChannel -s couchdb -ca
+    "${PWD}/network.sh" up createChannel -s couchdb -ca
     infoln "adding Org 3 !!"
-    cd addOrg3 || exit
-    ./addOrg3.sh up -c mychannel -s couchdb -ca
+    cd "${PWD}/addOrg3" || exit
+    "${PWD}/addOrg3.sh" generate -c mychannel -s couchdb -ca
+    "${PWD}/addOrg3.sh" up -c mychannel -s couchdb -ca
+    cd ..
+
+    infoln "coping Org3 fabric-ca over to same folder as Org1 and Org2"
+    cp -r "${PWD}/addOrg3/fabric-ca/org3" "${PWD}/organizations/fabric-ca/org3"
+    chmod +x "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
+
     successln "exist three organizations each with 1 peer use o1, o2, o3 to switch between"
-    warnln "no UTXO coin has been minted yet (ask Triet and Hoang if you dont know what UTXO is)
-    please run manager dm first to deploy the chaincode that is responsible for minting UTXO coin
-    then run manager mint to mint UTXO coin"
+    infoln "type manager dm to deploy chaincode that is responsible for working with Account based token"
+    warnln "no Acount based token has been minted yet (ask Triet and Hoang if you dont know what an Account based token is)
+    please run manager dm first to deploy the chaincode that is responsible for minting Account based token
+    then run manager mint to mint Account based token"
     ;;
+  mint)
+    export PATH=${PWD}/../bin:${PWD}:$PATH
+    register_org1
+    register_org2
+    register_org3
+    mint
+    ;;
+
   o1)
     check_channel_exit
     switch_to_org1
@@ -392,10 +508,6 @@ case "$OPTION" in
   monitor | m)
     ./monitordocker.sh fabric_test
     ;;
-  test)
-    source ./scripts/mint.sh
-    mint
-    ;;
 
   *)
     # option with flags
@@ -419,6 +531,6 @@ case "$OPTION" in
       ---
       For the love of God, please do NOT use manager purge before asking Triet Huynh (seriously it will DESTROY all your docker images)
       "
-    exit 1
+    exit 0
     ;;
 esac
