@@ -1,4 +1,3 @@
-import { contract } from './fabric';
 import { Contract } from '@hyperledger/fabric-gateway'
 import { TextDecoder } from 'util'
 const utf8Decoder = new TextDecoder()
