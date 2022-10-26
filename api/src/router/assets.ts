@@ -23,7 +23,6 @@ assetsRouter.use(function (req: Request, res: Response, next) {
  */
 assetsRouter.get('/getAll', async (req: Request, res: Response) => {
   try {
-    console.log('Get all assets')
     const assets = await fabric.getAllAssets()
     return res.status(ACCEPTED).send(assets)
   } catch (error) {
@@ -78,7 +77,6 @@ assetsRouter.get('/exists', async (req, res) => {
  */
 assetsRouter.delete('/delete', async (req, res) => {
   try {
-    console.log('Delete Asset')
     const query = req.query
     const id: string = <string>query['id']
     if (!id) {
