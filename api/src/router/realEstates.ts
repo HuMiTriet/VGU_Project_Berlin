@@ -23,7 +23,7 @@ realEstatesRouter.get('/getAll', async (req: Request, res: Response) => {
 
 /**
  * Create new real estate
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 realEstatesRouter.post('/create', async (req: Request, res: Response) => {
   try {
@@ -36,6 +36,8 @@ realEstatesRouter.post('/create', async (req: Request, res: Response) => {
     const roomList = JSON.stringify(bodyJson.roomList)
     const owners = JSON.stringify(bodyJson.owners)
     const membershipThreshold = bodyJson.membershipThreshold
+    const msp = <string>req.user
+    const contract = req.app.locals[msp]
     if (
       !(
         id &&
@@ -50,6 +52,7 @@ realEstatesRouter.post('/create', async (req: Request, res: Response) => {
       return res.status(BAD_REQUEST).send('Invalid data to create real estate')
     }
     const result = await fabric.createRealEstate(
+      contract,
       id,
       name,
       roomList,
@@ -68,7 +71,7 @@ realEstatesRouter.post('/create', async (req: Request, res: Response) => {
 
 /**
  * Update real estate
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 realEstatesRouter.put('/update', async (req: Request, res: Response) => {
   try {
@@ -81,6 +84,8 @@ realEstatesRouter.put('/update', async (req: Request, res: Response) => {
     const roomList = JSON.stringify(bodyJson.roomList)
     const owners = JSON.stringify(bodyJson.owners)
     const membershipThreshold = bodyJson.membershipThreshold
+    const msp = <string>req.user
+    const contract = req.app.locals[msp]
     if (
       !(
         id &&
@@ -95,6 +100,7 @@ realEstatesRouter.put('/update', async (req: Request, res: Response) => {
       return res.status(BAD_REQUEST).send('Invalid data to create real estate')
     }
     const result = await fabric.updateRealEstate(
+      contract,
       id,
       name,
       roomList,
@@ -113,7 +119,7 @@ realEstatesRouter.put('/update', async (req: Request, res: Response) => {
 
 /**
  * Transfer real estate
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 realEstatesRouter.put('/transfer', async (req: Request, res: Response) => {
   try {
@@ -122,12 +128,15 @@ realEstatesRouter.put('/transfer', async (req: Request, res: Response) => {
     const sellerID = body.sellerID
     const buyerID = body.buyerID
     const buyPercentage = body.buyPercentage
+    const msp = <string>req.user
+    const contract = req.app.locals[msp]
     if (!(id && sellerID && buyerID && buyPercentage)) {
       return res
         .status(BAD_REQUEST)
         .send('Invalid data to transfer real estate')
     }
     const result = await fabric.transferRealEstate(
+      contract,
       id,
       sellerID,
       buyerID,
