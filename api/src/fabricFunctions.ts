@@ -1,3 +1,4 @@
+import { contract } from './fabric';
 import { Contract } from '@hyperledger/fabric-gateway'
 import { TextDecoder } from 'util'
 const utf8Decoder = new TextDecoder()
@@ -119,7 +120,7 @@ export async function createUser(contract: Contract, id: string, name: string) {
  * @author Thai Hoang Tam
  */
 export async function transferRealEstate(
-  // contract: Contract,
+  contract: Contract,
   id: string,
   sellerID: string,
   buyerID: string,
@@ -177,7 +178,7 @@ export async function readAsset(
  * @param id
  * @returns
  */
-export async function deleteAsset(id: string): Promise<string> {
+export async function deleteAsset(contract: Contract, id: string): Promise<string> {
   try {
     console.log('*** Delete asset')
     const resultBytes = await contract.submitTransaction('DeleteAsset', id)
@@ -197,7 +198,7 @@ export async function deleteAsset(id: string): Promise<string> {
  * @param id
  * @returns
  */
-export async function assetExists(id: string): Promise<string> {
+export async function assetExists(contract: Contract, id: string): Promise<string> {
   try {
     console.log('*** Asset Exist')
     const resultBytes = await contract.evaluateTransaction('AssetExists', id)
@@ -224,7 +225,7 @@ export async function assetExists(id: string): Promise<string> {
  * @returns
  */
 export async function updateRealEstate(
-  // contract: Contract
+  contract: Contract,
   id: string,
   name: string,
   roomList: string,
@@ -264,6 +265,7 @@ export async function updateRealEstate(
  * @returns
  */
 export async function updateUser(
+  contract: Contract,
   id: string,
   name: string,
   membershipScore: string
