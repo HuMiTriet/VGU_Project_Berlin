@@ -136,14 +136,12 @@ async function newSigner(): Promise<Signer> {
  */
 export async function initLedger(): Promise<void> {
   console.log('Init ledger')
-
   await contract.submitTransaction('InitLedger')
-
   console.log('*** Init ledger successfully')
 }
 
 /**
- * Evaluate a transaction to query ledger state.
+ * Get all assets (Real estate and user)
  * @author Thai Hoang Tam
  * @return all assets from ledger
  */
@@ -162,34 +160,53 @@ export async function getAllAssets(): Promise<string> {
 }
 
 /**
+ * Get all real estate
+ * @author Thai Hoang Tam
+ * @return all real estate from ledger
+ */
+export async function getAllRealEstate(): Promise<string> {
+  try {
+    console.log('Get all real estate')
+    const resultBytes = await contract.evaluateTransaction('GetAllRealEstate')
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: any) {
+    console.log(error)
+    return error
+  }
+}
+
+/**
  * Create new Real Estate
  * @author Thai Hoang Tam
- * @param assetID
+ * @param id
  * @param roomList
  * @param area
  * @param location
  * @param owners
- * @param membershipScore
+ * @param membershipThreshold
  */
 export async function createRealEstate(
   // contract: Contract,
-  assetID: string,
+  id: string,
   roomList: string,
   area: string,
   location: string,
   owners: string,
-  membershipScore: string
+  membershipThreshold: string
 ): Promise<string> {
   try {
     console.log('Create Real Estate')
     const result = await contract.submitTransaction(
       'CreateRealEstate',
-      assetID,
+      id,
       roomList,
       area,
       location,
       owners,
-      membershipScore
+      membershipThreshold
     )
     console.log('*** Real Estate created')
     return result.toString()
@@ -202,18 +219,14 @@ export async function createRealEstate(
 /**
  * Create a new user with a starting balance
  * @author Thai Hoang Tam
- * @param userID
- * @param balance
+ * @param id
+ * @param name
  * @returns
  */
-export async function createUser(userID: string, balance: string) {
+export async function createUser(id: string, name: string) {
   try {
     console.log('Create user')
-    const resultBytes = await contract.submitTransaction(
-      'CreateUser',
-      userID,
-      balance
-    )
+    const resultBytes = await contract.submitTransaction('CreateUser', id, name)
     const resultJson = utf8Decoder.decode(resultBytes)
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
@@ -230,7 +243,7 @@ export async function createUser(userID: string, balance: string) {
  */
 export async function transferRealEstate(
   // contract: Contract,
-  assetID: string,
+  id: string,
   sellerID: string,
   buyerID: string,
   buyPercentage: string
@@ -240,7 +253,7 @@ export async function transferRealEstate(
     console.log('Transfer Real Estate')
 
     const commit = await contract.submitAsync('TransferRealEstate', {
-      arguments: [assetID, sellerID, buyerID, buyPercentage]
+      arguments: [id, sellerID, buyerID, buyPercentage]
     })
     result = utf8Decoder.decode(commit.getResult())
 
@@ -263,17 +276,17 @@ export async function transferRealEstate(
 /**
  * Return an asset read from world state
  * @author Thai Hoang Tam
- * @param assetID
+ * @param id
  * @returns asset as json object
  */
 export async function readAsset(
   // contract: Contract,
-  assetID: string
+  id: string
 ): Promise<string> {
   console.log('Read Asset')
   let result
   try {
-    const resultBytes = await contract.evaluateTransaction('ReadAsset', assetID)
+    const resultBytes = await contract.evaluateTransaction('ReadAsset', id)
     const resultJson = utf8Decoder.decode(resultBytes)
     console.log(resultJson)
     result = JSON.parse(resultJson)
@@ -289,13 +302,13 @@ export async function readAsset(
 /**
  * Delete an asset from the world state
  * @author Thai Hoang Tam
- * @param assetID
+ * @param id
  * @returns
  */
-export async function deleteAsset(assetID: string): Promise<string> {
+export async function deleteAsset(id: string): Promise<string> {
   try {
     console.log('Delete asset')
-    const resultBytes = await contract.submitTransaction('DeleteAsset', assetID)
+    const resultBytes = await contract.submitTransaction('DeleteAsset', id)
     const resultJson = utf8Decoder.decode(resultBytes)
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
@@ -308,16 +321,13 @@ export async function deleteAsset(assetID: string): Promise<string> {
 
 /**
  * Check if asset exists
- * @param assetID
+ * @param id
  * @returns
  */
-export async function assetExists(assetID: string): Promise<string> {
+export async function assetExists(id: string): Promise<string> {
   try {
     console.log('Asset Exist')
-    const resultBytes = await contract.evaluateTransaction(
-      'AssetExists',
-      assetID
-    )
+    const resultBytes = await contract.evaluateTransaction('AssetExists', id)
     const resultJson = utf8Decoder.decode(resultBytes)
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
@@ -331,7 +341,7 @@ export async function assetExists(assetID: string): Promise<string> {
 /**
  * Update an real estate
  * @author Thai Hoang Tam
- * @param assetID
+ * @param id
  * @param roomList
  * @param area
  * @param location
@@ -341,7 +351,7 @@ export async function assetExists(assetID: string): Promise<string> {
  */
 export async function updateRealEstate(
   // contract: Contract
-  assetID: string,
+  id: string,
   roomList: string,
   area: string,
   location: string,
@@ -352,7 +362,7 @@ export async function updateRealEstate(
     console.log('Update Real Estate')
     const resultBytes = await contract.evaluateTransaction(
       'UpdateRealEstate',
-      assetID,
+      id,
       roomList,
       area,
       location,
@@ -372,22 +382,22 @@ export async function updateRealEstate(
 /**
  * Update a user information
  * @author Thai Hoang Tam
- * @param assetID
- * @param balance
+ * @param id
+ * @param name
  * @param membershipScore
  * @returns
  */
 export async function updateUser(
-  assetID: string,
-  balance: string,
+  id: string,
+  name: string,
   membershipScore: string
 ): Promise<string> {
   try {
     console.log('Update User')
     const resultBytes = await contract.evaluateTransaction(
       'UpdateUser',
-      assetID,
-      balance,
+      id,
+      name,
       membershipScore
     )
     const resultJson = utf8Decoder.decode(resultBytes)

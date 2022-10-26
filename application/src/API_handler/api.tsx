@@ -3,6 +3,7 @@ const httpPort = '3001'
 const httpHost = `localhost:${httpPort}`
 const assetPath = `http://${httpHost}/api/assets`
 const userPath = `http://${httpHost}/api/users`
+const realEstatePath = `http://${httpHost}/api/realestates`
 // const httpsPort = '3002'
 // const httpsHost = `localhost:${httpsPort}`
 axios.defaults.headers.common = {

@@ -37,6 +37,7 @@ export const server = async (): Promise<Express> => {
   //initialize passport js
   app.use(passport.initialize())
   app.use('/api/assets', authenticateApiKey, assetsRouter)
+  app.use('/api/realestates', authenticateApiKey, assetsRouter)
   app.use('/api/users', authenticateApiKey, usersRouter)
   // For everything else
   app.use((_req, res) =>
