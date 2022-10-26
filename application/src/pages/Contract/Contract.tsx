@@ -1,38 +1,59 @@
 import Navbar from "../../components/Navbar";
 import './Contract.css'
-import { Form, Input, Button, Checkbox, Select, Col, Row, Card} from 'antd';
+import { Form, Input, Button, Checkbox, Select, Col, Row, Card, Alert, Typography} from 'antd';
+import React, { useState } from 'react'
 
 const Contact = () => {
+  const [showAlert, setShowAlert] = useState(false);
+  const onFinish = (e)=>{
+    console.log(e);
+    setTimeout(() => {
+      setShowAlert(true);
+    }, 500);
+  }
+
   return (
     <> <Navbar/> 
+    <Row>
+      <Col span={8} offset={12}>
+      {showAlert&&
+      <Alert 
+          type="success"
+          message="Transaction Completed Successfully"
+          description="asdcsvsdv"
+          closable
+          showIcon
+      />
+      }
+      </Col>
+    </Row>
+    
     <Row align='middle' justify='center'>
       <div id="contact" className="block contactBlock">
         <Card bodyStyle={{ backgroundColor: '#F3F3FA'}} style={{borderRadius: "20px", overflow: "hidden", width: 900}}>
         <div className="container-fluid">
           <div className="titleHolder">
-            <h2>Contract</h2>
+            <Typography>
+            <h1>Contract</h1>
+            </Typography>
           </div>
           <Row >
             <Col span={12}>
-            <Card bodyStyle={{ backgroundColor: '#fff' }} style={{borderRadius: "20px", overflow: "hidden", width: 300}}>
+            <Card bodyStyle={{ backgroundColor: '#fff' }} style={{borderRadius: "20px", overflow: "hidden", width: 300, stroke: '#657463'}}>
               <p>User: 161517
-              <br/>Own: 70%
-              <br/>Sell Percentage: 50%
-              <br/>No remain:
+                <br/>Own: 70%
+                <br/>Sell Percentage: 50%
+                <br/>No remain:
               </p>
             </Card>
             </Col>
             <Col span={12}>
-            <Form initialValues={{ remember: true }}>
+          <Form onFinish = {onFinish} initialValues={{ remember: true }}>
             <div>
               <h3>Buy Percentage</h3>
               <Form.Item
                 name="Buy Percentage"
                 rules={[
-                  {
-                    type: 'string',
-                    message: 'The input is not valid',
-                  },
                   { 
                     required: true,
                     message: 'Please enter Buy Percentage!' 
@@ -48,10 +69,6 @@ const Contact = () => {
                 name="total"
                 rules={[
                   {
-                    type: 'string',
-                    message: 'The input is not valid',
-                  },
-                  {
                     required: true,
                     message: 'Please input Total number!',
                   },
@@ -62,7 +79,7 @@ const Contact = () => {
             </div>
             <div>
               <h3>Other Services</h3>
-              <Form.Item>
+              <Form.Item name = "Other Services" rules={[{ required: true, message: 'Other Service is required', },]}>
                 <Select placeholder="Cleaning">
                     <Select.Option value="Cleaning">Cleaning</Select.Option>
                     <Select.Option value="Insurance">Insurance</Select.Option>
@@ -70,8 +87,8 @@ const Contact = () => {
               </Form.Item>
             </div>
             <div>
-              <h3>Payment</h3>
-              <Form.Item>
+              <h3>Payment Method</h3>
+              <Form.Item name = "Payment Method" rules={[{ required: true, message: 'Payment Method is required' }]}>
                 <Select placeholder="One-Time-Payment">
                     <Select.Option value="One-Time-Payment">One-Time-Payment</Select.Option>
                     <Select.Option value="Installment">Installment</Select.Option>
@@ -91,7 +108,7 @@ const Contact = () => {
               </Form.Item>
             </Form.Item>
             <Form.Item>
-              <Button type="primary">
+              <Button type="primary" htmlType="submit">
                 Confirm
               </Button>
             </Form.Item>
