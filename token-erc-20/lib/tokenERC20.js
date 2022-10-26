@@ -191,7 +191,7 @@ class TokenERC20Contract extends Contract {
         return true;
     }
 
-    async canTransfer(from, to ,value){
+    async canTransfer(ctx, from, to ,value){
         if (from === to) {
             throw new Error('cannot transfer to and from same client account');
         }
