@@ -27,6 +27,7 @@ function debug(color: string, msgString: string) {
 }
 
 /**
+ * Get all assets (Real estates and users)
  * @author Thai Hoang Tam, Nguyen Khoa
  */
 async function getAllAssets(): Promise<string> {
@@ -38,6 +39,7 @@ async function getAllAssets(): Promise<string> {
 }
 
 /**
+ * Get all Real Estates
  * @author Nguyen Khoa
  */
 async function getAllRealEstate(): Promise<string> {
@@ -48,7 +50,7 @@ async function getAllRealEstate(): Promise<string> {
 }
 
 /**
- *  * Create new Real Estate
+ * Create new Real Estate
  * @author Thai Hoang Tam, Nguyen Khoa
  * @param id
  * @param name
@@ -83,14 +85,12 @@ async function createRealEstate(
   const data = createRealEstateResponse.data
   const status = createRealEstateResponse.status
   debug(GREEN, `createRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`)
-  // console.log(status)
-  // console.log(data)
   return JSON.stringify(data)
 }
 
 /**
  * Create a new user with a name
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  * @param id
  * @param name
  * @returns
@@ -104,14 +104,13 @@ async function createUser(id: string, name: string): Promise<string> {
   const data = createUserResponse.data
   const status = createUserResponse.status
   debug(GREEN, `createUser:\n\t- Status: ${status}\n\t- Data: ${data}`)
-
   return JSON.stringify(data)
 }
 
 /**
  * Submit transaction asynchronously, allowing the application to process the smart contract response (e.g. update a UI)
  * while waiting for the commit notification.
- * @author: Nguyen Khoa
+ * @author Nguyen Khoa
  * @param id
  * @param sellerID
  * @param buyerID
@@ -223,34 +222,31 @@ async function updateRealEstate(
   )
   const data = updateRealEstateResponse.data
   const status = updateRealEstateResponse.status
-  // console.log(status)
   debug(YELLOW, `updateRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`)
-
   return JSON.stringify(data)
 }
 
 /**
  * Update a user information
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  * @param id
  * @param name
- * @param membershipThreshold
+ * @param membershipScore
  * @returns
  */
 async function updateUser(
   id: string,
   name: string,
-  membershipThreshold: string
+  membershipScore: string
 ): Promise<string> {
   const body = {
     id: id,
     name: name,
-    membershipThreshold: membershipThreshold
+    membershipScore: membershipScore
   }
   const updateUserResponse = await axios.put(`${userPath}/update`, body)
   const data = updateUserResponse.data
   const status = updateUserResponse.status
-  // console.log(data)
   debug(YELLOW, `updateUser:\n\t- Status: ${status}\n\t- Data: ${data}`)
   return JSON.stringify(data)
 }
