@@ -12,8 +12,7 @@ import { AssetContractOther } from './assetContractOther'
   description: 'Smart contract for User'
 })
 export class UserContract extends Contract {
-  private assetContractOther: AssetContractOther =
-    new AssetContractOther()
+  private assetContractOther: AssetContractOther = new AssetContractOther()
 
   @Transaction()
   public async InitLedgerUser(ctx: Context): Promise<void> {
@@ -21,19 +20,19 @@ export class UserContract extends Contract {
       {
         name: 'Thinh Le',
         docType: userDocType,
-        id: 'user1',
+        id: 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
         membershipScore: 10
       },
       {
         name: 'John Doe',
         docType: userDocType,
-        id: 'user2',
+        id: 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
         membershipScore: 0
       },
       {
         name: 'James Washington',
         docType: userDocType,
-        id: 'user3',
+        id: 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Raleigh/O=org3.example.com/CN=ca.org3.example.com',
         membershipScore: 0
       }
     ]
