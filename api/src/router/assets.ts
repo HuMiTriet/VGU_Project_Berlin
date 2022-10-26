@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import * as fabric from '../fabric'
-const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, OK } = StatusCodes
+const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes
 
 export const assetsRouter: Router = express.Router()
 assetsRouter.use(function (req: Request, res: Response, next) {
