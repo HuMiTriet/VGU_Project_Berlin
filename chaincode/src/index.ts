@@ -6,8 +6,8 @@
 
 'use strict'
 
-import { AssetTransferContract } from './assetTransfer'
+import { AssetContract } from './assetContract'
 
-export { AssetTransferContract } from './assetTransfer'
+export { AssetContract as AssetContract } from './assetContract'
 
-export const contracts: any[] = [AssetTransferContract]
+export const contracts: any[] = [AssetContract]
