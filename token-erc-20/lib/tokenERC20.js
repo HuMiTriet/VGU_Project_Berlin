@@ -109,7 +109,8 @@ class TokenERC20Contract extends Contract {
 
         return balance;
     }
-
+    
+    
     /**
      *  Transfer transfers tokens from client account to recipient account.
      *  recipient account must be a valid clientID as returned by the ClientAccountID() function.
@@ -190,6 +191,36 @@ class TokenERC20Contract extends Contract {
         return true;
     }
 
+    async canTransfer(ctx, from, to ,value){
+        if (from === to) {
+            throw new Error('cannot transfer to and from same client account');
+        }
+
+        // Convert value from string to int
+        const valueInt = parseInt(value);
+
+        if (valueInt < 0) { // transfer of 0 is allowed in ERC20, so just validate against negative amounts
+            throw new Error('transfer amount cannot be negative');
+        }
+
+        // Retrieve the current balance of the sender
+        const fromBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [from]);
+        const fromCurrentBalanceBytes = await ctx.stub.getState(fromBalanceKey);
+
+        if (!fromCurrentBalanceBytes || fromCurrentBalanceBytes.length === 0) {
+            throw new Error(`client account ${from} has no balance`);
+        }
+
+        const fromCurrentBalance = parseInt(fromCurrentBalanceBytes.toString());
+
+        // Check if the sender has enough tokens to spend.
+        if (fromCurrentBalance < valueInt) {
+            throw new Error(`client account ${from} has insufficient funds.`);
+        }
+
+        return true
+    }
+    
     async _transfer(ctx, from, to, value) {
 
         if (from === to) {
@@ -308,10 +339,10 @@ class TokenERC20Contract extends Contract {
      */
     async Initialize(ctx, name, symbol, decimals) {
         // Check minter authorization - this sample assumes Org1 is the central banker with privilege to set Options for these tokens
-        const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to initialize contract');
-        }
+        // const clientMSPID = ctx.clientIdentity.getMSPID();
+        // if (clientMSPID !== 'Org1MSP') {
+        //     throw new Error('client is not authorized to initialize contract');
+        // }
 
         //check contract options are not already set, client is not authorized to change them once intitialized
         const nameBytes = await ctx.stub.getState(nameKey);
@@ -341,9 +372,9 @@ class TokenERC20Contract extends Contract {
 
         // Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
         const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to mint new tokens');
-        }
+        // if (clientMSPID !== 'Org1MSP') {
+        //     throw new Error('client is not authorized to mint new tokens');
+        // }
 
         // Get ID of submitting client identity
         const minter = ctx.clientIdentity.getID();
@@ -400,10 +431,10 @@ class TokenERC20Contract extends Contract {
         await this.CheckInitialized(ctx);
 
         // Check minter authorization - this sample assumes Org1 is the central banker with privilege to burn tokens
-        const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to mint new tokens');
-        }
+        // const clientMSPID = ctx.clientIdentity.getMSPID();
+        // if (clientMSPID !== 'Org1MSP') {
+        //     throw new Error('client is not authorized to mint new tokens');
+        // }
 
         const minter = ctx.clientIdentity.getID();
 
