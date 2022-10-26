@@ -14,7 +14,6 @@ switch_to_org1_token() {
 # registering org1 as a minter
 register_org1() {
   PATH=${PWD}/../bin:${PWD}:$PATH
-  FABRIC_CFG_PATH=$PWD/../config/
   FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example.com/
   infoln "Registering minter indentity for Org1 (id.name: minter, id.secret minter.pw)"
   fabric-ca-client register --caname ca-org1 --id.name minter --id.secret minterpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
@@ -34,16 +33,27 @@ register_org2() {
 
 # register_org2
 
-mint() {
-  CHANNEL_NAME="business"
-  infoln "Currently only working on branch business first"
+mint_business() {
+  # cd ..
+  cd ..
+  export FABRIC_CFG_PATH=$PWD/config/
+  cd ./network/ || exit
+  warnln "$FABRIC_CFG_PATH"
+
+  infoln "minting coin on channel business"
   register_org1
   register_org2
   switch_to_org1_token
+  export PATH="${PWD}/../bin:${PWD}:$PATH"
+  export FABRIC_CFG_PATH=$PWD/../config/
   peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Initialize","Args":["inital sum", "currywurst", "2"]}'
   peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["5000"]}'
   infoln "Total amount of the minter"
   peer chaincode query -C mychannel -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
+}
+
+mint() {
+  mint_business
 }
 
 export -f mint
