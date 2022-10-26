@@ -9,7 +9,7 @@ function Dashboard() {
   const [isLoading, loading] = useState(true)
   const getAllAssets = function () {
     api
-      .getAllAssets()
+      .getAllRealEstate()
       .then(allRealEstates => {
         loadAllRealEstate(allRealEstates)
         console.log(allRealEstates)
