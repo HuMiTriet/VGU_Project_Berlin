@@ -132,7 +132,6 @@ async function newSigner(): Promise<Signer> {
 
 /**
  * Initialize the ledger to get some Real Estate and Users
- *
  */
 export async function initLedger(): Promise<void> {
   console.log('*** Init ledger')
@@ -153,9 +152,9 @@ export async function getAllAssets(): Promise<string> {
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 
@@ -172,9 +171,9 @@ export async function getAllRealEstate(): Promise<string> {
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 
@@ -201,7 +200,7 @@ export async function createRealEstate(
 ): Promise<string> {
   try {
     console.log('*** Create Real Estate')
-    const result = await contract.submitTransaction(
+    const resultBytes = await contract.submitTransaction(
       'CreateRealEstate',
       id,
       name,
@@ -211,11 +210,14 @@ export async function createRealEstate(
       owners,
       membershipThreshold
     )
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
     console.log('*** Real Estate created')
-    return result.toString()
-  } catch (error: any) {
+    return result
+  } catch (error: unknown) {
     console.log(error)
-    return error
+    return <string>error
   }
 }
 
@@ -254,14 +256,10 @@ export async function transferRealEstate(
   let result
   try {
     console.log('*** Transfer Real Estate')
-
     const commit = await contract.submitAsync('TransferRealEstate', {
       arguments: [id, sellerID, buyerID, buyPercentage]
     })
     result = utf8Decoder.decode(commit.getResult())
-
-    // console.log('*** Waiting for transaction commit')
-
     const status = await commit.getStatus()
     if (!status.successful) {
       throw new Error(
@@ -270,9 +268,9 @@ export async function transferRealEstate(
     }
     console.log('*** Result:', result)
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 
@@ -295,9 +293,9 @@ export async function readAsset(
     result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 
@@ -315,10 +313,10 @@ export async function deleteAsset(id: string): Promise<string> {
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(error)
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 
@@ -335,9 +333,9 @@ export async function assetExists(id: string): Promise<string> {
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 
@@ -362,7 +360,7 @@ export async function updateRealEstate(
   location: string,
   owners: string,
   membershipThreshold: string
-) {
+): Promise<string> {
   try {
     console.log('Update Real Estate')
     const resultBytes = await contract.submitTransaction(
@@ -379,9 +377,9 @@ export async function updateRealEstate(
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error) {
+  } catch (error: unknown) {
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 
@@ -410,9 +408,9 @@ export async function updateUser(
     const result = JSON.parse(resultJson)
     console.log('*** Result:', result)
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log('*** Error:', error)
-    return error
+    return <string>error
   }
 }
 

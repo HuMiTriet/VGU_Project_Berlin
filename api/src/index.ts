@@ -5,6 +5,10 @@ import http from 'http'
 import fs from 'fs'
 import { env } from './env'
 
+/**
+ * Start application gateway and API server
+ * @author Thai Hoang Tam
+ */
 async function main() {
   // run the fabric gateway to connect to the HF
   await fabric.main().catch(error => {
