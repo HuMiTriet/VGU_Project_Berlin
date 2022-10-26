@@ -32,7 +32,8 @@ export class RealEstateContract extends Contract {
   public async InitLedgerRealEstate(ctx: Context): Promise<void> {
     const ownerships: Array<Ownership> = [
       {
-        ownerID: 'user1',
+        ownerID:
+          'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
         ownershipPercentage: 100,
         sellPercentage: 50,
         sellPrice: 1000,
