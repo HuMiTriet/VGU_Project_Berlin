@@ -308,10 +308,10 @@ class TokenERC20Contract extends Contract {
      */
     async Initialize(ctx, name, symbol, decimals) {
         // Check minter authorization - this sample assumes Org1 is the central banker with privilege to set Options for these tokens
-        const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to initialize contract');
-        }
+        // const clientMSPID = ctx.clientIdentity.getMSPID();
+        // if (clientMSPID !== 'Org1MSP') {
+        //     throw new Error('client is not authorized to initialize contract');
+        // }
 
         //check contract options are not already set, client is not authorized to change them once intitialized
         const nameBytes = await ctx.stub.getState(nameKey);
@@ -341,9 +341,9 @@ class TokenERC20Contract extends Contract {
 
         // Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
         const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to mint new tokens');
-        }
+        // if (clientMSPID !== 'Org1MSP') {
+        //     throw new Error('client is not authorized to mint new tokens');
+        // }
 
         // Get ID of submitting client identity
         const minter = ctx.clientIdentity.getID();
@@ -400,10 +400,10 @@ class TokenERC20Contract extends Contract {
         await this.CheckInitialized(ctx);
 
         // Check minter authorization - this sample assumes Org1 is the central banker with privilege to burn tokens
-        const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to mint new tokens');
-        }
+        // const clientMSPID = ctx.clientIdentity.getMSPID();
+        // if (clientMSPID !== 'Org1MSP') {
+        //     throw new Error('client is not authorized to mint new tokens');
+        // }
 
         const minter = ctx.clientIdentity.getID();
 
