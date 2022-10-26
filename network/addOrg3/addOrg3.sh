@@ -21,9 +21,8 @@ export VERBOSE=false
 : ${CONTAINER_CLI_COMPOSE:="${CONTAINER_CLI}-compose"}
 infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 
-
 # Print the usage message
-function printHelp () {
+function printHelp() {
   echo "Usage: "
   echo "  addOrg3.sh up|down|generate [-c <channel name>] [-t <timeout>] [-d <delay>] [-f <docker-compose-file>] [-s <dbtype>]"
   echo "  addOrg3.sh -h|--help (print this message)"
@@ -70,7 +69,7 @@ function generateOrg3() {
     set -x
     cryptogen generate --config=org3-crypto.yaml --output="../organizations"
     res=$?
-    { set +x; } 2>/dev/null
+    { set +x; } 2> /dev/null
     if [ $res -ne 0 ]; then
       fatalln "Failed to generate certificates..."
     fi
@@ -115,13 +114,13 @@ function generateOrg3Definition() {
   set -x
   configtxgen -printOrg Org3MSP > ../organizations/peerOrganizations/org3.example.com/org3.json
   res=$?
-  { set +x; } 2>/dev/null
+  { set +x; } 2> /dev/null
   if [ $res -ne 0 ]; then
     fatalln "Failed to generate Org3 organization definition..."
   fi
 }
 
-function Org3Up () {
+function Org3Up() {
   # start org3 nodes
 
   if [ "$CONTAINER_CLI" == "podman" ]; then
@@ -139,7 +138,7 @@ function Org3Up () {
 }
 
 # Generate the needed certificates, the genesis block and start the network.
-function addOrg3 () {
+function addOrg3() {
   # If the test network is not up, abort
   if [ ! -d ../organizations/ordererOrganizations ]; then
     fatalln "ERROR: Please, run ./network.sh up createChannel first."
@@ -170,9 +169,9 @@ function addOrg3 () {
 }
 
 # Tear down running network
-function networkDown () {
-    cd ..
-    ./network.sh down
+function networkDown() {
+  cd ..
+  ./network.sh down
 }
 
 # Using crpto vs CA. default is cryptogen
@@ -203,7 +202,7 @@ DOCKER_SOCK="${SOCK##unix://}"
 # Parse commandline args
 
 ## Parse mode
-if [[ $# -lt 1 ]] ; then
+if [[ $# -lt 1 ]]; then
   printHelp
   exit 0
 else
@@ -213,44 +212,43 @@ fi
 
 # parse flags
 
-while [[ $# -ge 1 ]] ; do
+while [[ $# -ge 1 ]]; do
   key="$1"
   case $key in
-  -h )
-    printHelp
-    exit 0
-    ;;
-  -c )
-    CHANNEL_NAME="$2"
-    shift
-    ;;
-  -ca )
-    CRYPTO="Certificate Authorities"
-    ;;
-  -t )
-    CLI_TIMEOUT="$2"
-    shift
-    ;;
-  -d )
-    CLI_DELAY="$2"
-    shift
-    ;;
-  -s )
-    DATABASE="$2"
-    shift
-    ;;
-  -verbose )
-    VERBOSE=true
-    ;;
-  * )
-    errorln "Unknown flag: $key"
-    printHelp
-    exit 1
-    ;;
+    -h)
+      printHelp
+      exit 0
+      ;;
+    -c)
+      CHANNEL_NAME="$2"
+      shift
+      ;;
+    -ca)
+      CRYPTO="Certificate Authorities"
+      ;;
+    -t)
+      CLI_TIMEOUT="$2"
+      shift
+      ;;
+    -d)
+      CLI_DELAY="$2"
+      shift
+      ;;
+    -s)
+      DATABASE="$2"
+      shift
+      ;;
+    -verbose)
+      VERBOSE=true
+      ;;
+    *)
+      errorln "Unknown flag: $key"
+      printHelp
+      exit 1
+      ;;
   esac
   shift
 done
-
 
 # Determine whether starting, stopping, restarting or generating for announce
 if [ "$MODE" == "up" ]; then

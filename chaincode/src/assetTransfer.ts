@@ -13,6 +13,7 @@ import stringify from 'json-stringify-deterministic'
 import sortKeysRecursive from 'sort-keys-recursive'
 import { User } from './user'
 import { RealEstate } from './realEstate'
+import { TokenERC20Contract } from './tokenERC20'
 
 import { Ownership } from './resources/classOwnership'
 import { RoomType } from './resources/classRoomType'
@@ -27,6 +28,7 @@ export class AssetTransferContract extends Contract {
   public async InitLedger(ctx: Context): Promise<void> {
     await this.InitLedgerAsset(ctx)
     await this.InitLedgerUser(ctx)
+    await TokenERC20Contract.Initialize(ctx, 'name', 'symbol', '2')
   } // end InitLedger
 
   @Transaction()
