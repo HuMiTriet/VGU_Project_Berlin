@@ -24,9 +24,8 @@ realEstatesRouter.use(function (req: Request, res: Response, next) {
  */
 realEstatesRouter.get('/getAll', async (req: Request, res: Response) => {
   try {
-    console.log('Get all real estate')
-    const assets = await fabric.getAllRealEstate()
-    return res.status(ACCEPTED).send(assets)
+    const realEstate = await fabric.getAllRealEstate()
+    return res.status(ACCEPTED).send(realEstate)
   } catch (error) {
     console.log(error)
     return res.status(INTERNAL_SERVER_ERROR).send(error)
@@ -42,18 +41,28 @@ realEstatesRouter.post('/create', async (req: Request, res: Response) => {
     const bodyJson = req.body
     console.log(bodyJson)
     const id = bodyJson.id
+    const name = bodyJson.name
     const area = bodyJson.area
     const location = bodyJson.location
     const roomList = JSON.stringify(bodyJson.roomList)
     const owners = JSON.stringify(bodyJson.owners)
     const membershipThreshold = bodyJson.membershipThreshold
     if (
-      !(id && area && location && roomList && owners && membershipThreshold)
+      !(
+        id &&
+        name &&
+        area &&
+        location &&
+        roomList &&
+        owners &&
+        membershipThreshold
+      )
     ) {
-      return res.status(BAD_REQUEST).send('Invalid data to create asset')
+      return res.status(BAD_REQUEST).send('Invalid data to create real estate')
     }
     const result = await fabric.createRealEstate(
       id,
+      name,
       roomList,
       area,
       location,
@@ -61,10 +70,10 @@ realEstatesRouter.post('/create', async (req: Request, res: Response) => {
       membershipThreshold
     )
     console.log(result)
-    return res.status(ACCEPTED).send('Create asset successfully')
+    return res.status(ACCEPTED).send(result)
   } catch (error) {
     console.log(error)
-    return res.status(INTERNAL_SERVER_ERROR).send('Server fail to create asset')
+    return res.status(INTERNAL_SERVER_ERROR).send(error)
   }
 })
 
@@ -77,27 +86,39 @@ realEstatesRouter.put('/update', async (req: Request, res: Response) => {
     const bodyJson = req.body
     console.log(bodyJson)
     const id = bodyJson.id
+    const name = bodyJson.name
     const area = bodyJson.area
     const location = bodyJson.location
     const roomList = JSON.stringify(bodyJson.roomList)
     const owners = JSON.stringify(bodyJson.owners)
     const membershipThreshold = bodyJson.membershipThreshold
-    if (!(id && area && location && roomList && owners)) {
-      return res.status(BAD_REQUEST).send('Invalid data to create asset')
+    if (
+      !(
+        id &&
+        name &&
+        area &&
+        location &&
+        roomList &&
+        owners &&
+        membershipThreshold
+      )
+    ) {
+      return res.status(BAD_REQUEST).send('Invalid data to create real estate')
     }
     const result = await fabric.updateRealEstate(
       id,
+      name,
       roomList,
       area,
       location,
       owners,
       membershipThreshold
     )
-    console.log(result)
-    return res.status(ACCEPTED).send('Update asset successfully')
+    console.log('> API Result ', result)
+    res.status(ACCEPTED).send(result)
   } catch (error) {
     console.log(error)
-    res.status(INTERNAL_SERVER_ERROR).send('Fail to update asset')
+    res.status(INTERNAL_SERVER_ERROR).send(error)
   }
 })
 
@@ -107,14 +128,15 @@ realEstatesRouter.put('/update', async (req: Request, res: Response) => {
  */
 realEstatesRouter.put('/transfer', async (req: Request, res: Response) => {
   try {
-    console.log('Transfer asset')
     const body = req.body
     const id = body.id
     const sellerID = body.sellerID
     const buyerID = body.buyerID
     const buyPercentage = body.buyPercentage
     if (!(id && sellerID && buyerID && buyPercentage)) {
-      return res.status(BAD_REQUEST).send('Invalid data to transfer asset')
+      return res
+        .status(BAD_REQUEST)
+        .send('Invalid data to transfer real estate')
     }
     const result = await fabric.transferRealEstate(
       id,

@@ -33,7 +33,7 @@ assetsRouter.get('/getAll', async (req: Request, res: Response) => {
 })
 
 /**
- * Read assets
+ * Read asset
  * @author Thai Hoang Tam
  */
 assetsRouter.get('/read', async (req, res) => {
