@@ -5,10 +5,13 @@ import { Ownership } from './resources/classOwnership'
 @Object()
 export class RealEstate {
   @Property()
-  public docType?: string
+  public docType: string
 
   @Property()
   public id: string
+
+  @Property()
+  public name: string
 
   @Property()
   public roomList: RoomType

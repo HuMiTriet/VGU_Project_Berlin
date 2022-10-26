@@ -88,6 +88,7 @@ function Dashboard() {
           onClick={() =>
             api.createRealEstate(
               'asset209',
+              'test name',
               JSON.stringify({
                 numOfBathroom: '2',
                 numOfBedroom: '2',

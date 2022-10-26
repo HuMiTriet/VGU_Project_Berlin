@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import passport from 'passport'
 import { authenticateApiKey, fabricAPIKeyStrategy } from './auth'
 import { assetsRouter } from './router/assets'
+import { realEstatesRouter } from './router/realEstates'
 import { usersRouter } from './router/users'
 const { NOT_FOUND } = StatusCodes
 dotenv.config()
@@ -37,6 +38,7 @@ export const server = async (): Promise<Express> => {
   //initialize passport js
   app.use(passport.initialize())
   app.use('/api/assets', authenticateApiKey, assetsRouter)
+  app.use('/api/realestates', authenticateApiKey, realEstatesRouter)
   app.use('/api/users', authenticateApiKey, usersRouter)
   // For everything else
   app.use((_req, res) =>

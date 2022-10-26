@@ -7,7 +7,6 @@ import { Ownership } from '../../resources/ownership'
 
 function AppFeature(realEstates) {
   realEstates = JSON.parse(realEstates)
-  realEstates = [realEstates[0], realEstates[1]]
   const html = []
   // realEstates: Array<RealEstate> = [
   //   {
