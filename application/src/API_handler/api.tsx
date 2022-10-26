@@ -12,17 +12,17 @@ axios.defaults.headers.common = {
   Accept: '*/*'
 }
 
-const RED     = '\x1b[31m'
-const GREEN   = '\x1b[32m'
-const YELLOW  = '\x1b[33m'
-const BLUE    = '\x1b[34m'
+const RED = '\x1b[31m'
+const GREEN = '\x1b[32m'
+const YELLOW = '\x1b[33m'
+const BLUE = '\x1b[34m'
 const MAGENTA = '\x1b[35m'
-const CYAN    = '\x1b[36m'
-const RESET   = '\x1b[0m'
+const CYAN = '\x1b[36m'
+const RESET = '\x1b[0m'
 /**
  * @author Nguyen Khoa
  */
-function debug(color:string, msgString: string) {
+function debug(color: string, msgString: string) {
   console.log(`${color}\n\t${msgString}${RESET}\n`)
 }
 
@@ -40,7 +40,7 @@ async function getAllAssets(): Promise<string> {
 /**
  * @author Nguyen Khoa
  */
-async function getAllRealEstate(): Promise<string>{
+async function getAllRealEstate(): Promise<string> {
   const realEstateResponse = await axios.get(`${realEstatePath}/getAll`)
   const data = realEstateResponse.data
   console.log(JSON.parse(JSON.stringify(data)))
@@ -51,6 +51,7 @@ async function getAllRealEstate(): Promise<string>{
  *  * Create new Real Estate
  * @author Thai Hoang Tam, Nguyen Khoa
  * @param id
+ * @param name
  * @param roomList
  * @param area
  * @param location
@@ -59,6 +60,7 @@ async function getAllRealEstate(): Promise<string>{
  */
 async function createRealEstate(
   id: string,
+  name: string,
   roomList: string,
   area: string,
   location: string,
@@ -67,6 +69,7 @@ async function createRealEstate(
 ): Promise<string> {
   const realEstateData = {
     id: id,
+    name: name,
     roomList: roomList,
     area: area,
     location: location,
@@ -79,20 +82,20 @@ async function createRealEstate(
   )
   const data = createRealEstateResponse.data
   const status = createRealEstateResponse.status
-  debug(GREEN,`createRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(GREEN, `createRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`)
   // console.log(status)
   // console.log(data)
   return JSON.stringify(data)
 }
 
 /**
- * Create a new user with a name 
+ * Create a new user with a name
  * @author Thai Hoang Tam
  * @param id
  * @param name
  * @returns
  */
-async function createUser(id: string, name:string): Promise<string> {
+async function createUser(id: string, name: string): Promise<string> {
   const body = {
     id: id,
     name: name
@@ -100,8 +103,8 @@ async function createUser(id: string, name:string): Promise<string> {
   const createUserResponse = await axios.post(`${userPath}/create`, body)
   const data = createUserResponse.data
   const status = createUserResponse.status
-  debug(GREEN,`createUser:\n\t- Status: ${status}\n\t- Data: ${data}`)
-  
+  debug(GREEN, `createUser:\n\t- Status: ${status}\n\t- Data: ${data}`)
+
   return JSON.stringify(data)
 }
 
@@ -119,17 +122,23 @@ async function transferRealEstate(
   sellerID: string,
   buyerID: string,
   buyPercentage: string
-):Promise<string>{
+): Promise<string> {
   const body = {
     id: id,
     sellerID: sellerID,
     buyerID: buyerID,
     buyPercentage: buyPercentage
   }
-  const transferRealEstateResponse = await axios.post(`${realEstatePath}/transfer`, body)
+  const transferRealEstateResponse = await axios.put(
+    `${realEstatePath}/transfer`,
+    body
+  )
   const data = transferRealEstateResponse.data
   const status = transferRealEstateResponse.status
-  debug(MAGENTA, `transferRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(
+    MAGENTA,
+    `transferRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`
+  )
   return JSON.stringify(data)
 }
 
@@ -142,8 +151,8 @@ async function transferRealEstate(
 async function readAsset(id: string): Promise<string> {
   const query = `?id=${id}`
   const readAssetResponse = await axios.get(`${assetPath}/read${query}`)
-  const data:string = readAssetResponse.data
-  const status:number = readAssetResponse.status
+  const data: string = readAssetResponse.data
+  const status: number = readAssetResponse.status
   debug(CYAN, `readAsset:\n\t- Status: ${status}\n\t- Data: ${data}`)
   // console.log(data)
   return JSON.stringify(data)
@@ -158,8 +167,8 @@ async function readAsset(id: string): Promise<string> {
 async function deleteAsset(id: string): Promise<string> {
   const query = `?id=${id}`
   const deleteAssetsResponse = await axios.delete(`${assetPath}/delete${query}`)
-  const data:string = deleteAssetsResponse.data
-  const status:number = deleteAssetsResponse.status
+  const data: string = deleteAssetsResponse.data
+  const status: number = deleteAssetsResponse.status
   debug(BLUE, `deleteAsset:\n\t- Status: ${status}\n\t- Data: ${data}`)
   return JSON.stringify(data)
 }
@@ -170,18 +179,18 @@ async function deleteAsset(id: string): Promise<string> {
  * @param id
  * @returns
  */
-async function assetExists(id:string): Promise<string>{
+async function assetExists(id: string): Promise<string> {
   const query = `?id=${id}`
   const isAssetsResponse = await axios.get(`${assetPath}/exists${query}`)
-  const data:string = isAssetsResponse.data
-  const status:number = isAssetsResponse.status
+  const data: string = isAssetsResponse.data
+  const status: number = isAssetsResponse.status
   debug(CYAN, `assetExists:\n\t- Status: ${status}\n\t- Data: ${data}`)
   return JSON.stringify(data)
 }
 
 /**
  * Update an real estate
- * @author Thai Hoang Tam, NGuyen Khoa
+ * @author Thai Hoang Tam, Nguyen Khoa
  * @param id
  * @param roomList
  * @param area
@@ -192,6 +201,7 @@ async function assetExists(id:string): Promise<string>{
  */
 async function updateRealEstate(
   id: string,
+  name: string,
   roomList: string,
   area: string,
   location: string,
@@ -200,13 +210,17 @@ async function updateRealEstate(
 ): Promise<string> {
   const realEstateData = {
     id: id,
+    name: name,
     roomList: roomList,
     area: area,
     location: location,
     owners: owners,
     membershipThreshold: membershipThreshold
   }
-  const updateRealEstateResponse = await axios.put(`${realEstatePath}/update`, realEstateData)
+  const updateRealEstateResponse = await axios.put(
+    `${realEstatePath}/update`,
+    realEstateData
+  )
   const data = updateRealEstateResponse.data
   const status = updateRealEstateResponse.status
   // console.log(status)
@@ -224,9 +238,10 @@ async function updateRealEstate(
  * @returns
  */
 async function updateUser(
-  id: string, 
+  id: string,
   name: string,
-  membershipThreshold:string): Promise<string> {
+  membershipThreshold: string
+): Promise<string> {
   const body = {
     id: id,
     name: name,
@@ -242,6 +257,7 @@ async function updateUser(
 
 export {
   getAllAssets,
+  getAllRealEstate,
   createRealEstate,
   updateRealEstate,
   readAsset,
