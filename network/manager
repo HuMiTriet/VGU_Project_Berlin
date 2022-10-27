@@ -482,7 +482,7 @@ case "$OPTION" in
 
     infoln "coping Org3 fabric-ca over to same folder as Org1 and Org2"
     cp -r "${PWD}/addOrg3/fabric-ca/org3" "${PWD}/organizations/fabric-ca/org3"
-    chmod +x "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
+    chmod 777 "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
 
     infoln "ADDING MINTER IDENTITY TO ALL ORGS"
     export PATH=${PWD}/../bin:${PWD}:$PATH
