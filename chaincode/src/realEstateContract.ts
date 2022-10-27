@@ -504,4 +504,42 @@ export class RealEstateContract extends Contract {
     }
     return JSON.stringify(allResults)
   }
+
+  @Transaction(false)
+  public async GetUserRealEstate(
+    ctx: Context,
+    userID: string
+  ): Promise<string> {
+    const allResults = []
+    // range query with empty string for startKey and endKey does an open-ended query of all assets in the chaincode namespace.
+    const iterator = await ctx.stub.getStateByRange('', '')
+    let result = await iterator.next()
+
+    while (!result.done) {
+      const strValue = Buffer.from(result.value.value.toString()).toString(
+        'utf8'
+      )
+      let record
+      try {
+        record = JSON.parse(strValue)
+        //Check if user wants a specific type of Asset (asset, user,.....)
+      } catch (err) {
+        console.log(err)
+        record = strValue
+      }
+
+      if (record.docType === realEstateDocType) {
+        for (const oneOwner of record.owners as Ownership[]) {
+          if (oneOwner.ownerID === userID) {
+            allResults.push(record)
+            break
+          }
+        }
+      }
+
+      //allResults.push(record)
+      result = await iterator.next()
+    }
+    return JSON.stringify(allResults)
+  }
 }
