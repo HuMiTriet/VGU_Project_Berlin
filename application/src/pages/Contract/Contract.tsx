@@ -2,7 +2,7 @@ import Navbar from "../../components/Navbar";
 import './Contract.css'
 import { Form, Input, Button, Checkbox, Select, Col, Row, Card, Alert, Typography} from 'antd';
 import React, { useState } from 'react'
-// import * as api from '../../API_handler/api'
+import * as api from '../../API_handler/api'
 
 
 
@@ -146,8 +146,23 @@ const Contact = () => {
     </>
   );
 
-  // let inputValue = (<HTMLInputElement>html.getElementById('buyPer')).value;
-
+  let id:string
+  let buyerID: string
+  let buyPercentage:string
+    const [result, loadResult] = useState('')
+  const transferRealEstateResult = function () {
+    api
+      .transferRealEstate(id, sellerID, buyerID, buyPercentage)
+      .then(allData => {
+        loadResult(allData)
+        return
+      })
+      .catch((error: unknown) => {
+        console.log(error)
+      })
+  }
+  transferRealEstateResult()
+  console.log(result) 
   return html
 }
 
