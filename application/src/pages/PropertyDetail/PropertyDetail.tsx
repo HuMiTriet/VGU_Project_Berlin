@@ -16,6 +16,8 @@ import { useEffect, useState } from 'react'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 import { Link } from 'react-router-dom'
+import { RoomType } from '../../resources/roomType'
+import { randomBytes } from 'crypto'
 
 function PropertyDetail() {
   // Variables for Property
@@ -23,34 +25,27 @@ function PropertyDetail() {
   // searchParams.get('realEstateID')
   // console.log(searchParams)
   const id = localStorage['realEstateID']
-  console.log('ID: ' + localStorage['realEstateID'])
-
-  const propertyName = 'City Garden Duplex'
-  const propertyPrice = '6 Billion VND'
-  const numofRooms = '5'
-  const propertyArea = '223.92 m2'
-  const propertyLocation = 'Binh Thanh Dist.'
+  const realEstate: RealEstate = JSON.parse(localStorage['realEstate'])
+  const propertyName = realEstate.name
+  const propertyPriceMin = localStorage['sellPriceMin']
+  const propertyPriceMax = localStorage['sellPriceMax']
+  const numofRooms = localStorage['numberOfRoom']
+  const propertyArea = realEstate.area
+  const propertyLocation = realEstate.location
   const propertyType = 'Duplex'
   const propertyNote =
     'With numerous outdoor living and dining spaces, an infinity pool, garden, and an outdoor kitchen, the terrace is the hot spot for hosting. Moving inside, guests will enjoy formal dining for fourteen, a games room, cinema room, and an entertainment lounge with a pool table. If you’re feeling like keeping up your daily routines, there is an office and a fitness area. Breakfast, airport transfer, twenty-four hour security, and daily housekeeping are all included as well.'
   const propertyDescription =
     '5 floors, Japanese garden (35 m2), terrace (27.09 m2), balcony (6.63 m2)'
 
-  // const [info, loadResult] = useState()
   const [isLoading, setLoading] = useState(true)
-  const [html, setHtml] = useState([])
+  const [html] = useState([])
   const realEstateInfo = function () {
     api
       .readAsset(id)
       .then(allData => {
-        console.log(allData)
-        // loadResult(JSON.parse(allData))
-        const info = JSON.parse(allData)
-        console.log('Info' + info)
-
+        const info: RealEstate = JSON.parse(allData)
         info.owners.forEach(function (owner: Ownership) {
-          console.log(owner)
-
           html.push(
             <div className="ownership child">
               <p>
@@ -99,8 +94,6 @@ function PropertyDetail() {
             </div>
           )
         })
-        console.log('html' + JSON.stringify(html))
-
         setLoading(false)
         return
       })
@@ -109,22 +102,13 @@ function PropertyDetail() {
       })
   }
   realEstateInfo()
-  useEffect(() => {
-    realEstateInfo()
-  })
-  // console.log('Start' + JSON.parse(data))
-  // const owners = info.owners
-  // console.log('Info' + info)
+  // useEffect(() => {
+  //   realEstateInfo()
+  // })
 
   if (isLoading) {
-    console.log('is loading')
-
     return <div>Loading</div>
   } else {
-    console.log('loading finish')
-
-    console.log('Final html' + html)
-
     return (
       <>
         <Navbar />
@@ -157,7 +141,7 @@ function PropertyDetail() {
                 <BsBuilding /> {propertyType}
               </h2>
               <h2>
-                <BsLayoutTextWindow /> {propertyArea}
+                <BsLayoutTextWindow /> {propertyArea} m2
               </h2>
               <h2>
                 <SlLocationPin /> {propertyLocation}
@@ -173,7 +157,10 @@ function PropertyDetail() {
           >
             <p>
               Price:
-              <h3> {propertyPrice} </h3>
+              <h3>
+                {' '}
+                {propertyPriceMin} - {propertyPriceMax} CW{' '}
+              </h3>
             </p>
           </div>
           <div style={{ padding: '15px', marginTop: '0' }}>

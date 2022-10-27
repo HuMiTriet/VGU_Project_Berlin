@@ -5,7 +5,6 @@ import { Row, Col, Card, Pagination } from 'antd'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 import { Link } from 'react-router-dom'
-import PropertyDetail from '../PropertyDetail/PropertyDetail'
 function AppFeature(realEstates) {
   realEstates = JSON.parse(realEstates)
   const html = []
@@ -90,25 +89,32 @@ function AppFeature(realEstates) {
   realEstates.forEach(function (testRealEstate: RealEstate) {
     console.log(testRealEstate.id)
 
+    let numberOfRoom = 0
+    for (const key in testRealEstate.roomList) {
+      numberOfRoom = numberOfRoom + parseInt(testRealEstate.roomList[key])
+    }
     let prices: Array<number> = []
-    testRealEstate.owners.forEach(function (value: Ownership) {
-      const price = (value.sellPrice * 100) / value.sellPercentage
-      if (!isNaN(price)) {
-        prices.push(price)
-      }
+    testRealEstate.owners.forEach(function (owner: Ownership) {
+      prices.push(owner.sellPrice)
     })
     prices = prices.sort((n1, n2) => n1 - n2)
     // const link = '/propertyinfo?realEstateID=' + testRealEstate.id
     html.push(
-      <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 12 }}>
+      <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 10 }}>
         <Link to="/propertyinfo">
           <Card
             style={{ borderRadius: '20px', overflow: 'hidden' }}
             hoverable
             onClick={e => {
               localStorage.setItem('realEstateID', testRealEstate.id)
+              localStorage.setItem('sellPriceMin', prices[0].toString())
+              localStorage.setItem(
+                'sellPriceMax',
+                prices[prices.length - 1].toString()
+              )
+              localStorage.setItem('realEstate', JSON.stringify(testRealEstate))
+              localStorage.setItem('numberOfRoom', numberOfRoom.toString())
               console.log(e)
-              return { PropertyDetail }
             }}
             cover={<img alt="City Garden Duplex " src={Homepage_House} />}
           >

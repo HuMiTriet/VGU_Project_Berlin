@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import TestDashboard from './DashboardTest/Dashboard'
 import Login from './Authentication/Login/Login'
 import PropertyDetails from './pages/PropertyDetail/PropertyDetail'
+import InfoUpload from './pages/InfoUpload/InfoUpload'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/propertyinfo" element={<PropertyDetails />} />
           <Route path="/contract" element={<Contract />} />
+          <Route path="/infoupload" element={<InfoUpload />} />
         </Routes>
       </Router>
     </div>
