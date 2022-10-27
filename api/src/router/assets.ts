@@ -7,7 +7,7 @@ export const assetsRouter: Router = express.Router()
 
 /**
  * Get all assets
- * @author Thai Hoang Tam, Nguyen Khoa 
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 assetsRouter.get('/getAll', async (req: Request, res: Response) => {
   try {
@@ -74,7 +74,7 @@ assetsRouter.delete('/delete', async (req, res) => {
     const query = req.query
     const id: string = <string>query['id']
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp]['public']
     if (!id) {
       return res.status(BAD_REQUEST).send('Invalid query format')
     }

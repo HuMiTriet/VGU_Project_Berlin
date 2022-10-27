@@ -5,58 +5,23 @@ const utf8Decoder = new TextDecoder()
 /**
  * Transfer token
  * @author Nguyen Khoa
- * @param contract 
+ * @param contract
  * @param to The recipient
  * @param value The amount of token to be transferred
- * @returns 
+ * @returns
  */
 export async function transferToken(
   contract: Contract,
   to: string,
   value: string
 ): Promise<boolean> {
-  let result:boolean
+  let result: boolean
   try {
     console.log('*** Transfer Token')
     const commit = await contract.submitAsync('Transfer', {
       arguments: [to, value]
     })
-    result = <boolean><unknown>utf8Decoder.decode(commit.getResult())
-    // const status = await commit.getStatus()
-    // if (!status.successful) {
-    //   throw new Error(
-    //     `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
-    //   )
-    // }
-    // console.log('*** Result:', result)
-    return result
-  } catch (error: unknown) {
-    console.log('*** Error:', error)
-    return false
-  }
-}
-
-/**
- * @author Nguyen Khoa
- * @param contract 
- * @param from 
- * @param to 
- * @param value 
- * @returns 
- */
-export async function canTransferToken(
-  contract: Contract,
-  from: string,
-  to: string,
-  value: string
-): Promise<boolean> {
-  let result:boolean
-  try {
-    console.log('*** Can Transfer Token?')
-    const commit = await contract.submitAsync('canTransfer', {
-      arguments: [from, to, value]
-    })
-    result = <boolean><unknown>utf8Decoder.decode(commit.getResult())
+    result = <boolean>(<unknown>utf8Decoder.decode(commit.getResult()))
     // const status = await commit.getStatus()
     // if (!status.successful) {
     //   throw new Error(
@@ -73,7 +38,39 @@ export async function canTransferToken(
 
 /**
  * @author Nguyen Khoa
- * @param contract 
+ * @param contract
+ * @param from
+ * @param to
+ * @param value
+ * @returns
+ */
+export async function canTransferToken(
+  contract: Contract,
+  to: string,
+  value: string
+): Promise<boolean> {
+  try {
+    console.log('*** Can Transfer Token?')
+    const commit = await contract.submitTransaction('CanTransfer', to, value)
+    const result = <boolean>(<unknown>utf8Decoder.decode(commit))
+    // result = <boolean>(<unknown>utf8Decoder.decode(commit.getResult()))
+    // const status = await commit.getStatus()
+    // if (!status.successful) {
+    //   throw new Error(
+    //     `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
+    //   )
+    // }
+    console.log('*** Result:', result)
+    return result
+  } catch (error: unknown) {
+    console.log('*** Error:', error)
+    return false
+  }
+}
+
+/**
+ * @author Nguyen Khoa
+ * @param contract
  * @param name The name of the token
  * @param symbol The symbol of the token
  * @param decimals The decimals of the token
@@ -81,33 +78,93 @@ export async function canTransferToken(
  */
 export async function Initialize(
   contract: Contract,
-  name:string,
+  name: string,
   symbol: string,
-  decimals: string,
-  totalSupply: string): Promise<void> {
+  decimals: string
+): Promise<void> {
   console.log('*** Initialize Token')
-  await contract.submitTransaction(
-    'Initialize',
-    name,
-    symbol,
-    decimals,
-    totalSupply)
+  await contract.submitTransaction('Initialize', name, symbol, decimals)
   console.log('*** Init token successfully')
 }
 
 /**
  * Mint creates new tokens and adds them to minter's account balance
  * @author Nguyen Khoa
- * @param contract 
+ * @param contract
  * @param amount amount of tokens to be minted
  */
 export async function Mint(
   contract: Contract,
-  amount:string): Promise<boolean> {
+  amount: string
+): Promise<boolean> {
   console.log('*** Mint Token')
-  await contract.submitTransaction(
-    'Mint',
-    amount)
+  await contract.submitTransaction('Mint', amount)
   console.log('*** Mint token successfully')
   return true
+}
+
+/**
+ * Burn token
+ * @author Thai Hoang Tam
+ * @param contract
+ * @param amount
+ * @returns
+ */
+export async function burn(
+  contract: Contract,
+  amount: string
+): Promise<string> {
+  try {
+    console.log('Burn')
+    const resultBytes = await contract.submitTransaction('Burn', amount)
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: unknown) {
+    console.log('*** Error:', error)
+    return <string>error
+  }
+}
+
+/**
+ * Get client account balance
+ * @author Thai Hoang Tam
+ * @param contract
+ * @returns
+ */
+export async function clientAccountBalance(
+  contract: Contract
+): Promise<string> {
+  try {
+    console.log('ClientAccountBalance')
+    const resultBytes = await contract.submitTransaction('ClientAccountBalance')
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: unknown) {
+    console.log('*** Error:', error)
+    return <string>error
+  }
+}
+
+/**
+ * Get client account ID
+ * @author Thai Hoang Tam
+ * @param contract
+ * @returns
+ */
+export async function clientAccountID(contract: Contract): Promise<string> {
+  try {
+    console.log('ClientAccountID')
+    const resultBytes = await contract.submitTransaction('ClientAccountID')
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.stringify(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: unknown) {
+    console.log('*** Error:', error)
+    return <string>error
+  }
 }

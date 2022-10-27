@@ -16,6 +16,7 @@ import * as crypto from 'crypto'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import * as fabric from './fabricFunctions'
+import * as token from './tokenFunctions'
 import { env } from './env'
 
 const channelName = env.CHANNEL_NAME
@@ -44,6 +45,17 @@ const keyDirectoryPath = envOrDefault(
   path.resolve(cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore')
 )
 
+const keyDirectoryPathBusiness = envOrDefault(
+  'KEY_DIRECTORY_PATH',
+  path.resolve(
+    cryptoPath,
+    'users',
+    'minter@org1.example.com',
+    'msp',
+    'keystore'
+  )
+)
+
 // Path to user certificate.
 const certPath = envOrDefault(
   'CERT_PATH',
@@ -51,6 +63,18 @@ const certPath = envOrDefault(
     cryptoPath,
     'users',
     'User1@org1.example.com',
+    'msp',
+    'signcerts',
+    'cert.pem'
+  )
+)
+// Path to user certificate.
+const certPathMinter = envOrDefault(
+  'CERT_PATH',
+  path.resolve(
+    cryptoPath,
+    'users',
+    'minter@org1.example.com',
     'msp',
     'signcerts',
     'cert.pem'
@@ -84,7 +108,7 @@ export async function main(): Promise<void> {
   const gateway = connect({
     client,
     identity: await newIdentity(certPath),
-    signer: await newSigner(),
+    signer: await newSigner(keyDirectoryPath),
     // Default timeouts for different gRPC calls
     evaluateOptions: () => {
       return { deadline: Date.now() + 5000 } // 5 seconds
@@ -100,10 +124,10 @@ export async function main(): Promise<void> {
     }
   })
 
-  const gateway2 = connect({
+  const gatewayMinter = connect({
     client,
-    identity: await newIdentity(certPath),
-    signer: await newSigner(),
+    identity: await newIdentity(certPathMinter),
+    signer: await newSigner(keyDirectoryPathBusiness),
     // Default timeouts for different gRPC calls
     evaluateOptions: () => {
       return { deadline: Date.now() + 5000 } // 5 seconds
@@ -118,10 +142,11 @@ export async function main(): Promise<void> {
       return { deadline: Date.now() + 60000 } // 1 minute
     }
   })
+
   try {
     // Get a network instance representing the channel where the smart contract is deployed.
     const network = gateway.getNetwork(channelName)
-    const businessNerwork = gateway2.getNetwork(channelNameBusiness)
+    const businessNerwork = gatewayMinter.getNetwork(channelNameBusiness)
     contractBusiness = businessNerwork.getContract(chaincodeNameBusiness)
 
     // Get the smart contract from the network.
@@ -129,6 +154,29 @@ export async function main(): Promise<void> {
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await fabric.initLedger(contract)
+    await fabric.canTransferRealEstate(
+      contract,
+      'asset1',
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+      '10'
+    )
+    // await token.Initialize(contractBusiness, 'CW', 'CW', '2')
+    await token.Mint(contractBusiness, '500')
+    await token.canTransferToken(
+      contractBusiness,
+      // 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+      '100'
+    )
+    await token.burn(contractBusiness, '50')
+    await token.clientAccountBalance(contractBusiness)
+    await token.clientAccountID(contractBusiness)
+    await token.transferToken(
+      contractBusiness,
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+      '10'
+    )
   } finally {
     // gateway.close()
     // client.close()
@@ -152,7 +200,7 @@ async function newIdentity(certPath: string): Promise<Identity> {
   return { mspId, credentials }
 }
 
-async function newSigner(): Promise<Signer> {
+async function newSigner(keyDirectoryPath: string): Promise<Signer> {
   const files = await fs.readdir(keyDirectoryPath)
   const keyPath = path.resolve(keyDirectoryPath, files[0])
   const privateKeyPem = await fs.readFile(keyPath)

@@ -1,6 +1,8 @@
 import express, { Request, Response, Router } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import * as fabric from '../fabricFunctions'
+import * as token from '../tokenFunctions'
+import { server } from '../server'
 const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes
 
 export const realEstatesRouter: Router = express.Router()
@@ -128,12 +130,33 @@ realEstatesRouter.put('/transfer', async (req: Request, res: Response) => {
     const sellerID = body.sellerID
     const buyerID = body.buyerID
     const buyPercentage = body.buyPercentage
+    const value = body.value
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
+    const contractBusiness = req.app.locals[msp + 'business']
     if (!(id && sellerID && buyerID && buyPercentage)) {
       return res
         .status(BAD_REQUEST)
         .send('Invalid data to transfer real estate')
+    }
+    const isRealEstateTransferable = await fabric.canTransferRealEstate(
+      contract,
+      id,
+      sellerID,
+      buyerID,
+      buyPercentage
+    )
+    if (!isRealEstateTransferable) {
+      return res.status(BAD_REQUEST).send('Cannot transfer real estate')
+    }
+    const isTokenTransferable = await token.canTransferToken(
+      contractBusiness,
+      // buyerID,
+      sellerID,
+      value
+    )
+    if (!isTokenTransferable) {
+      return res.status(BAD_REQUEST).send('Cannot transfer token')
     }
     const result = await fabric.transferRealEstate(
       contract,
@@ -142,7 +165,14 @@ realEstatesRouter.put('/transfer', async (req: Request, res: Response) => {
       buyerID,
       buyPercentage
     )
-    return res.status(ACCEPTED).send(result)
+    const tokenResult = await token.transferToken(
+      contractBusiness,
+      sellerID,
+      value
+    )
+    return res
+      .status(ACCEPTED)
+      .json({ realEstateResult: result, tokenResult: tokenResult })
   } catch (error) {
     console.log(error)
     return res.status(INTERNAL_SERVER_ERROR).send(error)

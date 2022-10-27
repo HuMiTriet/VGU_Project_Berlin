@@ -119,6 +119,44 @@ export async function createUser(contract: Contract, id: string, name: string) {
 }
 
 /**
+ * Check if can transfer real estate
+ * @author Thai Hoang Tam
+ * @param contract
+ * @param id
+ * @param sellerID
+ * @param buyerID
+ * @param buyPercentage
+ * @returns
+ */
+export async function canTransferRealEstate(
+  contract: Contract,
+  id: string,
+  sellerID: string,
+  buyerID: string,
+  buyPercentage: string
+): Promise<string> {
+  let result
+  try {
+    console.log('*** Can Transfer Real Estate')
+    const commit = await contract.submitAsync('CanTransferRealEstate', {
+      arguments: [id, sellerID, buyerID, buyPercentage]
+    })
+    result = utf8Decoder.decode(commit.getResult())
+    const status = await commit.getStatus()
+    if (!status.successful) {
+      throw new Error(
+        `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
+      )
+    }
+    console.log('*** Result:', result)
+    return result
+  } catch (error: unknown) {
+    console.log('*** Error:', error)
+    return <string>error
+  }
+}
+
+/**
  * Transfer real estate
  * @author Thai Hoang Tam
  * @param contract

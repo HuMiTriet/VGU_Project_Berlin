@@ -18,7 +18,8 @@ async function main() {
 
   // start API server
   const app = await server()
-  app.locals[env.MSP_ID_ORG1] = fabric.contract
+  app.locals[env.MSP_ID_ORG1 + 'public'] = fabric.contract
+  app.locals[env.MSP_ID_ORG1 + 'business'] = fabric.contractBusiness
   app.locals[env.MSP_ID_ORG2] = fabric.contractBusiness
   const httpHost = `localhost:${env.HTTP_PORT}`
   const httpsHost = `localhost:${env.HTTPS_PORT}`
