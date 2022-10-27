@@ -24,3 +24,10 @@ function PropertyDetail() {
     "With numerous outdoor living and dining spaces, an infinity pool, garden, and an outdoor kitchen, the terrace is the hot spot for hosting. Moving inside, guests will enjoy formal dining for fourteen, a games room, cinema room, and an entertainment lounge with a pool table. If you’re feeling like keeping up your daily routines, there is an office and a fitness area. Breakfast, airport transfer, twenty-four hour security, and daily housekeeping are all included as well.";
   const propertyDescription =
     "5 floors, Japanese garden (35 m2), terrace (27.09 m2), balcony (6.63 m2)";
+    
+    // Variables for Ownership
+    const userID = "tuitenlaDan";
+    const ownPercent = "70%";
+    const sellPercent = "50%";
+    const totalPrice = "6000000";
+    const noRemain = "5%";
