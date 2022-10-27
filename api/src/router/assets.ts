@@ -12,7 +12,7 @@ export const assetsRouter: Router = express.Router()
 assetsRouter.get('/getAll', async (req: Request, res: Response) => {
   try {
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     const assets = await fabric.getAllAssets(contract)
     return res.status(ACCEPTED).send(assets)
   } catch (error) {
@@ -30,7 +30,7 @@ assetsRouter.get('/read', async (req, res) => {
     const query = req.query
     const id = <string>query['id']
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     if (!id) {
       return res.status(BAD_REQUEST).send('Invalid query to read asset')
     }
@@ -52,7 +52,7 @@ assetsRouter.get('/exists', async (req, res) => {
     const query = req.query
     const id = <string>query['id']
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     if (!id) {
       res.status(BAD_REQUEST).send('Invalid query to check asset exists')
     }
@@ -74,7 +74,7 @@ assetsRouter.delete('/delete', async (req, res) => {
     const query = req.query
     const id: string = <string>query['id']
     const msp = <string>req.user
-    const contract = req.app.locals[msp]['public']
+    const contract = req.app.locals[msp + 'public']['public']
     if (!id) {
       return res.status(BAD_REQUEST).send('Invalid query format')
     }

@@ -16,7 +16,7 @@ usersRouter.post('/create', async (req: Request, res: Response) => {
     const id: string = body.id
     const name: string = body.name
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     if (!(id && name)) {
       return res.status(BAD_REQUEST).send('Invalid data format to create user')
     }
@@ -40,7 +40,7 @@ usersRouter.put('/update', async (req: Request, res: Response) => {
     const name: string = body.name
     const membershipScore: string = body.membershipScore
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     if (!(id && name && membershipScore)) {
       return res.status(BAD_REQUEST).send('Invalid data format to create user')
     }

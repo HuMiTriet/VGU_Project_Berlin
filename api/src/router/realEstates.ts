@@ -14,7 +14,7 @@ export const realEstatesRouter: Router = express.Router()
 realEstatesRouter.get('/getAll', async (req: Request, res: Response) => {
   try {
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     const realEstate = await fabric.getAllRealEstate(contract)
     return res.status(ACCEPTED).send(realEstate)
   } catch (error) {
@@ -39,7 +39,7 @@ realEstatesRouter.post('/create', async (req: Request, res: Response) => {
     const owners = JSON.stringify(bodyJson.owners)
     const membershipThreshold = bodyJson.membershipThreshold
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     if (
       !(
         id &&
@@ -87,7 +87,7 @@ realEstatesRouter.put('/update', async (req: Request, res: Response) => {
     const owners = JSON.stringify(bodyJson.owners)
     const membershipThreshold = bodyJson.membershipThreshold
     const msp = <string>req.user
-    const contract = req.app.locals[msp]
+    const contract = req.app.locals[msp + 'public']
     if (
       !(
         id &&
