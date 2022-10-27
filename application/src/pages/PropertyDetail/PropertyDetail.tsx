@@ -11,8 +11,14 @@ import { BsBuilding, BsLayoutTextWindow } from "react-icons/bs";
 import { SlLocationPin } from "react-icons/sl";
 import { IconContext } from "react-icons";
 import Button from "react-bootstrap/Button";
+import * as api from '../../API_handler/api'
+import { useState } from 'react'
+import { RealEstate } from '../../resources/realEstate'
+import { Ownership } from '../../resources/ownership'
+import console from "console";
+import Contract from '../Contract/Contract'
 
-function PropertyDetail() {
+function PropertyDetail(id:string) {
   // Variables for Property
   const propertyName = "City Garden Duplex";
   const propertyPrice = "6 Billion VND";
@@ -25,13 +31,60 @@ function PropertyDetail() {
   const propertyDescription =
     "5 floors, Japanese garden (35 m2), terrace (27.09 m2), balcony (6.63 m2)";
 
-  // Variables for Ownership
-  const userID = "tuitenlaDan";
-  const ownPercent = "70%";
-  const sellPercent = "50%";
-  const totalPrice = "6000000";
-  const noRemain = "5%";
+  
 
+  const [data, loadResult] = useState('')
+  const realEstateInfo = function () {
+    api
+      .readAsset(id)
+      .then(allData => {
+        loadResult(allData)
+        return
+      })
+      .catch((error: unknown) => {
+        console.log(error)
+      })
+  }
+  realEstateInfo()
+  const info:RealEstate = JSON.parse(data)
+
+  const onFinish = (e: unknown) => {
+    return (<>{Contract()}</>)
+  }
+  const html = []
+
+  info.owners.forEach(function (owner: Ownership) { 
+    console.log(owner)
+
+    html.push(
+      <div className="ownership child">
+        <p>
+          <b>User ID: </b> {owner.ownerID}
+        </p>
+        <p>
+          <b>Own: </b> {owner.ownershipPercentage}%
+        </p>
+        <p>
+          <b>Sell percentage: </b> {owner.sellPercentage}%
+        </p>
+        <p>
+          <b>Sell price: </b> {owner.sellPrice}
+        </p>
+        <p>
+          <b>Remain no less than </b> {owner.sellThreshold}%{" "}
+        </p>
+
+        <Button 
+        className="btn-purchase btn-l" 
+        variant="purchase"
+        onClick={onFinish}>
+          Make Purchase
+        </Button>
+      </div>
+    )
+  }
+
+  
   return (
     <>
       <Navbar />
@@ -94,27 +147,7 @@ function PropertyDetail() {
           </p>
         </div>
       </div>
-      <div className="ownership child">
-        <p>
-          <b>User ID: </b> {userID}
-        </p>
-        <p>
-          <b>Own: </b> {ownPercent}
-        </p>
-        <p>
-          <b>Sell percentage: </b> {sellPercent}
-        </p>
-        <p>
-          <b>Total price: </b> {totalPrice}
-        </p>
-        <p>
-          <b>No remain: </b> {noRemain}{" "}
-        </p>
-
-        <Button className="btn-purchase btn-l" variant="purchase">
-          Make Purchase
-        </Button>
-      </div>
+      {html}
     </>
   );
 }
