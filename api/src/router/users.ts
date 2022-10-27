@@ -1,25 +1,13 @@
 import express, { Request, Response, Router } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import * as fabric from '../fabric'
+import * as fabric from '../fabricFunctions'
 const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes
 
 export const usersRouter: Router = express.Router()
 
-usersRouter.use(function (req: Request, res: Response, next) {
-  res.header('Access-Control-Allow-Origin', '*') // update to match the domain you will make the request from
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, X-API-KEY, Accept-Encoding, x-api-key'
-  )
-  res.header(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD'
-  )
-  next()
-})
 /**
  * Create user
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 usersRouter.post('/create', async (req: Request, res: Response) => {
   try {
@@ -27,10 +15,12 @@ usersRouter.post('/create', async (req: Request, res: Response) => {
     const body = req.body
     const id: string = body.id
     const name: string = body.name
+    const msp = <string>req.user
+    const contract = req.app.locals[msp + 'public']
     if (!(id && name)) {
       return res.status(BAD_REQUEST).send('Invalid data format to create user')
     }
-    const user = await fabric.createUser(id, name)
+    const user = await fabric.createUser(contract, id, name)
     return res.status(ACCEPTED).send(user)
   } catch (error) {
     console.log(error)
@@ -49,10 +39,12 @@ usersRouter.put('/update', async (req: Request, res: Response) => {
     const id: string = body.id
     const name: string = body.name
     const membershipScore: string = body.membershipScore
+    const msp = <string>req.user
+    const contract = req.app.locals[msp + 'public']
     if (!(id && name && membershipScore)) {
       return res.status(BAD_REQUEST).send('Invalid data format to create user')
     }
-    const user = await fabric.updateUser(id, name, membershipScore)
+    const user = await fabric.updateUser(contract, id, name, membershipScore)
     return res.status(ACCEPTED).send(user)
   } catch (error) {
     console.log(error)

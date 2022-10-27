@@ -1,29 +1,19 @@
 import express, { Request, Response, Router } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import * as fabric from '../fabric'
-const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, OK } = StatusCodes
+import * as fabric from '../fabricFunctions'
+const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes
 
 export const assetsRouter: Router = express.Router()
-assetsRouter.use(function (req: Request, res: Response, next) {
-  res.header('Access-Control-Allow-Origin', '*') // update to match the domain you will make the request from
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, X-API-KEY, Accept-Encoding, x-api-key'
-  )
-  res.header(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, DELETE, PATCH, HEAD'
-  )
-  next()
-})
 
 /**
  * Get all assets
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 assetsRouter.get('/getAll', async (req: Request, res: Response) => {
   try {
-    const assets = await fabric.getAllAssets()
+    const msp = <string>req.user
+    const contract = req.app.locals[msp + 'public']
+    const assets = await fabric.getAllAssets(contract)
     return res.status(ACCEPTED).send(assets)
   } catch (error) {
     console.log(error)
@@ -33,17 +23,19 @@ assetsRouter.get('/getAll', async (req: Request, res: Response) => {
 
 /**
  * Read asset
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 assetsRouter.get('/read', async (req, res) => {
   try {
     const query = req.query
     const id = <string>query['id']
+    const msp = <string>req.user
+    const contract = req.app.locals[msp + 'public']
     if (!id) {
       return res.status(BAD_REQUEST).send('Invalid query to read asset')
     }
     console.log(id)
-    const asset = await fabric.readAsset(id)
+    const asset = await fabric.readAsset(contract, id)
     return res.status(ACCEPTED).send(asset)
   } catch (error) {
     console.log(error)
@@ -53,17 +45,19 @@ assetsRouter.get('/read', async (req, res) => {
 
 /**
  * Check if asset exists
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 assetsRouter.get('/exists', async (req, res) => {
   try {
     const query = req.query
     const id = <string>query['id']
+    const msp = <string>req.user
+    const contract = req.app.locals[msp + 'public']
     if (!id) {
       res.status(BAD_REQUEST).send('Invalid query to check asset exists')
     }
     console.log(id)
-    const asset = await fabric.assetExists(id)
+    const asset = await fabric.assetExists(contract, id)
     res.status(ACCEPTED).send(asset)
   } catch (error) {
     console.log(error)
@@ -73,16 +67,18 @@ assetsRouter.get('/exists', async (req, res) => {
 
 /**
  * Delete asset
- * @author Thai Hoang Tam
+ * @author Thai Hoang Tam, Nguyen Khoa
  */
 assetsRouter.delete('/delete', async (req, res) => {
   try {
     const query = req.query
     const id: string = <string>query['id']
+    const msp = <string>req.user
+    const contract = req.app.locals[msp + 'public']['public']
     if (!id) {
       return res.status(BAD_REQUEST).send('Invalid query format')
     }
-    const result = await fabric.deleteAsset(id)
+    const result = await fabric.deleteAsset(contract, id)
     console.log(result)
     return res.status(ACCEPTED).send(result)
   } catch (error) {
