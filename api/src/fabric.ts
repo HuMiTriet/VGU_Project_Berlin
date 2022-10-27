@@ -386,15 +386,17 @@ export async function main(): Promise<void> {
     await fabric.canTransferRealEstate(
       contract1,
       'asset1',
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client1/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client1/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
       '10'
     )
-    // await token.Initialize(contractBusiness1, 'CW', 'CW', '3')
+    await token.Initialize(contractBusiness1, 'CW', 'CW', '3')
     await token.Mint(contractBusiness1, '500')
+    await token.Mint(contractBusiness2, '500')
+    await token.Mint(contractBusiness3, '500')
     await token.canTransferToken(
       contractBusiness1,
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client1/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
       '100'
     )
     await token.burn(contractBusiness1, '400')
@@ -402,7 +404,7 @@ export async function main(): Promise<void> {
     await token.clientAccountID(contractBusiness1)
     await token.transferToken(
       contractBusiness1,
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client1/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
       '10'
     )
   } finally {
@@ -451,6 +453,7 @@ async function displayInputParameters(): Promise<void> {
   console.log(`chaincodeName:     ${chaincodeName}`)
   console.log(`mspId1:            ${mspId1}`)
   console.log(`mspId2:            ${mspId2}`)
+  console.log(`mspId3:            ${mspId3}`)
   console.log(`cryptoPath1:        ${cryptoPath1}`)
   console.log(`cryptoPath2:        ${cryptoPath2}`)
   console.log(`cryptoPath3:        ${cryptoPath3}`)
