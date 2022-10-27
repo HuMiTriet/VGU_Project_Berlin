@@ -273,7 +273,6 @@ switch_to_org3_token() {
 }
 
 mint() {
-  export CHANNEL_NAME=business
   switch_to_org1_token
   infoln "initialize the token chaincode on $CHANNEL_NAME"
   peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Initialize","Args":["intial mint", "currywurst", "2"]}'
@@ -285,12 +284,14 @@ mint() {
   switch_to_org2_token
   peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["5000"]}'
   infoln "ORG2 BALANCE"
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
   peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
 
   if [[ "$CHANNEL_NAME" == "mychannel" ]]; then
     switch_to_org3_token
     peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["5000"]}'
     infoln "ORG3 BALANCE"
+    export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
     peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
   fi
 }
@@ -441,7 +442,6 @@ case "$OPTION" in
         commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
       fi
     fi
-
     ;;
   purge)
     # ./network.sh down
@@ -484,11 +484,18 @@ case "$OPTION" in
     cp -r "${PWD}/addOrg3/fabric-ca/org3" "${PWD}/organizations/fabric-ca/org3"
     chmod +x "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
 
+    infoln "ADDING MINTER IDENTITY TO ALL ORGS"
+    export PATH=${PWD}/../bin:${PWD}:$PATH
+    infoln "ORG1: Register"
+    register_org1
+    infoln "ORG2: Register"
+    register_org2
+    infoln "ORG3: Register"
+    register_org3
+
     successln "exist three organizations each with 1 peer use o1, o2, o3 to switch between"
     infoln "type manager dm to deploy chaincode that is responsible for working with Account based token"
-    warnln "no Acount based token has been minted yet (ask Triet and Hoang if you dont know what an Account based token is)
-    please run manager dm first to deploy the chaincode that is responsible for minting Account based token
-    then run manager mint to mint Account based token"
+    warnln "Each org has a minter identity that can mint tokens and transfer tokens to other users"
     ;;
   register | re)
     export PATH=${PWD}/../bin:${PWD}:$PATH
@@ -498,6 +505,9 @@ case "$OPTION" in
     register_org2
     infoln "ORG3: Register"
     register_org3
+    ;;
+  mint | mi)
+    mint
     ;;
 
   o1)
@@ -546,7 +556,7 @@ case "$OPTION" in
       o1 - switch to org1
       o2 - switch to org2
       o3 - switch to org3
-      register | re - register all the users with minter identity
+      register | re - (this step is done automatically after reset or up) register all the users in the network with an minter identity
       mint | mi - EXPERIMENTAL: mint token (have flags options -t and -c)
       ---
       you can also just type the initials of the command, i.e. 
