@@ -207,7 +207,12 @@ class TokenERC20Contract extends Contract {
      * @param {*} value
      * @returns
      */
-    async CanTransfer(ctx, from, to, value) {
+    async CanTransfer(ctx, to, value) {
+        //check contract options are already set first to execute the function
+        await this.CheckInitialized(ctx);
+
+        const from = ctx.clientIdentity.getID();
+        
         if (from === to) {
             throw new Error("cannot transfer to and from same client account");
         }
