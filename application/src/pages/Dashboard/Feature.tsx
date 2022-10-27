@@ -91,7 +91,10 @@ function AppFeature(realEstates) {
 
     let prices: Array<number> = []
     testRealEstate.owners.forEach(function (value: Ownership) {
-      prices.push((value.sellPrice * 100) / value.sellPercentage)
+      const price = (value.sellPrice * 100) / value.sellPercentage
+      if (!isNaN(price)) {
+        prices.push(price)
+      }
     })
     prices = prices.sort((n1, n2) => n1 - n2)
 
