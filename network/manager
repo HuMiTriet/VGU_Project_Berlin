@@ -414,8 +414,12 @@ case "$OPTION" in
     switch_to_org1
     peer lifecycle chaincode querycommitted --channelID "$CHANNEL_NAME"
 
+    if [[ "$CHAINCODE_TYPE" == "public" ]]; then
+      CHAINCODE_NAME="basic"
+    elif [[ "$CHAINCODE_TYPE" == "token" ]]; then
+      CHAINCODE_NAME="token_erc20"
+    fi
     # upgrade chaincode
-    read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
     #Getting the current version of the chaincode
     CURRENT_VERSION=$(find . -maxdepth 1 -name "${CHAINCODE_NAME}*.tar.gz" | cut -d'_' -f2 | cut -d'.' -f1 | sort -nr | head -n1)
     # get current sequnce
