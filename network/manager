@@ -509,6 +509,13 @@ case "$OPTION" in
   mint | mi)
     mint
     ;;
+  resume)
+    ALL_ID=$(docker ps -a | awk '/^CONTAINER/ {next} ;{print $1}')
+
+    for ID in $ALL_ID; do
+      docker start "$ID"
+    done
+    ;;
 
   o1)
     check_channel_exit
@@ -553,6 +560,7 @@ case "$OPTION" in
       reset or up | r - start the network by first shutting down and booting back up
       current | cu - print out the current org
       monitor | m - debug console for all docker messages (console.log() in typescript will be printed here)
+      resume - resume docker containers that are not active
       o1 - switch to org1
       o2 - switch to org2
       o3 - switch to org3
