@@ -238,11 +238,17 @@ register_org1() {
 }
 
 register_org2() {
+  # export PATH=${PWD}/../bin:${PWD}:$PATH
+  # export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org2.example.com/
+  # fabric-ca-client register --caname ca-org2 --id.name recipient --id.secret recipientpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
+  # fabric-ca-client enroll -u https://recipient:recipientpw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
+  # cp "${PWD}/organizations/peerOrganizations/org2.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp/config.yaml"
+
   export PATH=${PWD}/../bin:${PWD}:$PATH
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org2.example.com/
-  fabric-ca-client register --caname ca-org2 --id.name recipient --id.secret recipientpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
-  fabric-ca-client enroll -u https://recipient:recipientpw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
-  cp "${PWD}/organizations/peerOrganizations/org2.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp/config.yaml"
+  fabric-ca-client register --caname ca-org2 --id.name minter --id.secret minterpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
+  fabric-ca-client enroll -u https://minter:minterpw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.example.com/users/minter@org2.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
+  cp "${PWD}/organizations/peerOrganizations/org2.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org2.example.com/users/minter@org2.example.com/msp/config.yaml"
 }
 
 register_org3() {
@@ -272,7 +278,14 @@ switch_to_org1_token() {
   fi
 }
 
-# sw
+switch_to_org2_token() {
+  export FABRIC_CFG_PATH=$PWD/../config/
+  export CORE_PEER_TLS_ENABLED=true
+  export CORE_PEER_LOCALMSPID="Org2MSP"
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+  export CORE_PEER_ADDRESS=localhost:9051
+}
 
 mint() {
   CHANNEL_NAME=business
@@ -287,13 +300,8 @@ mint() {
   export RECIPIENT="x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com"
   peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Transfer","Args":[ "'"$RECIPIENT"'","5000"]}'
 
-  export FABRIC_CFG_PATH=$PWD/../config/
-  export CORE_PEER_TLS_ENABLED=true
-  export CORE_PEER_LOCALMSPID="Org2MSP"
-  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp
-  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
-  export CORE_PEER_ADDRESS=localhost:9051
 }
+
 peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
 
 OPTION="$1"
@@ -311,7 +319,6 @@ if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
         if [[ "$OPTARG" == "token" ]]; then
           CHAINCODE_TYPE="token"
           directory="token-erc-20"
-          TOKEN_CHAINCODE=true
         elif [[ "$OPTARG" == "public" ]]; then
           CHAINCODE_TYPE="public"
           directory="chaincode"
@@ -399,13 +406,6 @@ case "$OPTION" in
       fi
     fi
 
-    # if [[ "$CHAINCODE_TYPE" == "token" && "$CHANNEL_NAME" == "business" ]]; then
-    #   echo "deploying token chaincode on business channel"
-    #   ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
-    # elif [[   "$CHAINCODE_TYPE" == "basic" && "$CHANNEL_NAME" == "business" ]]; then
-    #   commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
-    # fi
-
     ;;
 
   upgrade | u)
@@ -438,9 +438,9 @@ case "$OPTION" in
 
     if [[ "$CHANNEL_NAME" == "business" ]]; then
       if [[ "$CHAINCODE_TYPE" == "token" ]]; then
-        ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
+        commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
       elif [[ "$CHAINCODE_TYPE" == "public" ]]; then
-        ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../chaincode/ -ccl typescript
+        commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
       fi
     elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
       if [[ "$CHAINCODE_TYPE" == "token" ]]; then
@@ -499,11 +499,12 @@ case "$OPTION" in
     then run manager mint to mint Account based token"
     ;;
   mint)
-    export PATH=${PWD}/../bin:${PWD}:$PATH
-    register_org1
-    register_org2
-    register_org3
-    mint
+    # export PATH=${PWD}/../bin:${PWD}:$PATH
+    # register_org1
+    # register_org2
+    # # register_org3
+    # mint
+    echo "helow"
     ;;
 
   o1)
