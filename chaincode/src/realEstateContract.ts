@@ -16,6 +16,8 @@ import { realEstateDocType, userDocType } from './docType'
 import { AssetContractOther } from './assetContractOther'
 import { User } from './user'
 
+import { Md5 } from 'ts-md5'
+
 @Info({
   title: 'RealEstateTransfer',
   description: 'Smart contract for Real Estate'
@@ -60,7 +62,7 @@ export class RealEstateContract extends Contract {
       {
         name: 'Beautiful Duplex Apartment',
         docType: realEstateDocType,
-        id: 'asset1',
+        id: 'placeholder1',
         area: 200,
         location: 'Ben Cat',
         owners: ownerships,
@@ -70,7 +72,7 @@ export class RealEstateContract extends Contract {
       {
         name: 'Gorgeous Triplex Apartment',
         docType: realEstateDocType,
-        id: 'asset2',
+        id: 'placeholder2',
         area: 500,
         location: 'Dong Nai',
         owners: ownerships,
@@ -81,6 +83,7 @@ export class RealEstateContract extends Contract {
 
     for (const oneRealEstate of realEstate) {
       //oneRealEstate.docType = realEstateDocType
+      oneRealEstate.id = Md5.hashStr(JSON.stringify(oneRealEstate))
       await ctx.stub.putState(
         oneRealEstate.id,
         Buffer.from(stringify(sortKeysRecursive(oneRealEstate)))
@@ -503,5 +506,10 @@ export class RealEstateContract extends Contract {
       result = await iterator.next()
     }
     return JSON.stringify(allResults)
+  }
+
+  public GenerateRealEstateID(): string {
+    const id = 'RE' + Math.random().toString(16).slice(2)
+    return id
   }
 }

@@ -9,10 +9,15 @@ export const env = {
   MSP_ID_ORG1: readFromEnv('MSP_ID_ORG1') || 'Org1MSP',
   ORG2_API_KEY: readFromEnv('ORG2_API_KEY') || 'API2',
   MSP_ID_ORG2: readFromEnv('MSP_ID_ORG2') || 'Org2MSP',
+  ORG3_API_KEY: readFromEnv('ORG3_API_KEY') || 'API3',
+  MSP_ID_ORG3: readFromEnv('MSP_ID_ORG3') || 'Org3MSP',
   CHANNEL_NAME: readFromEnv('CHANNEL_NAME') || 'mychannel',
+  CHANNEL_NAME_BUSINESS: readFromEnv('CHANNEL_NAME_BUSINESS') || 'business',
   CHAINCODE_NAME: readFromEnv('CHAINCODE_NAME') || 'basic',
-  CRYPTO_PATH:
-    readFromEnv('CRYPTO_PATH') ||
+  CHAINCODE_NAME_BUSINESS:
+    readFromEnv('CHAINCODE_NAME_BUSINESS') || 'token_erc20',
+  CRYPTO_PATH1:
+    readFromEnv('CRYPTO_PATH1') ||
     path.resolve(
       __dirname,
       '..',
