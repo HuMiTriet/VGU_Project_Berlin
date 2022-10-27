@@ -9,11 +9,28 @@ import * as api from '../../API_handler/api'
 const Contact = () => {
   const [showAlert, setShowAlert] = useState(false);
   const onFinish = (e: unknown)=>{
+    let id:string 
+    let buyerID: string
+    const buyPercentage:string = e['Buy Percentage']
+    const [result, loadResult] = useState('')
+    const transferRealEstateResult = function () {
+      api
+        .transferRealEstate(id, sellerID, buyerID, buyPercentage)
+        .then(allData => {
+          loadResult(allData)
+          return
+        })
+        .catch((error: unknown) => {
+          console.log(error)
+        })
+  }
+  transferRealEstateResult()
     console.log(e);
+    console.log(result)
     setTimeout(() => {
       setShowAlert(true);
     }, 500);
-  }
+}
 
   // const [data, loadAllRealEstate] = useState('')
   // const getAssetsDetails = function () {
@@ -146,23 +163,7 @@ const Contact = () => {
     </>
   );
 
-  let id:string
-  let buyerID: string
-  let buyPercentage:string
-    const [result, loadResult] = useState('')
-  const transferRealEstateResult = function () {
-    api
-      .transferRealEstate(id, sellerID, buyerID, buyPercentage)
-      .then(allData => {
-        loadResult(allData)
-        return
-      })
-      .catch((error: unknown) => {
-        console.log(error)
-      })
-  }
-  transferRealEstateResult()
-  console.log(result) 
+  
   return html
 }
 
