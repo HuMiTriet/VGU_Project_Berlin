@@ -1,9 +1,10 @@
+/* eslint-disable import/no-unresolved */
 import "./propertydetail.scss";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
-import ProductImagesSlider from "../components/product-images-slider";
+import ProductImagesSlider from ".././components/product-images-slider";
 import { propertyImages } from "../assets";
 import Navbar from "../components/Navbar";
 // import { Browser as  } from "react--dom";
