@@ -5,7 +5,7 @@ import { Navigation, Thumbs } from 'swiper'
 import { useState } from 'react'
 
 const ProductImagesSlider = props => {
-    const [activeThumb, setActiveThumb] = useState()
+    const [activeThumb, setActiveThumb] = useState(undefined)
 
     return <>
         <Swiper
