@@ -2,17 +2,40 @@ import Navbar from "../../components/Navbar";
 import './Contract.css'
 import { Form, Input, Button, Checkbox, Select, Col, Row, Card, Alert, Typography} from 'antd';
 import React, { useState } from 'react'
+// import * as api from '../../API_handler/api'
+
+
 
 const Contact = () => {
   const [showAlert, setShowAlert] = useState(false);
-  const onFinish = (e)=>{
+  const onFinish = (e: unknown)=>{
     console.log(e);
     setTimeout(() => {
       setShowAlert(true);
     }, 500);
   }
 
-  return (
+  // const [data, loadAllRealEstate] = useState('')
+  // const getAssetsDetails = function () {
+  //   api
+  //     .readAsset('asset1')
+  //     .then(allData => {
+  //       loadAllRealEstate(allData)
+  //       console.log(allData)
+  //       return
+  //     })
+  //     .catch((error: unknown) => {
+  //       console.log(error)
+  //     })
+  // }
+  // console.log(data, 'neko') 
+
+  const sellerID = `15705`
+  const sellerOwnership = `70`
+  const sellPercentage = `50`
+  const noRemain = '5'
+
+  const html = (
     <> <Navbar/> 
     <Row>
       <Col span={8} offset={12}>
@@ -40,10 +63,10 @@ const Contact = () => {
           <Row >
             <Col span={12}>
             <Card bodyStyle={{ backgroundColor: '#fff' }} style={{borderRadius: "20px", overflow: "hidden", width: 300, stroke: '#657463'}}>
-              <p>User: 161517
-                <br/>Own: 70%
-                <br/>Sell Percentage: 50%
-                <br/>No remain:
+              <p>User: {sellerID}
+                <br/>Own: {sellerOwnership}%
+                <br/>Sell Percentage: {sellPercentage}%
+                <br/>No remain less than: {noRemain}%
               </p>
             </Card>
             </Col>
@@ -53,6 +76,7 @@ const Contact = () => {
               <h3>Buy Percentage</h3>
               <Form.Item
                 name="Buy Percentage"
+                id='buyPer'
                 rules={[
                   { 
                     required: true,
@@ -121,6 +145,10 @@ const Contact = () => {
     </Row>
     </>
   );
+
+  // let inputValue = (<HTMLInputElement>html.getElementById('buyPer')).value;
+
+  return html
 }
 
 export default Contact;
