@@ -129,14 +129,14 @@ export class AssetContract extends Contract {
 
   @Transaction(false)
   @Returns('boolean')
-  public async canTransferRealEstate(
+  public async CanTransferRealEstate(
     ctx: Context,
     realEstateID: string,
     sellerID: string,
     buyerID: string,
     buyPercentageString: string
   ) {
-    return await this.realEstateContract.canTransferRealEstate(
+    return await this.realEstateContract.CanTransferRealEstate(
       ctx,
       realEstateID,
       sellerID,

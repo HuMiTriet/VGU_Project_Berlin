@@ -214,7 +214,7 @@ export class RealEstateContract extends Contract {
    * */
   @Transaction(false)
   @Returns('boolean')
-  public async canTransferRealEstate(
+  public async CanTransferRealEstate(
     ctx: Context,
     realEstateID: string,
     sellerID: string,
