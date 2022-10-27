@@ -300,7 +300,6 @@ OPTION="$1"
 
 CHAINCODE_TYPE="public"
 CHANNEL_NAME="mychannel"
-TOKEN_CHAINCODE=false
 
 if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
   "$OPTION" == "u" || "$OPTION" == "upgrade" ||
@@ -382,12 +381,31 @@ case "$OPTION" in
     # read -p "Enter the name of the chaincode: " -r CHAINCODE_NAME
     CHAINCODE_VERSION="1"
 
-    if [[ "$TOKEN_CHAINCODE" && "$CHANNEL_NAME" == "business" ]]; then
-      echo "deploying token chaincode on business channel"
-      ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
-    else
-      commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
+    echo "$CHAINCODE_TYPE"
+    echo "$directory"
+    echo "$CHAINCODE_NAME"
+
+    if [[ "$CHANNEL_NAME" == "business" ]]; then
+      if [[ "$CHAINCODE_TYPE" == "token" ]]; then
+        ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
+      elif [[ "$CHAINCODE_TYPE" == "public" ]]; then
+        ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../chaincode/ -ccl typescript
+      fi
+    elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
+      if [[ "$CHAINCODE_TYPE" == "token" ]]; then
+        echo "not yet inmplemented"
+      elif [[ "$CHAINCODE_TYPE" == "public" ]]; then
+        commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
+      fi
     fi
+
+    # if [[ "$CHAINCODE_TYPE" == "token" && "$CHANNEL_NAME" == "business" ]]; then
+    #   echo "deploying token chaincode on business channel"
+    #   ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
+    # elif [[   "$CHAINCODE_TYPE" == "basic" && "$CHANNEL_NAME" == "business" ]]; then
+    #   commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
+    # fi
+
     ;;
 
   upgrade | u)
@@ -414,11 +432,18 @@ case "$OPTION" in
     # warnln "please increment this version for the upgrade"
     # read -p "Enter the version of the chaincode: " -r CHAINCODE_VERSION
 
-    if [[ "$TOKEN_CHAINCODE" && "$CHANNEL_NAME" == "business" ]]; then
-      echo "deploying token chaincode on business channel"
-      ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
-    else
-      commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
+    if [[ "$CHANNEL_NAME" == "business" ]]; then
+      if [[ "$CHAINCODE_TYPE" == "token" ]]; then
+        ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../token-erc-20/ -ccl javascript
+      elif [[ "$CHAINCODE_TYPE" == "public" ]]; then
+        ./network.sh deployCC_business -ccn "$CHAINCODE_NAME" -ccp ../chaincode/ -ccl typescript
+      fi
+    elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
+      if [[ "$CHAINCODE_TYPE" == "token" ]]; then
+        echo "not yet inmplemented"
+      elif [[ "$CHAINCODE_TYPE" == "public" ]]; then
+        commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
+      fi
     fi
 
     ;;
