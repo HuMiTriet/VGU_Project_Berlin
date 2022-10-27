@@ -72,12 +72,15 @@
     "create-react-app": "^5.0.1",
     "firebase": "^9.12.1",
     "react": "^18.2.0",
+    "react-bootstrap": "^2.5.0",
     "react-dom": "^18.2.0",
     "react-firebase-hooks": "^5.0.3",
     "react-icons": "^4.6.0",
     "react-router-dom": "^6.4.2",
     "react-scripts": "^5.0.1",
-    "styled-components": "^5.3.6"
+    "sass": "^1.55.0",
+    "styled-components": "^5.3.6",
+    "swiper": "^8.4.4"
   },
   "browserslist": {
     "production": [

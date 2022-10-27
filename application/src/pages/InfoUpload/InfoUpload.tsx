@@ -46,7 +46,7 @@ const InfoUpload = (props) => {
                   <h3>Number of Rooms</h3>
                   <Form.Item
                     name="number of rooms"
-                    rules={[
+                    rules={[]
                       {
                         type: 'string',
                         message: 'The input is not valid',

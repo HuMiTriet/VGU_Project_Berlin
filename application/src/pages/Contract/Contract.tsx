@@ -125,7 +125,7 @@ const Contract = () => {
                         Confirm
                       </Button>
                     </Form.Item>
-                    
+
                   </Form>
                 </Col>
               </Row>
