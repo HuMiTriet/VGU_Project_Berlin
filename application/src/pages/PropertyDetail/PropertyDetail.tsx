@@ -5,9 +5,8 @@ import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
 import ProductImagesSlider from "../../components/property-images-slider";
-import { propertyImages } from "../assets";
-import Navbar from "../components/Navbar";
-// import { Browser as  } from "react--dom";
+import { propertyImages } from "../../assets";
+import Navbar from "../../components/Navbar";
 import { BsBuilding, BsLayoutTextWindow } from "react-icons/bs";
 import { SlLocationPin } from "react-icons/sl";
 import { IconContext } from "react-icons";
@@ -57,7 +56,7 @@ function PropertyDetail() {
           <IconContext.Provider
             value={{
               className: "type-area-location-icons",
-              size: 30,
+              size: '30',
               color: "#9B64BC",
             }}
           >
@@ -91,7 +90,7 @@ function PropertyDetail() {
               <li>Number of rooms: {numofRooms}</li>
               <li>Description: {propertyDescription}</li>
             </ul>
-            <p class="propertyNote">{propertyNote} </p>
+            <p className="textpropertyNote">{propertyNote} </p>
           </p>
         </div>
       </div>
@@ -112,7 +111,7 @@ function PropertyDetail() {
           <b>No remain: </b> {noRemain}{" "}
         </p>
 
-        <Button className="btn-purchase" variant="purchase" size="l">
+        <Button className="btn-purchase btn-l" variant="purchase">
           Make Purchase
         </Button>
       </div>
