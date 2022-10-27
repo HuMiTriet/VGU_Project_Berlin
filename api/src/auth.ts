@@ -20,6 +20,10 @@ export const fabricAPIKeyStrategy: HeaderAPIKeyStrategy =
         const user = env.MSP_ID_ORG2
         console.log('User set to ' + user)
         done(null, user)
+      } else if (apikey === env.ORG3_API_KEY) {
+        const user = env.MSP_ID_ORG3
+        console.log('User set to ' + user)
+        done(null, user)
       } else {
         console.log('No valid X-API-KEY')
         return done(null, false)

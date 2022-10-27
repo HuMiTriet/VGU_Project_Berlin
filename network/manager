@@ -112,40 +112,6 @@ verifyResult() {
   fi
 }
 
-# function installChaincode() {
-#   ORG=$1
-#   CHAINCODE_NAME=$2
-#   CHAINCODE_VERSION=$3
-#   if [ "$ORG" == "org1" ]; then
-#     switch_to_org1
-#   elif [ "$ORG" == "org2" ]; then
-#     switch_to_org2
-#   elif [ "$ORG" == "org3" ]; then
-#     switch_to_org3
-#   else
-#     errorln "Invalid organization name, please use org1, org2 or org3"
-#     exit 1
-#   fi
-#   set -x
-#   peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${CC_PACKAGE_ID}$ >&log.txt
-
-#   # if chaincode has been installed skip
-#   if [ $? -eq 0 ]; then
-#     infoln "Chaincode has been installed, skipping..."
-#     set +x
-#     return
-#   fi
-#   if test $? -ne 0; then
-#     peer lifecycle chaincode install ${CHAINCODE_NAME}_${CHAINCODE_VERSION}.tar.gz >&log.txt
-#     res=$?
-#   fi
-#   { set +x; } 2> /dev/null
-#   cat log.txt
-
-#   verifyResult $res "Chaincode installation on peer0.${ORG} has failed"
-#   successln "Chaincode is installed on peer0.${ORG}"
-# }
-
 check_channel_exit() {
   # check if mychannel existed
   if [[ ! -d ./channel-artifacts/ ]]; then
@@ -233,17 +199,10 @@ register_org1() {
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example.com/
   fabric-ca-client register --caname ca-org1 --id.name minter --id.secret minterpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   fabric-ca-client enroll -u https://minter:minterpw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
-  fabric-ca-client enroll -u https://minter:minterpw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   cp "${PWD}/organizations/peerOrganizations/org1.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp/config.yaml"
 }
 
 register_org2() {
-  # export PATH=${PWD}/../bin:${PWD}:$PATH
-  # export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org2.example.com/
-  # fabric-ca-client register --caname ca-org2 --id.name recipient --id.secret recipientpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
-  # fabric-ca-client enroll -u https://recipient:recipientpw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
-  # cp "${PWD}/organizations/peerOrganizations/org2.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp/config.yaml"
-
   export PATH=${PWD}/../bin:${PWD}:$PATH
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org2.example.com/
   fabric-ca-client register --caname ca-org2 --id.name minter --id.secret minterpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org2/tls-cert.pem"
@@ -254,23 +213,23 @@ register_org2() {
 register_org3() {
   export PATH=${PWD}/../bin:${PWD}:$PATH
   export FABRIC_CFG_PATH=$PWD/../config/
-
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org3.example.com/
-
-  fabric-ca-client register --caname ca-org3 --id.name recipient --id.secret recipient --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org3/tls-cert.pem"
-
-  fabric-ca-client enroll -u https://recipient:recipientpw@localhost:11054 --caname ca-org3 -M "${PWD}/organizations/peerOrganizations/org3.example.com/users/recipient@org3.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org3/tls-cert.pem"
-
+  fabric-ca-client register --caname ca-org3 --id.name minter --id.secret minterpw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org3/tls-cert.pem"
+  fabric-ca-client enroll -u https://minter:minterpw@localhost:11054 --caname ca-org3 -M "${PWD}/organizations/peerOrganizations/org3.example.com/users/minter@org3.example.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org3/tls-cert.pem"
   cp "${PWD}/organizations/peerOrganizations/org3.example.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org3.example.com/users/minter@org3.example.com/msp/config.yaml"
 }
 
 switch_to_org1_token() {
-  local CHANNEL_NAME="$1"
-  export CORE_PEER_LOCALMSPID="Org1MSP"
+  export PATH=${PWD}/../bin:${PWD}:$PATH
+  export FABRIC_CFG_PATH=$PWD/../config/
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example.com/
+
   export CORE_PEER_TLS_ENABLED=true
+  export CORE_PEER_LOCALMSPID="Org1MSP"
   export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/minter@org1.example.com/msp
   export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
   export CORE_PEER_ADDRESS=localhost:7051
+
   if [[ "$CHANNEL_NAME" == "business" ]]; then
     export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt")
   elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
@@ -279,30 +238,63 @@ switch_to_org1_token() {
 }
 
 switch_to_org2_token() {
+  export PATH=${PWD}/../bin:${PWD}:$PATH
   export FABRIC_CFG_PATH=$PWD/../config/
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org2.example.com/
+
   export CORE_PEER_TLS_ENABLED=true
   export CORE_PEER_LOCALMSPID="Org2MSP"
-  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/recipient@org2.example.com/msp
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/minter@org2.example.com/msp
   export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
   export CORE_PEER_ADDRESS=localhost:9051
+  if [[ "$CHANNEL_NAME" == "business" ]]; then
+    export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt")
+  elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
+    export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" --peerAddresses localhost:11051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt")
+  fi
+}
+
+switch_to_org3_token() {
+  export PATH=${PWD}/../bin:${PWD}:$PATH
+  export FABRIC_CFG_PATH=$PWD/../config/
+  export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org3.example.com/
+  export FABRIC_CFG_PATH=$PWD/../config/
+
+  export CORE_PEER_TLS_ENABLED=true
+  export CORE_PEER_LOCALMSPID="Org3MSP"
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.example.com/users/minter@org3.example.com/msp
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+  export CORE_PEER_ADDRESS=localhost:11051
+  if [[ "$CHANNEL_NAME" == "business" ]]; then
+    export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt")
+  elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
+    export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" --peerAddresses localhost:11051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt")
+  fi
 }
 
 mint() {
-  CHANNEL_NAME=business
-  switch_to_org1_token $CHANNEL_NAME
+  switch_to_org1_token
   infoln "initialize the token chaincode on $CHANNEL_NAME"
   peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Initialize","Args":["intial mint", "currywurst", "2"]}'
 
-  peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["10000"]}'
-  infoln "ORG1 initialized the contract"
+  peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["5000"]}'
+  infoln "ORG1 BALANCE"
   peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
 
-  export RECIPIENT="x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com"
-  peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Transfer","Args":[ "'"$RECIPIENT"'","5000"]}'
+  switch_to_org2_token
+  peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["5000"]}'
+  infoln "ORG2 BALANCE"
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+  peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
 
+  if [[ "$CHANNEL_NAME" == "mychannel" ]]; then
+    switch_to_org3_token
+    peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"Mint","Args":["5000"]}'
+    infoln "ORG3 BALANCE"
+    export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+    peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
+  fi
 }
-
-peer chaincode query -C "$CHANNEL_NAME" -n token_erc20 -c '{"function":"ClientAccountBalance","Args":[]}'
 
 OPTION="$1"
 
@@ -311,7 +303,8 @@ CHANNEL_NAME="mychannel"
 
 if [[ "$OPTION" == "d" || "$OPTION" == "deploy" ||
   "$OPTION" == "u" || "$OPTION" == "upgrade" ||
-  "$OPTION" == "c" || "$OPTION" == "committed" ]]; then
+  "$OPTION" == "c" || "$OPTION" == "committed" ||
+  "$OPTION" == "mint" || "$OPTION" == "mi" ]]; then
   shift
   while getopts 't:c:h' FLAG; do
     case "$FLAG" in
@@ -400,7 +393,7 @@ case "$OPTION" in
       fi
     elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
       if [[ "$CHAINCODE_TYPE" == "token" ]]; then
-        echo "not yet inmplemented"
+        commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
       elif [[ "$CHAINCODE_TYPE" == "public" ]]; then
         commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" 1
       fi
@@ -444,12 +437,11 @@ case "$OPTION" in
       fi
     elif [[ "$CHANNEL_NAME" == "mychannel" ]]; then
       if [[ "$CHAINCODE_TYPE" == "token" ]]; then
-        echo "not yet inmplemented"
+        commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
       elif [[ "$CHAINCODE_TYPE" == "public" ]]; then
         commit_chaincode "$CHAINCODE_NAME" "$CHAINCODE_VERSION" "$NEW_SEQUENCE"
       fi
     fi
-
     ;;
   purge)
     # ./network.sh down
@@ -492,19 +484,30 @@ case "$OPTION" in
     cp -r "${PWD}/addOrg3/fabric-ca/org3" "${PWD}/organizations/fabric-ca/org3"
     chmod +x "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
 
+    infoln "ADDING MINTER IDENTITY TO ALL ORGS"
+    export PATH=${PWD}/../bin:${PWD}:$PATH
+    infoln "ORG1: Register"
+    register_org1
+    infoln "ORG2: Register"
+    register_org2
+    infoln "ORG3: Register"
+    register_org3
+
     successln "exist three organizations each with 1 peer use o1, o2, o3 to switch between"
     infoln "type manager dm to deploy chaincode that is responsible for working with Account based token"
-    warnln "no Acount based token has been minted yet (ask Triet and Hoang if you dont know what an Account based token is)
-    please run manager dm first to deploy the chaincode that is responsible for minting Account based token
-    then run manager mint to mint Account based token"
+    warnln "Each org has a minter identity that can mint tokens and transfer tokens to other users"
     ;;
-  mint)
-    # export PATH=${PWD}/../bin:${PWD}:$PATH
-    # register_org1
-    # register_org2
-    # # register_org3
-    # mint
-    echo "helow"
+  register | re)
+    export PATH=${PWD}/../bin:${PWD}:$PATH
+    infoln "ORG1: Register"
+    register_org1
+    infoln "ORG2: Register"
+    register_org2
+    infoln "ORG3: Register"
+    register_org3
+    ;;
+  mint | mi)
+    mint
     ;;
 
   o1)
@@ -553,8 +556,8 @@ case "$OPTION" in
       o1 - switch to org1
       o2 - switch to org2
       o3 - switch to org3
-      deploy_mint | dm - deploy the mint chaincode
-      mint | mi - mint UTXO coin
+      register | re - (this step is done automatically after reset or up) register all the users in the network with an minter identity
+      mint | mi - EXPERIMENTAL: mint token (have flags options -t and -c)
       ---
       you can also just type the initials of the command, i.e. 
       'i' for installed, 'c' for committed, 'd' for deploy, 'u' for upgrade, 'o' for down, 'r' for reset or up, 'o1' for org1, 'o2' for org2, 'o3' for org3
