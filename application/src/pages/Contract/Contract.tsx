@@ -6,10 +6,10 @@ import * as api from '../../API_handler/api'
 
 
 
-const Contact = () => {
+const Contact = (id:string) => {
   const [showAlert, setShowAlert] = useState(false);
   const onFinish = (e: unknown)=>{
-    let id:string 
+    // let id:string 
     let buyerID: string
     const buyPercentage:string = e['Buy Percentage']
     const [result, loadResult] = useState('')
@@ -24,7 +24,13 @@ const Contact = () => {
           console.log(error)
         })
   }
-  transferRealEstateResult()
+  try{
+    transferRealEstateResult()
+  }
+  catch(err){
+    // err box
+    console.log(err)
+  }
     console.log(e);
     console.log(result)
     setTimeout(() => {
