@@ -73,7 +73,25 @@ function PropertyDetail() {
                 <Button
                   className="btn-purchase btn-l"
                   variant="purchase"
-                  onClick={onFinish}
+                  onClick={() => {
+                    localStorage.setItem('sellerID', owner.ownerID)
+                    localStorage.setItem(
+                      'ownershipPercentage',
+                      owner.ownershipPercentage.toString()
+                    )
+                    localStorage.setItem(
+                      'sellThreshold',
+                      owner.sellThreshold.toString()
+                    )
+                    localStorage.setItem(
+                      'sellPercentage',
+                      owner.sellPercentage.toString()
+                    )
+                    localStorage.setItem(
+                      'sellPrice',
+                      owner.sellPrice.toString()
+                    )
+                  }}
                 >
                   Make Purchase
                 </Button>
@@ -97,10 +115,6 @@ function PropertyDetail() {
   // console.log('Start' + JSON.parse(data))
   // const owners = info.owners
   // console.log('Info' + info)
-  const onFinish = (e: unknown) => {
-    // return <>{Contract()}</>
-    console.log('Finish')
-  }
 
   if (isLoading) {
     console.log('is loading')
