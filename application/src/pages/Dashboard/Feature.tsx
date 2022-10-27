@@ -4,7 +4,8 @@ import Homepage_House from '../../assets/Homepage_House1.jpg'
 import { Row, Col, Card, Pagination } from 'antd'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
-
+import { Link } from 'react-router-dom'
+import PropertyDetail from '../PropertyDetail/PropertyDetail'
 function AppFeature(realEstates) {
   realEstates = JSON.parse(realEstates)
   const html = []
@@ -97,24 +98,31 @@ function AppFeature(realEstates) {
       }
     })
     prices = prices.sort((n1, n2) => n1 - n2)
-
+    // const link = '/propertyinfo?realEstateID=' + testRealEstate.id
     html.push(
-      <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 8 }}>
-        <Card
-          style={{ borderRadius: '20px', overflow: 'hidden' }}
-          hoverable
-          cover={<img alt="City Garden Duplex " src={Homepage_House} />}
-        >
-          <div className="houseType">{testRealEstate.id}</div>
-          <p>
-            {testRealEstate.location}
-            <br />
-            {testRealEstate.area} m<sup>2</sup>
-            <div className="price">
-              {prices[0]} - {prices[prices.length - 1]} vnd
-            </div>
-          </p>
-        </Card>
+      <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 12 }}>
+        <Link to="/propertyinfo">
+          <Card
+            style={{ borderRadius: '20px', overflow: 'hidden' }}
+            hoverable
+            onClick={e => {
+              localStorage.setItem('realEstateID', testRealEstate.id)
+              console.log(e)
+              return { PropertyDetail }
+            }}
+            cover={<img alt="City Garden Duplex " src={Homepage_House} />}
+          >
+            <div className="houseType">{testRealEstate.id}</div>
+            <p>
+              {testRealEstate.location}
+              <br />
+              {testRealEstate.area} m<sup>2</sup>
+              <div className="price">
+                {prices[0]} - {prices[prices.length - 1]} vnd
+              </div>
+            </p>
+          </Card>
+        </Link>
       </Col>
     )
   })
