@@ -148,7 +148,7 @@ function PropertyDetail() {
                 <BsBuilding /> {propertyType}
               </h2>
               <h2>
-                <BsLayoutTextWindow /> {propertyArea} m2
+                <BsLayoutTextWindow /> {propertyArea} m<sup>2</sup>
               </h2>
               <h2>
                 <SlLocationPin /> {propertyLocation}
