@@ -9,84 +9,6 @@ import { ReactFragment } from 'react'
 function AppFeature(realEstates) {
   realEstates = JSON.parse(realEstates)
   const html = []
-  // realEstates: Array<RealEstate> = [
-  //   {
-  //     area: 300,
-  //     id: 'asset1',
-  //     location: 'Ben Cat 941',
-  //     membershipThreshold: 0,
-  //     owners: [
-  //       {
-  //         isSeller: true,
-  //         ownerID: 'user2',
-  //         ownershipPercentage: 100,
-  //         sellPercentage: 50,
-  //         sellPrice: 2000,
-  //         sellThreshold: 5
-  //       },
-  //       {
-  //         isSeller: true,
-  //         ownerID: 'user1',
-  //         ownershipPercentage: 100,
-  //         sellPercentage: 50,
-  //         sellPrice: 1000,
-  //         sellThreshold: 5
-  //       },
-  //       {
-  //         isSeller: true,
-  //         ownerID: 'user1',
-  //         ownershipPercentage: 100,
-  //         sellPercentage: 10,
-  //         sellPrice: 100000,
-  //         sellThreshold: 5
-  //       }
-  //     ],
-  //     roomList: {
-  //       numOfBathroom: 2,
-  //       numOfBedroom: 2,
-  //       numOfDiningroom: 1,
-  //       numOfLivingroom: 1
-  //     }
-  //   },
-  //   {
-  //     area: 400,
-  //     id: 'asset2',
-  //     location: 'Ben Cat 941',
-  //     membershipThreshold: 0,
-  //     owners: [
-  //       {
-  //         isSeller: true,
-  //         ownerID: 'user2',
-  //         ownershipPercentage: 100,
-  //         sellPercentage: 50,
-  //         sellPrice: 2000,
-  //         sellThreshold: 5
-  //       },
-  //       {
-  //         isSeller: true,
-  //         ownerID: 'user1',
-  //         ownershipPercentage: 100,
-  //         sellPercentage: 50,
-  //         sellPrice: 1000,
-  //         sellThreshold: 5
-  //       },
-  //       {
-  //         isSeller: true,
-  //         ownerID: 'user1',
-  //         ownershipPercentage: 100,
-  //         sellPercentage: 10,
-  //         sellPrice: 100000,
-  //         sellThreshold: 5
-  //       }
-  //     ],
-  //     roomList: {
-  //       numOfBathroom: 2,
-  //       numOfBedroom: 2,
-  //       numOfDiningroom: 1,
-  //       numOfLivingroom: 1
-  //     }
-  //   }
-  // ]
   realEstates.forEach(function (testRealEstate: RealEstate) {
     console.log(testRealEstate.id)
 
@@ -100,15 +22,17 @@ function AppFeature(realEstates) {
     })
     prices = prices.sort((n1, n2) => n1 - n2)
     let priceTag: JSX.Element
-    if ((prices[prices.length-1] - prices[0]) == 0){
+    if (prices[prices.length - 1] - prices[0] == 0) {
       priceTag = <div className="price">{prices[prices.length - 1]} CW</div>
+    } else {
+      priceTag = (
+        <div className="price">
+          {prices[0]} - {prices[prices.length - 1]} CW
+        </div>
+      )
     }
-    else{
-      priceTag = <div className="price">{prices[0]} - {prices[prices.length - 1]}</div>
-    }
-    // const link = '/propertyinfo?realEstateID=' + testRealEstate.id
     html.push(
-      <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 10 }}>
+      <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 12 }}>
         <Link to="/propertyinfo">
           <Card
             style={{ borderRadius: '20px', overflow: 'hidden' }}
@@ -126,14 +50,11 @@ function AppFeature(realEstates) {
             }}
             cover={<img alt="City Garden Duplex " src={Homepage_House} />}
           >
-            <div className="houseType">{testRealEstate.id}</div>
+            <div className="houseType">{testRealEstate.name}</div>
             <p>
               {testRealEstate.location}
               <br />
               {testRealEstate.area} m<sup>2</sup>
-              {/* <div className="price">
-                {prices[0]} - {prices[prices.length - 1]} vnd
-              </div> */}
               {priceTag}
             </p>
           </Card>

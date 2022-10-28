@@ -35,7 +35,12 @@ async function getAllAssets(): Promise<string> {
   console.log('Get all assets')
   const assetsResponse = await axios.get(`${assetPath}/getAll`)
   const data = assetsResponse.data
-  console.log(JSON.parse(JSON.stringify(data)))
+  const status = assetsResponse.status
+  // console.log(JSON.parse(JSON.stringify(data)))
+  debug(
+    CYAN,
+    `getAllAssets:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
   return JSON.stringify(data)
 }
 
@@ -46,7 +51,12 @@ async function getAllAssets(): Promise<string> {
 async function getAllRealEstate(): Promise<string> {
   const realEstateResponse = await axios.get(`${realEstatePath}/getAll`)
   const data = realEstateResponse.data
-  console.log(JSON.parse(JSON.stringify(data)))
+  const status = realEstateResponse.status
+  // console.log(JSON.parse(JSON.stringify(data)))
+  debug(
+    CYAN,
+    `getAllRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
   return JSON.stringify(data)
 }
 

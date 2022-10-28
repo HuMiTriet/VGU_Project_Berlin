@@ -19,23 +19,29 @@ import { Link } from 'react-router-dom'
 import { RoomType } from '../../resources/roomType'
 import { randomBytes } from 'crypto'
 
+function numberWithComma(number: string) {
+  return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
 function PropertyDetail() {
-  // Variables for Property
-  // const [searchParams, setSearchParams] = useSearchParams()
-  // searchParams.get('realEstateID')
-  // console.log(searchParams)
   const id = localStorage['realEstateID']
   const realEstate: RealEstate = JSON.parse(localStorage['realEstate'])
   const propertyName = realEstate.name
   const propertyPriceMin = localStorage['sellPriceMin']
   const propertyPriceMax = localStorage['sellPriceMax']
   let priceTag: JSX.Element
-    if ((propertyPriceMax - propertyPriceMin) == 0){
-      priceTag = <div className="price">{propertyPriceMax} CW</div>
-    }
-    else{
-      priceTag = <div className="price">{propertyPriceMin} - {propertyPriceMax}</div>
-    }
+  if (propertyPriceMax - propertyPriceMin == 0) {
+    priceTag = (
+      <div className="price">{numberWithComma(propertyPriceMax)} CW</div>
+    )
+  } else {
+    priceTag = (
+      <div className="price">
+        {numberWithComma(propertyPriceMin)} -{' '}
+        {numberWithComma(propertyPriceMax)} CW
+      </div>
+    )
+  }
+
   const numofRooms = localStorage['numberOfRoom']
   const propertyArea = realEstate.area
   const propertyLocation = realEstate.location
@@ -53,6 +59,7 @@ function PropertyDetail() {
       .then(allData => {
         const info: RealEstate = JSON.parse(allData)
         info.owners.forEach(function (owner: Ownership) {
+          // api.readAsset(owner.ownerID).then(owner)
           html.push(
             <div className="ownership child">
               <p>
@@ -167,8 +174,7 @@ function PropertyDetail() {
               <h3>
                 {' '}
                 {/* {propertyPriceMin} - {propertyPriceMax} CW */}
-                {priceTag}
-                {' '}
+                {priceTag}{' '}
               </h3>
             </p>
           </div>

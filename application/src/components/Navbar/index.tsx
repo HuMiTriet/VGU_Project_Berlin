@@ -18,65 +18,47 @@ const Navbar = () => {
   useEffect(() => {
     loading
   })
+  let LoginLogoutBtn: JSX.Element
   if (!user) {
-    return (
-      <>
-        <Nav>
-          <NavLink to="/">
-            <h1>REAL AS-STATED</h1>
-          </NavLink>
-          <Bars />
-          <NavMenu>
-            <NavLink to="/about" activeStyle>
-              About
-            </NavLink>
-            <NavLink to="/services" activeStyle>
-              Services
-            </NavLink>
-            <NavLink to="/contact-us" activeStyle>
-              Contact Us
-            </NavLink>
-            <NavLink to="/sign-up" activeStyle>
-              Sign Up
-            </NavLink>
-          </NavMenu>
-          <NavBtn>
-            <NavBtnLink to="/login">Log In</NavBtnLink>
-          </NavBtn>
-        </Nav>
-      </>
+    LoginLogoutBtn = (
+      <NavBtn>
+        <NavBtnLink to="/login">Log In</NavBtnLink>
+      </NavBtn>
     )
   } else {
-    return (
-      <>
-        <Nav>
-          <NavLink to="/">
-            <h1>REAL AS-STATED</h1>
-          </NavLink>
-          <Bars />
-          <NavMenu>
-            <NavLink to="/about" activeStyle>
-              About
-            </NavLink>
-            <NavLink to="/services" activeStyle>
-              Services
-            </NavLink>
-            <NavLink to="/contact-us" activeStyle>
-              Contact Us
-            </NavLink>
-            <NavLink to="/sign-up" activeStyle>
-              Sign Up
-            </NavLink>
-          </NavMenu>
-          <NavBtn>
-            <NavBtnLink to="/" onClick={() => signOut(auth)}>
-              Log Out
-            </NavBtnLink>
-          </NavBtn>
-        </Nav>
-      </>
+    LoginLogoutBtn = (
+      <NavBtn>
+        <NavBtnLink to="/" onClick={() => signOut(auth)}>
+          Log Out
+        </NavBtnLink>
+      </NavBtn>
     )
   }
+  return (
+    <>
+      <Nav>
+        <NavLink to="/">
+          <h1>REAL AS-STATED</h1>
+        </NavLink>
+        <Bars />
+        <NavMenu>
+          <NavLink to="/about" activeStyle>
+            About
+          </NavLink>
+          <NavLink to="/services" activeStyle>
+            Services
+          </NavLink>
+          <NavLink to="/contact-us" activeStyle>
+            Contact Us
+          </NavLink>
+          <NavLink to="/sign-up" activeStyle>
+            Sign Up
+          </NavLink>
+        </NavMenu>
+        {LoginLogoutBtn}
+      </Nav>
+    </>
+  )
 }
 
 export default Navbar

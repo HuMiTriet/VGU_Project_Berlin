@@ -18,6 +18,9 @@ import Navbar from '../../components/Navbar'
 import { auth, db } from '../../firebase'
 import './Contract.css'
 
+/**
+ * @author Nguyen Khoa, Thai Hoang Tam, Quang
+ */
 function Contract() {
   const [showAlert, setShowAlert] = useState(false)
   const [user, loading] = useAuthState(auth)
@@ -207,6 +210,7 @@ function Contract() {
                     <div>
                       <h3>Payment Method</h3>
                       <Form.Item
+
                         name="Payment Method"
                         rules={[
                           {
