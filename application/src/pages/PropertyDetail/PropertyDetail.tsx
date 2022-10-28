@@ -29,6 +29,13 @@ function PropertyDetail() {
   const propertyName = realEstate.name
   const propertyPriceMin = localStorage['sellPriceMin']
   const propertyPriceMax = localStorage['sellPriceMax']
+  let priceTag: JSX.Element
+    if ((propertyPriceMax - propertyPriceMin) == 0){
+      priceTag = <div className="price">{propertyPriceMax} CW</div>
+    }
+    else{
+      priceTag = <div className="price">{propertyPriceMin} - {propertyPriceMax}</div>
+    }
   const numofRooms = localStorage['numberOfRoom']
   const propertyArea = realEstate.area
   const propertyLocation = realEstate.location
@@ -159,7 +166,9 @@ function PropertyDetail() {
               Price:
               <h3>
                 {' '}
-                {propertyPriceMin} - {propertyPriceMax} CW{' '}
+                {/* {propertyPriceMin} - {propertyPriceMax} CW */}
+                {priceTag}
+                {' '}
               </h3>
             </p>
           </div>

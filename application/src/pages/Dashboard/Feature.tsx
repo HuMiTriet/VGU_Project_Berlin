@@ -5,6 +5,7 @@ import { Row, Col, Card, Pagination } from 'antd'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 import { Link } from 'react-router-dom'
+import { ReactFragment } from 'react'
 function AppFeature(realEstates) {
   realEstates = JSON.parse(realEstates)
   const html = []
@@ -98,6 +99,13 @@ function AppFeature(realEstates) {
       prices.push(owner.sellPrice)
     })
     prices = prices.sort((n1, n2) => n1 - n2)
+    let priceTag: JSX.Element
+    if ((prices[prices.length-1] - prices[0]) == 0){
+      priceTag = <div className="price">{prices[prices.length - 1]} CW</div>
+    }
+    else{
+      priceTag = <div className="price">{prices[0]} - {prices[prices.length - 1]}</div>
+    }
     // const link = '/propertyinfo?realEstateID=' + testRealEstate.id
     html.push(
       <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 10 }}>
@@ -123,9 +131,10 @@ function AppFeature(realEstates) {
               {testRealEstate.location}
               <br />
               {testRealEstate.area} m<sup>2</sup>
-              <div className="price">
+              {/* <div className="price">
                 {prices[0]} - {prices[prices.length - 1]} vnd
-              </div>
+              </div> */}
+              {priceTag}
             </p>
           </Card>
         </Link>
