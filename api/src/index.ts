@@ -18,12 +18,26 @@ async function main() {
 
   // start API server
   const app = await server()
-  app.locals[env.MSP_ID_ORG1 + 'public'] = fabric.contract1
-  app.locals[env.MSP_ID_ORG1 + 'business'] = fabric.contractBusiness1
-  app.locals[env.MSP_ID_ORG2 + 'public'] = fabric.contract2
-  app.locals[env.MSP_ID_ORG2 + 'business'] = fabric.contractBusiness2
-  app.locals[env.MSP_ID_ORG3 + 'public'] = fabric.contract3
-  app.locals[env.MSP_ID_ORG3 + 'business'] = fabric.contractBusiness3
+  app.locals[env.MSP_ID_ORG1 + 'mychannel' + 'basic'] =
+    fabric.contractMychannelBasic1
+  app.locals[env.MSP_ID_ORG2 + 'mychannel' + 'basic'] =
+    fabric.contractMychannelBasic2
+  app.locals[env.MSP_ID_ORG3 + 'mychannel' + 'basic'] =
+    fabric.contractMychannelBasic3
+  app.locals[env.MSP_ID_ORG1 + 'mychannel' + 'token'] =
+    fabric.contractMychannelToken1
+  app.locals[env.MSP_ID_ORG2 + 'mychannel' + 'token'] =
+    fabric.contractMychannelToken2
+  app.locals[env.MSP_ID_ORG3 + 'mychannel' + 'token'] =
+    fabric.contractMychannelToken3
+  app.locals[env.MSP_ID_ORG1 + 'business' + 'basic'] =
+    fabric.contractBusinessBasic1
+  app.locals[env.MSP_ID_ORG2 + 'business' + 'basic'] =
+    fabric.contractBusinessBasic2
+  app.locals[env.MSP_ID_ORG1 + 'business' + 'token'] =
+    fabric.contractBusinessToken1
+  app.locals[env.MSP_ID_ORG2 + 'business' + 'token'] =
+    fabric.contractBusinessToken2
   const httpHost = `localhost:${env.HTTP_PORT}`
   const httpsHost = `localhost:${env.HTTPS_PORT}`
 

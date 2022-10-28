@@ -21,8 +21,8 @@ import { env } from './env'
 
 const channelName = env.CHANNEL_NAME
 const channelNameBusiness = env.CHANNEL_NAME_BUSINESS
-const chaincodeName = env.CHAINCODE_NAME
-const chaincodeNameBusiness = env.CHAINCODE_NAME_BUSINESS
+const chaincodeNameBasic = env.CHAINCODE_NAME_BASIC
+const chaincodeNameToken = env.CHAINCODE_NAME_TOKEN
 const mspId1 = env.MSP_ID_ORG1
 const mspId2 = env.MSP_ID_ORG2
 const mspId3 = env.MSP_ID_ORG3
@@ -229,12 +229,23 @@ const peerHostAlias3 = envOrDefault(
   'peer0.org3.example.com'
 )
 
-export let contract1: Contract
-export let contractBusiness1: Contract
-export let contract2: Contract
-export let contractBusiness2: Contract
-export let contract3: Contract
-export let contractBusiness3: Contract
+// export let contract1: Contract
+export let contractBusinessBasic1: Contract
+export let contractBusinessToken1: Contract
+export let contractMychannelBasic1: Contract
+export let contractMychannelToken1: Contract
+export let contractBusinessBasic2: Contract
+export let contractBusinessToken2: Contract
+export let contractMychannelBasic2: Contract
+export let contractMychannelToken2: Contract
+export let contractBusinessBasic3: Contract
+export let contractBusinessToken3: Contract
+export let contractMychannelBasic3: Contract
+export let contractMychannelToken3: Contract
+// export let contract2: Contract
+// export let contractBusiness2: Contract
+// export let contract3: Contract
+// export let contractBusiness3: Contract
 export async function main(): Promise<void> {
   await displayInputParameters()
 
@@ -369,44 +380,52 @@ export async function main(): Promise<void> {
   try {
     // Get a network instance representing the channel where the smart contract is deployed.
     const network1 = gateway1.getNetwork(channelName)
+    contractMychannelBasic1 = network1.getContract(chaincodeNameBasic)
+    contractMychannelToken1 = network1.getContract(chaincodeNameToken)
     const businessNerwork1 = gatewayMinter1.getNetwork(channelNameBusiness)
-    contractBusiness1 = businessNerwork1.getContract(chaincodeNameBusiness)
-    contract1 = network1.getContract(chaincodeName)
+    contractBusinessBasic1 = businessNerwork1.getContract(chaincodeNameBasic)
+    contractBusinessToken1 = businessNerwork1.getContract(chaincodeNameToken)
+
     const network2 = gateway2.getNetwork(channelName)
+    contractMychannelBasic2 = network2.getContract(chaincodeNameBasic)
+    contractMychannelToken2 = network2.getContract(chaincodeNameToken)
     const businessNerwork2 = gatewayMinter2.getNetwork(channelNameBusiness)
-    contractBusiness2 = businessNerwork2.getContract(chaincodeNameBusiness)
-    contract2 = network2.getContract(chaincodeName)
+    contractBusinessBasic2 = businessNerwork2.getContract(chaincodeNameBasic)
+    contractBusinessToken2 = businessNerwork2.getContract(chaincodeNameToken)
+
     const network3 = gateway3.getNetwork(channelName)
+    contractMychannelBasic3 = network3.getContract(chaincodeNameBasic)
+    contractMychannelToken3 = network3.getContract(chaincodeNameToken)
     const businessNerwork3 = gatewayMinter3.getNetwork(channelNameBusiness)
-    contractBusiness3 = businessNerwork3.getContract(chaincodeNameBusiness)
-    contract3 = network3.getContract(chaincodeName)
+    contractBusinessBasic3 = businessNerwork3.getContract(chaincodeNameBasic)
+    contractBusinessToken3 = businessNerwork3.getContract(chaincodeNameToken)
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
-    await fabric.initLedger(contract1)
-    await fabric.canTransferRealEstate(
-      contract1,
-      'asset1',
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
-      '10'
-    )
-    await token.Initialize(contractBusiness1, 'CW', 'CW', '3')
-    await token.Mint(contractBusiness1, '500')
-    await token.Mint(contractBusiness2, '500')
-    await token.Mint(contractBusiness3, '500')
-    await token.canTransferToken(
-      contractBusiness1,
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
-      '100'
-    )
-    await token.burn(contractBusiness1, '400')
-    await token.clientAccountBalance(contractBusiness1)
-    await token.clientAccountID(contractBusiness1)
-    await token.transferToken(
-      contractBusiness1,
-      'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
-      '10'
-    )
+    await fabric.initLedger(contractMychannelBasic1)
+    // await fabric.canTransferRealEstate(
+    //   contract1,
+    //   'asset1',
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+    //   '10'
+    // )
+    await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
+    // await token.Mint(contractBusinessBasic1, '500')
+    // await token.Mint(contractBusiness2, '500')
+    // await token.Mint(contractBusiness3, '500')
+    // await token.canTransferToken(
+    //   contractBusinessBasic1,
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+    //   '100'
+    // )
+    // await token.burn(contractBusinessBasic1, '400')
+    // await token.clientAccountBalance(contractBusinessBasic1)
+    // await token.clientAccountID(contractBusinessBasic1)
+    // await token.transferToken(
+    //   contractBusinessBasic1,
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+    //   '10'
+    // )
   } finally {
     // gateway1.close()
     // client1.close()
@@ -450,7 +469,7 @@ function envOrDefault(key: string, defaultValue: string) {
  */
 async function displayInputParameters(): Promise<void> {
   console.log(`channelName:       ${channelName}`)
-  console.log(`chaincodeName:     ${chaincodeName}`)
+  console.log(`chaincodeNameBasic:     ${chaincodeNameBasic}`)
   console.log(`mspId1:            ${mspId1}`)
   console.log(`mspId2:            ${mspId2}`)
   console.log(`mspId3:            ${mspId3}`)

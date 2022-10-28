@@ -13,9 +13,8 @@ export const env = {
   MSP_ID_ORG3: readFromEnv('MSP_ID_ORG3') || 'Org3MSP',
   CHANNEL_NAME: readFromEnv('CHANNEL_NAME') || 'mychannel',
   CHANNEL_NAME_BUSINESS: readFromEnv('CHANNEL_NAME_BUSINESS') || 'business',
-  CHAINCODE_NAME: readFromEnv('CHAINCODE_NAME') || 'basic',
-  CHAINCODE_NAME_BUSINESS:
-    readFromEnv('CHAINCODE_NAME_BUSINESS') || 'token_erc20',
+  CHAINCODE_NAME_BASIC: readFromEnv('CHAINCODE_NAME_BASIC') || 'basic',
+  CHAINCODE_NAME_TOKEN: readFromEnv('CHAINCODE_NAME_TOKEN') || 'token_erc20',
   CRYPTO_PATH1:
     readFromEnv('CRYPTO_PATH1') ||
     path.resolve(
