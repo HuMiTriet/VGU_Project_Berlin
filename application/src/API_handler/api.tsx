@@ -95,7 +95,7 @@ async function createRealEstate(
   )
   const data = createRealEstateResponse.data
   const status = createRealEstateResponse.status
-  debug(GREEN, `createRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(GREEN, `createRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
   return JSON.stringify(data)
 }
 
@@ -114,7 +114,7 @@ async function createUser(id: string, name: string): Promise<string> {
   const createUserResponse = await axios.post(`${userPath}/create`, body)
   const data = createUserResponse.data
   const status = createUserResponse.status
-  debug(GREEN, `createUser:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(GREEN, `createUser:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
   return JSON.stringify(data)
 }
 
@@ -149,7 +149,7 @@ async function transferRealEstate(
   const status = transferRealEstateResponse.status
   debug(
     MAGENTA,
-    `transferRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`
+    `transferRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
   )
   return JSON.stringify(data)
 }
@@ -167,7 +167,7 @@ async function readAsset(id: string): Promise<string> {
   const status: number = readAssetResponse.status
   debug(
     CYAN,
-    `readAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+    `readAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(JSON.stringify(data))}`
   )
   // console.log(data)
   return JSON.stringify(data)
@@ -184,7 +184,7 @@ async function deleteAsset(id: string): Promise<string> {
   const deleteAssetsResponse = await axios.delete(`${assetPath}/delete${query}`)
   const data: string = deleteAssetsResponse.data
   const status: number = deleteAssetsResponse.status
-  debug(BLUE, `deleteAsset:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(BLUE, `deleteAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
   return JSON.stringify(data)
 }
 
@@ -199,7 +199,7 @@ async function assetExists(id: string): Promise<string> {
   const isAssetsResponse = await axios.get(`${assetPath}/exists${query}`)
   const data: string = isAssetsResponse.data
   const status: number = isAssetsResponse.status
-  debug(CYAN, `assetExists:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(CYAN, `assetExists:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
   return JSON.stringify(data)
 }
 
@@ -238,7 +238,7 @@ async function updateRealEstate(
   )
   const data = updateRealEstateResponse.data
   const status = updateRealEstateResponse.status
-  debug(YELLOW, `updateRealEstate:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(YELLOW, `updateRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
   return JSON.stringify(data)
 }
 
@@ -263,7 +263,7 @@ async function updateUser(
   const updateUserResponse = await axios.put(`${userPath}/update`, body)
   const data = updateUserResponse.data
   const status = updateUserResponse.status
-  debug(YELLOW, `updateUser:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(YELLOW, `updateUser:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
   return JSON.stringify(data)
 }
 

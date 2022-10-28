@@ -60,7 +60,8 @@ function PropertyDetail() {
         const info: RealEstate = JSON.parse(allData)
         info.owners.forEach(function (owner: Ownership) {
           // api.readAsset(owner.ownerID).then(owner)
-          html.push(
+          if (owner.isSeller){
+            html.push(
             <div className="ownership child">
               <p>
                 <b>User ID: </b> {owner.ownerID}
@@ -106,7 +107,7 @@ function PropertyDetail() {
                 </Button>
               </Link>
             </div>
-          )
+          )}
         })
         setLoading(false)
         return
