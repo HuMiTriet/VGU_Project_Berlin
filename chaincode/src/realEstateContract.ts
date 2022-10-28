@@ -17,6 +17,10 @@ import { AssetContractOther } from './assetContractOther'
 import { User } from './user'
 
 const RED = '\x1b[31m'
+const GREEN = '\x1b[32m'
+const BLUE = '\x1b[34m'
+const MAGENTA = '\x1b[35m'
+const CYAN = '\x1b[36m'
 const RESET = '\x1b[0m'
 /**
  * @author Nguyen Khoa
@@ -310,7 +314,7 @@ export class RealEstateContract extends Contract {
    * @param {string} buyerID The ID of the Buyer
    * @param {string} buyPercentageString The Percentage of the Real Estate that Buyer wants to buy
    * @returns {Promise<boolean>} successful message
-   * @author Dinh Minh Hoang
+   * @author Dinh Minh Hoang, Nguyen Khoa
    * */
   @Transaction(false)
   @Returns('boolean')
@@ -321,12 +325,17 @@ export class RealEstateContract extends Contract {
     buyerID: string,
     buyPercentageString: string
   ) {
+    debug(
+      MAGENTA,
+      '==================== CanTransferRealEstate ===================='
+    )
     //Check if buyer exists
     const buyerInfoJSON = await this.assetContractOther.ReadAsset(ctx, buyerID)
     if (buyerInfoJSON === undefined) {
       throw new Error('Buyer does not exist')
     }
-    console.log('Buyer exists')
+    // console.log('Buyer exists')
+    debug(CYAN, 'Buyer exists')
 
     const buyer: User = JSON.parse(buyerInfoJSON)
 
@@ -338,7 +347,8 @@ export class RealEstateContract extends Contract {
     if (sellerInfoJSON === undefined) {
       throw new Error('Seller does not exist')
     }
-    console.log('Seller exists')
+    // console.log('Seller exists')
+    debug(CYAN, 'Seller exists')
 
     //const seller: User = JSON.parse(sellerInfoJSON)
 
@@ -346,11 +356,13 @@ export class RealEstateContract extends Contract {
     if (sellerID === buyerID) {
       throw new Error('Buyer has the same ID as Seller')
     }
-    console.log('Buyer is not the same as Seller')
+    // console.log('Buyer is not the same as Seller')
+    debug(CYAN, 'Buyer is not the same as Seller')
 
     //convert buyPercentage to String
     const buyPercentage = parseFloat(buyPercentageString)
-    console.log('Buyer wants to buy ' + buyPercentage + '%')
+    // console.log('Buyer wants to buy ' + buyPercentage + '%')
+    console.log(`Buyer wants to buy ${buyPercentage}%`)
 
     //Get Real Estate
     const realEstateString = await this.assetContractOther.ReadAsset(
@@ -358,7 +370,8 @@ export class RealEstateContract extends Contract {
       realEstateID
     )
     const realEstate: RealEstate = JSON.parse(realEstateString)
-    console.log('Real Estate exists, ID:' + realEstate.id)
+    // console.log('Real Estate exists, ID:' + realEstate.id)
+    debug(CYAN, `Real Estate exists, ID: ${realEstate.id}`)
 
     if (realEstate.membershipThreshold > buyer.membershipScore) {
       throw new Error('Buyer does not have enough membership score')
@@ -372,19 +385,24 @@ export class RealEstateContract extends Contract {
     )
 
     if (sellerOwnership === undefined) {
+      // throw new Error(
+      //   'Seller with ID:' +
+      //     sellerID +
+      //     ' does not own asset with ID:' +
+      //     realEstateID
+      // )
       throw new Error(
-        'Seller with ID:' +
-          sellerID +
-          ' does not own asset with ID:' +
-          realEstateID
+        `Seller with ID: ${sellerID} does not own asset with ID: ${realEstateID}`
       )
     }
-    console.log('Seller owns this asset')
+    debug(CYAN, 'Seller owns this asset')
+    // console.log('Seller owns this asset')
 
     if (sellerOwnership.isSeller === false) {
       throw new Error('Asset is not for sale according to Seller.')
     }
-    console.log('Seller is selling this asset')
+    // console.log('Seller is selling this asset')
+    debug(CYAN, 'Seller is selling this asset')
 
     //Check if buyer wants to buy MORE than seller's sellPercentage
     if (buyPercentage > sellerOwnership.sellPercentage) {
@@ -392,14 +410,20 @@ export class RealEstateContract extends Contract {
         "Buyer wants to buy more percentage than Seller's sell percentage"
       )
     }
+    debug(
+      CYAN,
+      `buyPercentage (${buyPercentage}%) <= sellPercentage (${sellerOwnership.sellPercentage}%)`
+    )
 
     const sellerRemainOwnershipPercentage =
       sellerOwnership.sellPercentage - buyPercentage
-
-    console.log(
-      "If transaction is successful, the remaining seller's ownershipPercentage will be: " +
-        sellerRemainOwnershipPercentage
+    debug(
+      CYAN,
+      `If transaction is successful, the remaining seller's ownershipPercentage will be: ${sellerRemainOwnershipPercentage}`
     )
+    // console.log(
+    //   `If transaction is successful, the remaining seller's ownershipPercentage will be: ${sellerRemainOwnershipPercentage}`
+    // )
 
     if (
       sellerRemainOwnershipPercentage < sellerOwnership.sellThreshold &&
@@ -522,7 +546,7 @@ export class RealEstateContract extends Contract {
       AssetID,
       Buffer.from(stringify(sortKeysRecursive(realEstate)))
     )
-    console.log('Successfully updates Real Estate')
+    debug(GREEN, 'Successfully updates Real Estate')
 
     buyer.membershipScore += 1
 
@@ -547,25 +571,30 @@ export class RealEstateContract extends Contract {
         Buffer.from(stringify(sortKeysRecursive(participant)))
       )
     }
-    console.log('Successfully updates participants in Transaction')
+    // console.log('Successfully updates participants in Transaction')
+    debug(GREEN, 'Successfully updates participants in Transaction')
 
-    console.log(
-      'current membershipScore of buyer: ' +
-        buyer.id +
-        'score: ' +
-        buyer.membershipScore
+    // console.log(
+    //   'current membershipScore of buyer: ' +
+    //     buyer.id +
+    //     'score: ' +
+    //     buyer.membershipScore
+    // )
+    debug(
+      BLUE,
+      `Current membershipScore of buyer (ID: ${buyer.id}): ${buyer.membershipScore}`
     )
-
-    return (
-      'Transaction successful. Buyer ' +
-      buyerOwnership.ownerID +
-      ' obtained ' +
-      buyPercentage +
-      '% of Asset ' +
-      realEstate.id +
-      ' from Seller ' +
-      sellerOwnership.ownerID
-    )
+    // return (
+    //   'Transaction successful. Buyer ' +
+    //   buyerOwnership.ownerID +
+    //   ' obtained ' +
+    //   buyPercentage +
+    //   '% of Asset ' +
+    //   realEstate.id +
+    //   ' from Seller ' +
+    //   sellerOwnership.ownerID
+    // )
+    return `Transaction successful. Buyer (ID: ${buyerOwnership.ownerID}) obtained ${buyPercentage}% of Asset (ID: ${realEstate.id})  from Seller ${sellerOwnership.ownerID}`
   }
 
   /**
