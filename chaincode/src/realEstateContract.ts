@@ -16,6 +16,15 @@ import { realEstateDocType, userDocType } from './docType'
 import { AssetContractOther } from './assetContractOther'
 import { User } from './user'
 
+const RED = '\x1b[31m'
+const RESET = '\x1b[0m'
+/**
+ * @author Nguyen Khoa
+ */
+function debug(color: string, msgString: string) {
+  console.log(`${color}\n\t${msgString}${RESET}\n`)
+}
+
 @Info({
   title: 'RealEstateTransfer',
   description: 'Smart contract for Real Estate'
@@ -118,12 +127,48 @@ export class RealEstateContract extends Contract {
     }
 
     const roomList: RoomType = JSON.parse(roomListString)
-
     const area: number = parseFloat(areaString)
-
     const owners: Array<Ownership> = JSON.parse(OwnersString)
-
     const membershipThreshold: number = parseInt(membershipThresholdString)
+
+    // input validation
+    let ownershipOnAsset = 0
+    owners.forEach(function (owner: Ownership) {
+      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
+        debug(RED, 'ownershipPercentage must be between 0 and 100')
+        throw new RangeError('ownershipPercentage must be between 0 and 100')
+        // return new RangeError('ownershipPercentage must be between 0 and 100')
+      } else {
+        ownershipOnAsset = ownershipOnAsset + owner.ownershipPercentage
+      }
+    })
+    if (ownershipOnAsset > 100) {
+      debug(RED, 'ownershipPercentage of all user must be less than 100')
+      throw new RangeError(
+        'ownershipPercentage of all user must be less than 100'
+      )
+      // return new RangeError('ownershipPercentage of all user must be less than 100')
+    }
+
+    if (area <= 0) {
+      debug(RED, 'area must be > 0')
+      throw new RangeError('area must be greater than 0')
+      // return new RangeError('area must be greater than 0')
+    }
+
+    for (const key in roomList) {
+      if (roomList[key] < 0) {
+        debug(RED, 'Number of room must be greater than 0')
+        throw new RangeError('Number of room must be greater than 0')
+        // return new RangeError('Number of room must be greater than 0')
+      }
+    }
+
+    if (membershipThreshold < 0) {
+      debug(RED, 'membershipThresholdString must be greater than 0')
+      throw new RangeError('membershipThresholdString must be greater than 0')
+      // return new RangeError('membershipThresholdString must be greater than 0')
+    }
 
     const realEstate: RealEstate = {
       name: name,
