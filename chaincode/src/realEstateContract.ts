@@ -108,7 +108,7 @@ export class RealEstateContract extends Contract {
    * @param location
    * @param OwnersString
    * @param membershipThresholdString
-   * @author Dinh Minh Hoang
+   * @author Dinh Minh Hoang, Nguyen Khoa
    */
   @Transaction()
   public async CreateRealEstate(
@@ -134,6 +134,16 @@ export class RealEstateContract extends Contract {
     // input validation
     let ownershipOnAsset = 0
     owners.forEach(function (owner: Ownership) {
+      if (owner.sellPercentage > owner.ownershipPercentage) {
+        debug(
+          RED,
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        throw new RangeError(
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        // return new RangeError('sellPercentage must be less than or equal ownershipPercentage')
+      }
       if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
         debug(RED, 'ownershipPercentage must be between 0 and 100')
         throw new RangeError('ownershipPercentage must be between 0 and 100')
@@ -198,7 +208,7 @@ export class RealEstateContract extends Contract {
    * @param ownersString
    * @param membershipThresholdString
    * @returns
-   * @author Dinh Minh Hoang
+   * @author Dinh Minh Hoang, Nguyen Khoa
    */
   @Transaction()
   public async UpdateRealEstate(
@@ -218,14 +228,59 @@ export class RealEstateContract extends Contract {
 
     // code to test this method
     // peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"UpdateAsset","Args":["asset1", "{ \"numOfBedroom\": \"0\", \"numOfLivingroom\": \"0\", \"numOfBathroom\": \"0\", \"numOfDiningroom\": \"0\" }", "420", "cumhole", "[ { \"ownerID\": \"user1\", \"ownershipPercentage\": 69, \"sellPercentage\": 10, \"sellPrice\": 69420, \"sellThreshold\": 69, \"isSeller\": true },{ \"ownerID\": \"user2\", \"ownershipPercentage\": 69, \"sellPercentage\": 10, \"sellPrice\": 69420, \"sellThreshold\": 69, \"isSeller\": true } ]" ]}'
-
     const roomList: RoomType = JSON.parse(roomListString)
-
     const area: number = parseFloat(areaString)
-
     const owners: Array<Ownership> = JSON.parse(ownersString)
-
     const membershipThreshold = parseInt(membershipThresholdString)
+
+    // input validation
+    let ownershipOnAsset = 0
+    owners.forEach(function (owner: Ownership) {
+      if (owner.sellPercentage > owner.ownershipPercentage) {
+        debug(
+          RED,
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        throw new RangeError(
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        // return new RangeError('sellPercentage must be less than or equal ownershipPercentage')
+      }
+      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
+        debug(RED, 'ownershipPercentage must be between 0 and 100')
+        throw new RangeError('ownershipPercentage must be between 0 and 100')
+        // return new RangeError('ownershipPercentage must be between 0 and 100')
+      } else {
+        ownershipOnAsset = ownershipOnAsset + owner.ownershipPercentage
+      }
+    })
+    if (ownershipOnAsset > 100) {
+      debug(RED, 'ownershipPercentage of all user must be less than 100')
+      throw new RangeError(
+        'ownershipPercentage of all user must be less than 100'
+      )
+      // return new RangeError('ownershipPercentage of all user must be less than 100')
+    }
+
+    if (area <= 0) {
+      debug(RED, 'area must be > 0')
+      throw new RangeError('area must be greater than 0')
+      // return new RangeError('area must be greater than 0')
+    }
+
+    for (const key in roomList) {
+      if (roomList[key] < 0) {
+        debug(RED, 'Number of room must be greater than 0')
+        throw new RangeError('Number of room must be greater than 0')
+        // return new RangeError('Number of room must be greater than 0')
+      }
+    }
+
+    if (membershipThreshold < 0) {
+      debug(RED, 'membershipThresholdString must be greater than 0')
+      throw new RangeError('membershipThresholdString must be greater than 0')
+      // return new RangeError('membershipThresholdString must be greater than 0')
+    }
 
     // overwriting original asset with new asset
     const updatedRealEstate: RealEstate = {
