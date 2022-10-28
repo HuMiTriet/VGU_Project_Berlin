@@ -6,6 +6,7 @@ const userPath = `http://${httpHost}/api/users`
 const realEstatePath = `http://${httpHost}/api/realestates`
 // const httpsPort = '3002'
 // const httpsHost = `localhost:${httpsPort}`
+
 axios.defaults.headers.common = {
   'x-api-key': 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0',
   'Content-Type': 'application/json',
@@ -120,13 +121,15 @@ async function transferRealEstate(
   id: string,
   sellerID: string,
   buyerID: string,
-  buyPercentage: string
+  buyPercentage: string,
+  value: string
 ): Promise<string> {
   const body = {
     id: id,
     sellerID: sellerID,
     buyerID: buyerID,
-    buyPercentage: buyPercentage
+    buyPercentage: buyPercentage,
+    value: value
   }
   const transferRealEstateResponse = await axios.put(
     `${realEstatePath}/transfer`,
@@ -152,7 +155,10 @@ async function readAsset(id: string): Promise<string> {
   const readAssetResponse = await axios.get(`${assetPath}/read${query}`)
   const data: string = readAssetResponse.data
   const status: number = readAssetResponse.status
-  debug(CYAN, `readAsset:\n\t- Status: ${status}\n\t- Data: ${data}`)
+  debug(
+    CYAN,
+    `readAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
   // console.log(data)
   return JSON.stringify(data)
 }

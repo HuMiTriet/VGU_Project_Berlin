@@ -2,7 +2,6 @@ import express, { Request, Response, Router } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import * as fabric from '../fabricFunctions'
 import * as token from '../tokenFunctions'
-import { server } from '../server'
 const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR } = StatusCodes
 
 export const realEstatesRouter: Router = express.Router()
@@ -147,16 +146,20 @@ realEstatesRouter.put('/transfer', async (req: Request, res: Response) => {
       buyPercentage
     )
     if (!isRealEstateTransferable) {
-      return res.status(BAD_REQUEST).send('Cannot transfer real estate')
+      return res.status(BAD_REQUEST).json({
+        message: 'Cannot transfer real estate',
+        result: isRealEstateTransferable
+      })
     }
     const isTokenTransferable = await token.canTransferToken(
       contractBusiness,
-      // buyerID,
       sellerID,
       value
     )
     if (!isTokenTransferable) {
-      return res.status(BAD_REQUEST).send('Cannot transfer token')
+      return res
+        .status(BAD_REQUEST)
+        .json({ message: 'Cannot transfer token', result: isTokenTransferable })
     }
     const result = await fabric.transferRealEstate(
       contract,
