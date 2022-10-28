@@ -50,12 +50,14 @@ const Contract = () => {
                 </Col>
 
                 <Col span={12}>
-                  <Form onFinish={(values) => {
-                    console.log({ values });
+                  <Form onFinish={(value) => {
+                    console.log({ value });
                     }}
+
                     onFinishFailed={(error) => {
                     console.log({ error });
-                    }}>
+                    }}
+                    >
 
                     <div>
                       <h3>Buy Percentage</h3>
@@ -102,7 +104,7 @@ const Contract = () => {
                       <Form.Item name = "Payment Method" rules={[{ required: true, message: 'Payment Method is required' }]}>
                         <Select placeholder="One-Time-Payment">
                             <Select.Option value="One-Time-Payment">One-Time-Payment</Select.Option>
-                            <Select.Option value="Installment">Installment</Select.Option>
+                            <Select.Option value ="Installment">Installment</Select.Option>
                         </Select>
                       </Form.Item>
                     </div>

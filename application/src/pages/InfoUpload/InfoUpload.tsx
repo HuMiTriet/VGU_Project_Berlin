@@ -15,11 +15,12 @@ const normFile = (e: any) => {
 };
 
 
-const InfoUpload = (props) => {
+const InfoUpload = () => {
 
-  const onFinish = (values: any) => {
-    console.log('Received values of form: ', values);
+  const onFinish = (value: any) => {
+    console.log('Received values of form: ', value);
   };
+
 
   return (
   <> <Navbar/> 
@@ -36,17 +37,43 @@ const InfoUpload = (props) => {
 
             <Row >
               <Col span={12}>
-                <Form onFinish={(values) => {
-                  console.log({ values });
+                <Form onFinish={(value) => {
+                  console.log({ value });
                   }}
                   onFinishFailed={(error) => {
                   console.log({ error });
-                  }} initialValues={{ remember: true }}>
+                  }} >
+
+                  <h3>Tier List</h3>
+                  <Form.Item name = "tier" rules={[{ required: true, message: 'Tier list is required' }]}>
+                    <Select placeholder="Tier List">  
+                        <Select.Option value="tier1">Tier 1</Select.Option>
+                        <Select.Option value="tier2">Tier 2</Select.Option>
+                        <Select.Option value="tier3">Tier 3</Select.Option>
+                    </Select>
+                  </Form.Item>
+
+                  <h3>Price</h3>
+                    <Form.Item
+                      name="price"
+                      rules={[
+                        {
+                          type: 'string',
+                          message: 'The input is not valid',
+                        },
+                        { 
+                          required: true,
+                          message: 'Please enter the Price!' 
+                        }]
+                      }
+                    >
+                      <Input placeholder="Price" />
+                    </Form.Item>
 
                   <h3>Number of Rooms</h3>
                   <Form.Item
-                    name="number of rooms"
-                    rules={[]
+                    name="rooms"
+                    rules={[
                       {
                         type: 'string',
                         message: 'The input is not valid',
@@ -78,11 +105,11 @@ const InfoUpload = (props) => {
                   </Form.Item>
 
                   <h3>Description</h3>
-                  <Form.Item>
+                  <Form.Item name= "description">
                     <TextArea rows={4} />
                   </Form.Item>
                   <Form.Item>
-                    <Button type="primary">
+                    <Button type="primary" htmlType="submit">
                       Confirm
                     </Button>
                   </Form.Item>
@@ -90,12 +117,13 @@ const InfoUpload = (props) => {
               </Col>
 
               <Col span={12}>
-                <Form onFinish={(values) => {
-                  console.log({ values });
+                <Form onFinish={(value) => {
+                  console.log({ value });
                   }}
                   onFinishFailed={(error) => {
                   console.log({ error });
-                  }} initialValues={{ remember: true }}>
+                  }}>
+
                     <h3>Area</h3>
                     <Form.Item
                       name="area"
@@ -115,7 +143,7 @@ const InfoUpload = (props) => {
                     
                     <h3>Terrace Area</h3>
                     <Form.Item
-                      name="terrace area"
+                      name="terraceArea"
                       rules={[
                         {
                           type: 'string',
@@ -132,7 +160,7 @@ const InfoUpload = (props) => {
 
                     <h3>Balcony Area</h3>
                     <Form.Item
-                      name="balcony area"
+                      name="balconyArea"
                       rules={[
                         {
                           type: 'string',
@@ -148,7 +176,7 @@ const InfoUpload = (props) => {
                     </Form.Item>
 
                   <h3>Upload File</h3>         
-                  <Form.Item name="upload file" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
+                  <Form.Item name="uploadFile" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
                     <Upload.Dragger name="files" action="/upload.do">
                       <p className="ant-upload-drag-icon">
                         <InboxOutlined />
@@ -157,7 +185,12 @@ const InfoUpload = (props) => {
                       <p className="ant-upload-hint">Support for a single or bulk upload.</p> 
                     </Upload.Dragger>
                   </Form.Item>
-
+                  
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit">
+                      Confirm
+                    </Button>
+                  </Form.Item>
                 </Form>
               </Col>
             </Row>

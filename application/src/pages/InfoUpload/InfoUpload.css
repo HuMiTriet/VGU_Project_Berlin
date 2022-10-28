@@ -4,6 +4,11 @@ general
 -------
 */
 
+.ant-form .ant-form-horizontal {
+  flex-direction: column;
+  max-width: 2000px;
+}
+
 .ant-checkbox {
   box-sizing: border-box;
   margin: 0;
