@@ -176,4 +176,12 @@ export class AssetContract extends Contract {
   public async GetAllRealEstate(ctx: Context): Promise<string> {
     return await this.realEstateContract.GetAllRealEstate(ctx)
   }
+
+  @Transaction(false)
+  public async GetUserRealEstate(
+    ctx: Context,
+    userID: string
+  ): Promise<string> {
+    return await this.realEstateContract.GetUserRealEstate(ctx, userID)
+  }
 }

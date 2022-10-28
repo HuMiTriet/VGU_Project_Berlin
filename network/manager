@@ -482,7 +482,7 @@ case "$OPTION" in
 
     infoln "coping Org3 fabric-ca over to same folder as Org1 and Org2"
     cp -r "${PWD}/addOrg3/fabric-ca/org3" "${PWD}/organizations/fabric-ca/org3"
-    chmod +x "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
+    chmod 777 "${PWD}/organizations/fabric-ca/org3/fabric-ca-server-config.yaml"
 
     infoln "ADDING MINTER IDENTITY TO ALL ORGS"
     export PATH=${PWD}/../bin:${PWD}:$PATH
@@ -508,6 +508,13 @@ case "$OPTION" in
     ;;
   mint | mi)
     mint
+    ;;
+  resume)
+    ALL_ID=$(docker ps -a | awk '/^CONTAINER/ {next} ;{print $1}')
+
+    for ID in $ALL_ID; do
+      docker start "$ID"
+    done
     ;;
 
   o1)
@@ -553,6 +560,7 @@ case "$OPTION" in
       reset or up | r - start the network by first shutting down and booting back up
       current | cu - print out the current org
       monitor | m - debug console for all docker messages (console.log() in typescript will be printed here)
+      resume - resume docker containers that are not active
       o1 - switch to org1
       o2 - switch to org2
       o3 - switch to org3
