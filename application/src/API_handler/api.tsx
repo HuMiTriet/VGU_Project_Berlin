@@ -1,14 +1,16 @@
 import axios from 'axios'
 const httpPort = '3001'
 const httpHost = `localhost:${httpPort}`
-const assetPath = `http://${httpHost}/api/assets`
-const userPath = `http://${httpHost}/api/users`
-const realEstatePath = `http://${httpHost}/api/realestates`
+let channelName = localStorage['channelName'] || 'mychannel'
+let assetPath = `http://${httpHost}/api/assets/${channelName}`
+let userPath = `http://${httpHost}/api/users/${channelName}`
+let realEstatePath = `http://${httpHost}/api/realestates/${channelName}`
+let apiKey = localStorage['apiKey'] || 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0'
 // const httpsPort = '3002'
 // const httpsHost = `localhost:${httpsPort}`
 
 axios.defaults.headers.common = {
-  'x-api-key': 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0',
+  'x-api-key': apiKey,
   'Content-Type': 'application/json',
   Accept: '*/*'
 }
@@ -55,7 +57,9 @@ async function getAllRealEstate(): Promise<string> {
   // console.log(JSON.parse(JSON.stringify(data)))
   debug(
     CYAN,
-    `getAllRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+    `getAllRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
   )
   return JSON.stringify(data)
 }
@@ -95,7 +99,12 @@ async function createRealEstate(
   )
   const data = createRealEstateResponse.data
   const status = createRealEstateResponse.status
-  debug(GREEN, `createRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  debug(
+    GREEN,
+    `createRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
+  )
   return JSON.stringify(data)
 }
 
@@ -114,7 +123,10 @@ async function createUser(id: string, name: string): Promise<string> {
   const createUserResponse = await axios.post(`${userPath}/create`, body)
   const data = createUserResponse.data
   const status = createUserResponse.status
-  debug(GREEN, `createUser:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  debug(
+    GREEN,
+    `createUser:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
   return JSON.stringify(data)
 }
 
@@ -149,7 +161,9 @@ async function transferRealEstate(
   const status = transferRealEstateResponse.status
   debug(
     MAGENTA,
-    `transferRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+    `transferRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
   )
   return JSON.stringify(data)
 }
@@ -167,7 +181,9 @@ async function readAsset(id: string): Promise<string> {
   const status: number = readAssetResponse.status
   debug(
     CYAN,
-    `readAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(JSON.stringify(data))}`
+    `readAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      JSON.stringify(data)
+    )}`
   )
   // console.log(data)
   return JSON.stringify(data)
@@ -184,7 +200,10 @@ async function deleteAsset(id: string): Promise<string> {
   const deleteAssetsResponse = await axios.delete(`${assetPath}/delete${query}`)
   const data: string = deleteAssetsResponse.data
   const status: number = deleteAssetsResponse.status
-  debug(BLUE, `deleteAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  debug(
+    BLUE,
+    `deleteAsset:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
   return JSON.stringify(data)
 }
 
@@ -199,7 +218,10 @@ async function assetExists(id: string): Promise<string> {
   const isAssetsResponse = await axios.get(`${assetPath}/exists${query}`)
   const data: string = isAssetsResponse.data
   const status: number = isAssetsResponse.status
-  debug(CYAN, `assetExists:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  debug(
+    CYAN,
+    `assetExists:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
   return JSON.stringify(data)
 }
 
@@ -238,7 +260,12 @@ async function updateRealEstate(
   )
   const data = updateRealEstateResponse.data
   const status = updateRealEstateResponse.status
-  debug(YELLOW, `updateRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  debug(
+    YELLOW,
+    `updateRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
+  )
   return JSON.stringify(data)
 }
 
@@ -263,7 +290,10 @@ async function updateUser(
   const updateUserResponse = await axios.put(`${userPath}/update`, body)
   const data = updateUserResponse.data
   const status = updateUserResponse.status
-  debug(YELLOW, `updateUser:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  debug(
+    YELLOW,
+    `updateUser:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
   return JSON.stringify(data)
 }
 
