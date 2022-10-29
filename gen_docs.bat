@@ -1,3 +1,5 @@
+@REM https://typedoc.org/guides/options/
+
 call npx typedoc --tsconfig ./chaincode/tsconfig.json --entryPoints chaincode/src/assetContract.ts --out documentations/chaincode/assetContract 
 call npx typedoc --tsconfig ./chaincode/tsconfig.json --entryPoints chaincode/src/assetContractOther.ts --out documentations/chaincode/assetContractOther
 call npx typedoc --tsconfig ./chaincode/tsconfig.json --entryPoints chaincode/src/docType.ts --out documentations/chaincode/docType
