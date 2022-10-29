@@ -54,7 +54,6 @@ function PropertyDetail() {
   const [html] = useState([])
   const showRealEstateInfo = () => {
     realEstate.owners.forEach(function (owner: Ownership) {
-      // api.readAsset(owner.ownerID).then(owner)
       if (owner.isSeller) {
         html.push(
           <div className="ownership child">
@@ -104,76 +103,83 @@ function PropertyDetail() {
     })
   }
   showRealEstateInfo()
+  useEffect(() => {
+    setLoading(false)
+  })
 
-  return (
-    <>
-      <Navbar />
-      <div
-        className="child"
-        style={{
-          width: '700px',
-          backgroundColor: '#fff',
-          marginTop: '4px',
-          marginLeft: '10vw',
-          padding: '0px'
-        }}
-      >
-        <h1 className="propertyName">{propertyName}</h1>
-
-        <ProductImagesSlider images={propertyImages} />
-        <div></div>
+  if (isLoading) {
+    return <div>Loading</div>
+  } else {
+    return (
+      <>
+        <Navbar />
         <div
-          className="type-location-area"
-          style={{ display: 'flex', margin: '10px' }}
-        >
-          <IconContext.Provider
-            value={{
-              className: 'type-area-location-icons',
-              size: '30',
-              color: '#9B64BC'
-            }}
-          >
-            <h2>
-              <BsBuilding /> {propertyType}
-            </h2>
-            <h2>
-              <BsLayoutTextWindow /> {propertyArea} m<sup>2</sup>
-            </h2>
-            <h2>
-              <SlLocationPin /> {propertyLocation}
-            </h2>
-          </IconContext.Provider>
-        </div>
-        <div
+          className="child"
           style={{
-            marginTop: '10px',
-            padding: '15px',
-            backgroundColor: '#fbf5ff'
+            width: '700px',
+            backgroundColor: '#fff',
+            marginTop: '4px',
+            marginLeft: '10vw',
+            padding: '0px'
           }}
         >
-          <p>
-            Price:
-            <h3>
-              {' '}
-              {/* {propertyPriceMin} - {propertyPriceMax} CW */}
-              {priceTag}{' '}
-            </h3>
-          </p>
+          <h1 className="propertyName">{propertyName}</h1>
+
+          <ProductImagesSlider images={propertyImages} />
+          <div></div>
+          <div
+            className="type-location-area"
+            style={{ display: 'flex', margin: '10px' }}
+          >
+            <IconContext.Provider
+              value={{
+                className: 'type-area-location-icons',
+                size: '30',
+                color: '#9B64BC'
+              }}
+            >
+              <h2>
+                <BsBuilding /> {propertyType}
+              </h2>
+              <h2>
+                <BsLayoutTextWindow /> {propertyArea} m<sup>2</sup>
+              </h2>
+              <h2>
+                <SlLocationPin /> {propertyLocation}
+              </h2>
+            </IconContext.Provider>
+          </div>
+          <div
+            style={{
+              marginTop: '10px',
+              padding: '15px',
+              backgroundColor: '#fbf5ff'
+            }}
+          >
+            <p>
+              Price:
+              <h3>
+                {' '}
+                {/* {propertyPriceMin} - {propertyPriceMax} CW */}
+                {priceTag}{' '}
+              </h3>
+            </p>
+          </div>
+          <div style={{ padding: '15px', marginTop: '0' }}>
+            <p>
+              <h3>Basic characteristics:</h3>
+              <ul className="bulletIndent">
+                <li>Number of rooms: {numofRooms}</li>
+                <li>Description: {propertyDescription}</li>
+              </ul>
+              <p className="textpropertyNote">{propertyNote} </p>
+            </p>
+          </div>
         </div>
-        <div style={{ padding: '15px', marginTop: '0' }}>
-          <p>
-            <h3>Basic characteristics:</h3>
-            <ul className="bulletIndent">
-              <li>Number of rooms: {numofRooms}</li>
-              <li>Description: {propertyDescription}</li>
-            </ul>
-            <p className="textpropertyNote">{propertyNote} </p>
-          </p>
-        </div>
-      </div>
-      {html}
-    </>
-  )
+        {html}
+      </>
+    )
+  }
 }
 
 export default PropertyDetail
