@@ -23,7 +23,6 @@ function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 function PropertyDetail() {
-  const id = localStorage['realEstateID']
   const realEstate: RealEstate = JSON.parse(localStorage['realEstate'])
   const propertyName = realEstate.name
   const propertyPriceMin = localStorage['sellPriceMin']
@@ -51,149 +50,130 @@ function PropertyDetail() {
   const propertyDescription =
     '5 floors, Japanese garden (35 m2), terrace (27.09 m2), balcony (6.63 m2)'
 
-  const [isLoading, setLoading] = useState(true)
+  const [isLoading, setLoading] = useState(false)
   const [html] = useState([])
-  const realEstateInfo = function () {
-    api
-      .readAsset(id)
-      .then(allData => {
-        const info: RealEstate = JSON.parse(allData)
-        info.owners.forEach(function (owner: Ownership) {
-          // api.readAsset(owner.ownerID).then(owner)
-          if (owner.isSeller){
-            html.push(
-            <div className="ownership child">
-              <p>
-                <b>User ID: </b> {owner.ownerID}
-              </p>
-              <p>
-                <b>Own: </b> {owner.ownershipPercentage}%
-              </p>
-              <p>
-                <b>Sell percentage: </b> {owner.sellPercentage}%
-              </p>
-              <p>
-                <b>Sell price: </b> {owner.sellPrice}
-              </p>
-              <p>
-                <b>Remain no less than </b> {owner.sellThreshold}%{' '}
-              </p>
+  const showRealEstateInfo = () => {
+    realEstate.owners.forEach(function (owner: Ownership) {
+      // api.readAsset(owner.ownerID).then(owner)
+      if (owner.isSeller) {
+        html.push(
+          <div className="ownership child">
+            <p>
+              <b>User ID: </b> {owner.ownerID}
+            </p>
+            <p>
+              <b>Own: </b> {owner.ownershipPercentage}%
+            </p>
+            <p>
+              <b>Sell percentage: </b> {owner.sellPercentage}%
+            </p>
+            <p>
+              <b>Sell price: </b> {owner.sellPrice}
+            </p>
+            <p>
+              <b>Remain no less than </b> {owner.sellThreshold}%{' '}
+            </p>
 
-              <Link to="/contract">
-                <Button
-                  className="btn-purchase btn-l"
-                  variant="purchase"
-                  onClick={() => {
-                    localStorage.setItem('sellerID', owner.ownerID)
-                    localStorage.setItem(
-                      'ownershipPercentage',
-                      owner.ownershipPercentage.toString()
-                    )
-                    localStorage.setItem(
-                      'sellThreshold',
-                      owner.sellThreshold.toString()
-                    )
-                    localStorage.setItem(
-                      'sellPercentage',
-                      owner.sellPercentage.toString()
-                    )
-                    localStorage.setItem(
-                      'sellPrice',
-                      owner.sellPrice.toString()
-                    )
-                  }}
-                >
-                  Make Purchase
-                </Button>
-              </Link>
-            </div>
-          )}
-        })
-        setLoading(false)
-        return
-      })
-      .catch((error: unknown) => {
-        console.log(error)
-      })
-  }
-  realEstateInfo()
-  // useEffect(() => {
-  //   realEstateInfo()
-  // })
-
-  if (isLoading) {
-    return <div>Loading</div>
-  } else {
-    return (
-      <>
-        <Navbar />
-        <div
-          className="child"
-          style={{
-            width: '700px',
-            backgroundColor: '#fff',
-            marginTop: '4px',
-            marginLeft: '10vw',
-            padding: '0px'
-          }}
-        >
-          <h1 className="propertyName">{propertyName}</h1>
-
-          <ProductImagesSlider images={propertyImages} />
-          <div></div>
-          <div
-            className="type-location-area"
-            style={{ display: 'flex', margin: '10px' }}
-          >
-            <IconContext.Provider
-              value={{
-                className: 'type-area-location-icons',
-                size: '30',
-                color: '#9B64BC'
-              }}
-            >
-              <h2>
-                <BsBuilding /> {propertyType}
-              </h2>
-              <h2>
-                <BsLayoutTextWindow /> {propertyArea} m<sup>2</sup>
-              </h2>
-              <h2>
-                <SlLocationPin /> {propertyLocation}
-              </h2>
-            </IconContext.Provider>
+            <Link to="/contract">
+              <Button
+                className="btn-purchase btn-l"
+                variant="purchase"
+                onClick={() => {
+                  localStorage.setItem('sellerID', owner.ownerID)
+                  localStorage.setItem(
+                    'ownershipPercentage',
+                    owner.ownershipPercentage.toString()
+                  )
+                  localStorage.setItem(
+                    'sellThreshold',
+                    owner.sellThreshold.toString()
+                  )
+                  localStorage.setItem(
+                    'sellPercentage',
+                    owner.sellPercentage.toString()
+                  )
+                  localStorage.setItem('sellPrice', owner.sellPrice.toString())
+                }}
+              >
+                Make Purchase
+              </Button>
+            </Link>
           </div>
-          <div
-            style={{
-              marginTop: '10px',
-              padding: '15px',
-              backgroundColor: '#fbf5ff'
+        )
+      }
+    })
+  }
+  showRealEstateInfo()
+
+  return (
+    <>
+      <Navbar />
+      <div
+        className="child"
+        style={{
+          width: '700px',
+          backgroundColor: '#fff',
+          marginTop: '4px',
+          marginLeft: '10vw',
+          padding: '0px'
+        }}
+      >
+        <h1 className="propertyName">{propertyName}</h1>
+
+        <ProductImagesSlider images={propertyImages} />
+        <div></div>
+        <div
+          className="type-location-area"
+          style={{ display: 'flex', margin: '10px' }}
+        >
+          <IconContext.Provider
+            value={{
+              className: 'type-area-location-icons',
+              size: '30',
+              color: '#9B64BC'
             }}
           >
-            <p>
-              Price:
-              <h3>
-                {' '}
-                {/* {propertyPriceMin} - {propertyPriceMax} CW */}
-                {priceTag}{' '}
-              </h3>
-            </p>
-          </div>
-          <div style={{ padding: '15px', marginTop: '0' }}>
-            <p>
-              <h3>Basic characteristics:</h3>
-              <ul className="bulletIndent">
-                <li>Number of rooms: {numofRooms}</li>
-                <li>Description: {propertyDescription}</li>
-              </ul>
-              <p className="textpropertyNote">{propertyNote} </p>
-            </p>
-          </div>
+            <h2>
+              <BsBuilding /> {propertyType}
+            </h2>
+            <h2>
+              <BsLayoutTextWindow /> {propertyArea} m<sup>2</sup>
+            </h2>
+            <h2>
+              <SlLocationPin /> {propertyLocation}
+            </h2>
+          </IconContext.Provider>
         </div>
-        {html}
-      </>
-    )
-  }
+        <div
+          style={{
+            marginTop: '10px',
+            padding: '15px',
+            backgroundColor: '#fbf5ff'
+          }}
+        >
+          <p>
+            Price:
+            <h3>
+              {' '}
+              {/* {propertyPriceMin} - {propertyPriceMax} CW */}
+              {priceTag}{' '}
+            </h3>
+          </p>
+        </div>
+        <div style={{ padding: '15px', marginTop: '0' }}>
+          <p>
+            <h3>Basic characteristics:</h3>
+            <ul className="bulletIndent">
+              <li>Number of rooms: {numofRooms}</li>
+              <li>Description: {propertyDescription}</li>
+            </ul>
+            <p className="textpropertyNote">{propertyNote} </p>
+          </p>
+        </div>
+      </div>
+      {html}
+    </>
+  )
 }
 
 export default PropertyDetail

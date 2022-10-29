@@ -10,12 +10,9 @@ import {
   Select,
   Typography
 } from 'antd'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
-import { useAuthState } from 'react-firebase-hooks/auth'
+import { useState } from 'react'
 import * as api from '../../API_handler/api'
 import Navbar from '../../components/Navbar'
-import { auth, db } from '../../firebase'
 import './Contract.css'
 
 /**
@@ -24,7 +21,6 @@ import './Contract.css'
 function Contract() {
   const [showAlert, setShowAlert] = useState(false)
   const [result, loadResult] = useState('')
-  // const [idLoading, setLoading] = useState(true)
   const buyerID = localStorage['userID']
   const realEstateID = localStorage['realEstateID']
   const sellerID = localStorage['sellerID']
@@ -39,8 +35,9 @@ function Contract() {
         loadResult(allData)
         return
       })
-      .catch((error: unknown) => {
+      .catch((error: any) => {
         console.log(error)
+        alert(error.response.data.message)
       })
   }
   const onFinish = (e: unknown) => {
