@@ -1,7 +1,7 @@
 import axios from 'axios'
 const httpPort = '3001'
 const httpHost = `localhost:${httpPort}`
-let channelName = localStorage['channelName'] || 'mychannel'
+let channelName = localStorage['channel'] || 'mychannel'
 let assetPath = `http://${httpHost}/api/assets/${channelName}`
 let userPath = `http://${httpHost}/api/users/${channelName}`
 let realEstatePath = `http://${httpHost}/api/realestates/${channelName}`
