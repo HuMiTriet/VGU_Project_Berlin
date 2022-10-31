@@ -31,7 +31,7 @@ export class AssetContract extends Contract {
 
   @Transaction()
   public async InitLedgerAsset(ctx: Context): Promise<void> {
-    await this.realEstateContract.InitLedgerAsset(ctx)
+    await this.realEstateContract.InitLedgerRealEstate(ctx)
   }
 
   @Transaction()
@@ -127,6 +127,24 @@ export class AssetContract extends Contract {
     return this.assetContractOther.AssetExists(ctx, id)
   }
 
+  @Transaction(false)
+  @Returns('boolean')
+  public async CanTransferRealEstate(
+    ctx: Context,
+    realEstateID: string,
+    sellerID: string,
+    buyerID: string,
+    buyPercentageString: string
+  ) {
+    return await this.realEstateContract.CanTransferRealEstate(
+      ctx,
+      realEstateID,
+      sellerID,
+      buyerID,
+      buyPercentageString
+    )
+  }
+
   // TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
   @Transaction()
   public async TransferRealEstate(
@@ -157,5 +175,13 @@ export class AssetContract extends Contract {
   @Returns('string')
   public async GetAllRealEstate(ctx: Context): Promise<string> {
     return await this.realEstateContract.GetAllRealEstate(ctx)
+  }
+
+  @Transaction(false)
+  public async GetUserRealEstate(
+    ctx: Context,
+    userID: string
+  ): Promise<string> {
+    return await this.realEstateContract.GetUserRealEstate(ctx, userID)
   }
 }
