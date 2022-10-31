@@ -144,7 +144,7 @@ const Navbar = () => {
                 return
               }
               localStorage.setItem('apiKey', 'i9flae32-10dk-3849-1l44-19lqoexnveoq')
-              localStorage.setItem('apiKey', 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Raleigh/O=org3.example.com/CN=ca.org3.example.com')
+              localStorage.setItem('userID', 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Raleigh/O=org3.example.com/CN=ca.org3.example.com')
               console.log("Changed to Organization 3")
               window.location.reload()
             }
