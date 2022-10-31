@@ -54,7 +54,7 @@ const Navbar = () => {
         <NavLink to="/">
           <h1>REAL AS-STATED</h1>
         </NavLink>
-        <Bars/>
+        <Bars />
         <NavMenu>
           <NavLink to="/about" activeStyle>
             About
@@ -68,8 +68,11 @@ const Navbar = () => {
           <NavLink to="/sign-up" activeStyle>
             Sign Up
           </NavLink>
+          <NavLink to="/infoupload" activeStyle>
+            Info Upload
+          </NavLink>
         </NavMenu>
-        <Bars/>
+        <Bars />
         {LoginLogoutBtn}
 
 

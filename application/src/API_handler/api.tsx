@@ -87,10 +87,10 @@ async function createRealEstate(
   const realEstateData = {
     id: id,
     name: name,
-    roomList: roomList,
+    roomList: JSON.parse(roomList),
     area: area,
     location: location,
-    owners: owners,
+    owners: JSON.parse(owners),
     membershipThreshold: membershipThreshold
   }
   const createRealEstateResponse = await axios.post(
