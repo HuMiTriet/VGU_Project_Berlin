@@ -67,7 +67,12 @@ const AssetTable = () => {
     },
     // {
     //   name: "Listing",
-    //   selector: (row) => row.owners[0].isSeller,
+    //   selector: (row) => {
+    //     const ownersList = JSON.parse(row.owners)
+    //     ownersList.forEach((owner) => {
+    //       owner.ownerID === userID ? console.log("true") : console.log("false")
+    //     })
+    //   },
     //   sortable: true,
     // },
   ];

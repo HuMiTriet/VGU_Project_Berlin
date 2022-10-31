@@ -93,10 +93,16 @@ async function createRealEstate(
     owners: JSON.parse(owners),
     membershipThreshold: membershipThreshold
   }
-  const createRealEstateResponse = await axios.post(
-    `${realEstatePath}/create`,
-    realEstateData
-  )
+  let createRealEstateResponse
+  try {
+    createRealEstateResponse = await axios.post(
+      `${realEstatePath}/create`,
+      realEstateData
+    )
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
   const data = createRealEstateResponse.data
   const status = createRealEstateResponse.status
   debug(

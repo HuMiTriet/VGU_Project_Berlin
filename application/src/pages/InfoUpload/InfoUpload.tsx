@@ -16,6 +16,7 @@ import {
 import { InboxOutlined } from '@ant-design/icons'
 import { RoomType } from '../../resources/roomType'
 import { Ownership } from '../../resources/ownership'
+import { Link } from 'react-router-dom'
 const { TextArea } = Input
 
 const normFile = (e: any) => {
@@ -107,15 +108,22 @@ const InfoUpload = () => {
 
                         // console.log(membershipThreshold)
 
-                        await api.createRealEstate(
-                          uuid,
-                          name,
-                          roomTypeString,
-                          area,
-                          location,
-                          ownersString,
-                          membershipThreshold
-                        )
+                        try {
+                          await api.createRealEstate(
+                            uuid,
+                            name,
+                            roomTypeString,
+                            area,
+                            location,
+                            ownersString,
+                            membershipThreshold
+                          )
+                        } catch (error) {
+                          alert('Error: ' + error)
+                          return
+                        }
+
+                        window.open('/dashboard', '_self')
                       }
                     }}
                     onFinishFailed={error => {
