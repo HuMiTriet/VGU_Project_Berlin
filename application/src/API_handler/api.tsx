@@ -5,6 +5,7 @@ const channelName = localStorage['channel'] || 'mychannel'
 const assetPath = `http://${httpHost}/api/assets/${channelName}`
 const userPath = `http://${httpHost}/api/users/${channelName}`
 const realEstatePath = `http://${httpHost}/api/realestates/${channelName}`
+const tokenPath = `http://${httpHost}/api/token/${channelName}`
 const apiKey = localStorage['apiKey'] || 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0'
 // const httpsPort = '3002'
 // const httpsHost = `localhost:${httpsPort}`
@@ -42,6 +43,27 @@ async function getAllAssets(): Promise<string> {
   debug(
     CYAN,
     `getAllAssets:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`
+  )
+  return JSON.stringify(data)
+}
+
+/**
+ * Get all user real estate
+ * @author Thai Hoang Tam, Nguyen Khoa
+ */
+async function getUserRealEstate(userID: string): Promise<string> {
+  console.log('Get user real estate')
+  const query = `?userID=${userID}`
+  const assetsResponse = await axios.get(
+    `${assetPath}/getUserRealEstate${query}`
+  )
+  const data = assetsResponse.data
+  const status = assetsResponse.status
+  debug(
+    CYAN,
+    `getUserRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
   )
   return JSON.stringify(data)
 }
@@ -303,8 +325,40 @@ async function updateUser(
   return JSON.stringify(data)
 }
 
+/**
+ * Mint token
+ * @author Thai Hoang Tam
+ */
+async function mint(amount: string): Promise<string> {
+  const tokenResponse = await axios.post(`${tokenPath}/mint`, {
+    amount: amount
+  })
+  const data = tokenResponse.data
+  const status = tokenResponse.status
+  debug(CYAN, `mint:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  return JSON.stringify(data)
+}
+
+/**
+ * Get account balance
+ * @author Thai Hoang Tam
+ */
+async function getAccountBalance(): Promise<string> {
+  const tokenResponse = await axios.get(`${tokenPath}/getBalance`)
+  const data = tokenResponse.data
+  const status = tokenResponse.status
+  debug(
+    CYAN,
+    `getAccountBalance:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
+  )
+  return JSON.stringify(data)
+}
+
 export {
   getAllAssets,
+  getUserRealEstate,
   getAllRealEstate,
   createRealEstate,
   updateRealEstate,
@@ -313,5 +367,7 @@ export {
   createUser,
   updateUser,
   assetExists,
-  transferRealEstate
+  transferRealEstate,
+  mint,
+  getAccountBalance
 }

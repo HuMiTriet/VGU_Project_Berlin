@@ -27,6 +27,30 @@ realEstatesRouter.get(
 )
 
 /**
+ * Get all real estates
+ * @author Thai Hoang Tam
+ */
+realEstatesRouter.get(
+  '/:channel/getUserRealEstate',
+  async (req: Request, res: Response) => {
+    try {
+      const msp = <string>req.user
+      const channel = req.params.channel
+      const contract = req.app.locals[msp + channel + 'basic']
+      const userID = <string>req.query.userID
+      if (!userID) {
+        res.status(BAD_REQUEST).send('Invalid data to get all user real estate')
+      }
+      const realEstate = await fabric.getUserRealEstate(contract, userID)
+      return res.status(ACCEPTED).send(realEstate)
+    } catch (error) {
+      console.log(error)
+      return res.status(INTERNAL_SERVER_ERROR).send(error)
+    }
+  }
+)
+
+/**
  * Create new real estate
  * @author Thai Hoang Tam, Nguyen Khoa
  */
