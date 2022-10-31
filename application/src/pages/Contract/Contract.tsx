@@ -35,9 +35,9 @@ function Contract() {
         loadResult(allData)
         return
       })
-      .catch((error: any) => {
+      .catch(error => {
         console.log(error)
-        alert(error.response.data.message)
+        alert(error.response.data)
       })
   }
   const onFinish = (e: unknown) => {
@@ -45,7 +45,18 @@ function Contract() {
 
     // Check if buy Percentage is an integer
     const re = /^[0-9\b]+$/
-    console.log(re.test(buyPercentage))
+    console.log(
+      'Buy Percentage is a Positive Integer? ' + re.test(buyPercentage)
+    )
+
+    //Check if buy percentage is from 1 to 100
+    const buyPercentageInteger = parseInt(buyPercentage)
+    if (
+      buyPercentageInteger < 1 ||
+      buyPercentageInteger > parseInt(sellPercentage)
+    ) {
+      alert('Buy Percentage is smaller than 1 OR larger then sell Percentage')
+    }
 
     const value = (
       (parseInt(sellPrice) / 100) *

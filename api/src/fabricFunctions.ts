@@ -135,13 +135,12 @@ export async function canTransferRealEstate(
   buyerID: string,
   buyPercentage: string
 ): Promise<string> {
-  let result
   try {
     console.log('*** Can Transfer Real Estate')
     const commit = await contract.submitAsync('CanTransferRealEstate', {
       arguments: [id, sellerID, buyerID, buyPercentage]
     })
-    result = utf8Decoder.decode(commit.getResult())
+    const result = utf8Decoder.decode(commit.getResult())
     const status = await commit.getStatus()
     if (!status.successful) {
       throw new Error(
@@ -149,10 +148,10 @@ export async function canTransferRealEstate(
       )
     }
     console.log('*** Result:', result)
-    return result
+    return JSON.stringify(result)
   } catch (error: unknown) {
     console.log('*** Error:', error)
-    return <string>error
+    throw error
   }
 }
 

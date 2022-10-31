@@ -136,8 +136,28 @@ export class RealEstateContract extends Contract {
     const membershipThreshold: number = parseInt(membershipThresholdString)
 
     // input validation
-    let ownershipOnAsset = 0
+    let totalOwnershipOnAsset = 0
     owners.forEach(function (owner: Ownership) {
+      const re = /^[0-9\b]+$/
+      if (!re.test(owner.sellPercentage.toString())) {
+        debug(RED, 'sellPercentage must be integer')
+        throw new RangeError('sellPercentage must be integer')
+      }
+      if (!re.test(owner.ownershipPercentage.toString())) {
+        debug(RED, 'ownership Percentage must be integer')
+        throw new Error('ownership Percentage must be integer')
+      }
+      if (owner.sellPrice % 100 !== 0) {
+        debug(RED, 'sellPrice must be a multiple of 100')
+        throw new Error('sellPrice must be a multiple of 100')
+      }
+
+      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
+        debug(RED, 'ownershipPercentage must be between 0 and 100')
+        throw new RangeError('ownershipPercentage must be between 0 and 100')
+        // return new RangeError('ownershipPercentage must be between 0 and 100')
+      }
+
       if (owner.sellPercentage > owner.ownershipPercentage) {
         debug(
           RED,
@@ -148,15 +168,10 @@ export class RealEstateContract extends Contract {
         )
         // return new RangeError('sellPercentage must be less than or equal ownershipPercentage')
       }
-      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
-        debug(RED, 'ownershipPercentage must be between 0 and 100')
-        throw new RangeError('ownershipPercentage must be between 0 and 100')
-        // return new RangeError('ownershipPercentage must be between 0 and 100')
-      } else {
-        ownershipOnAsset = ownershipOnAsset + owner.ownershipPercentage
-      }
+
+      totalOwnershipOnAsset = totalOwnershipOnAsset + owner.ownershipPercentage
     })
-    if (ownershipOnAsset > 100) {
+    if (totalOwnershipOnAsset > 100) {
       debug(RED, 'ownershipPercentage of all user must be less than 100')
       throw new RangeError(
         'ownershipPercentage of all user must be less than 100'
@@ -238,8 +253,28 @@ export class RealEstateContract extends Contract {
     const membershipThreshold = parseInt(membershipThresholdString)
 
     // input validation
-    let ownershipOnAsset = 0
+    let totalOwnershipOnAsset = 0
     owners.forEach(function (owner: Ownership) {
+      const re = /^[0-9\b]+$/
+      if (!re.test(owner.sellPercentage.toString())) {
+        debug(RED, 'sellPercentage must be integer')
+        throw new RangeError('sellPercentage must be integer')
+      }
+      if (!re.test(owner.ownershipPercentage.toString())) {
+        debug(RED, 'ownership Percentage must be integer')
+        throw new Error('ownership Percentage must be integer')
+      }
+      if (owner.sellPrice % 100 !== 0) {
+        debug(RED, 'sellPrice must be a multiple of 100')
+        throw new Error('sellPrice must be a multiple of 100')
+      }
+
+      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
+        debug(RED, 'ownershipPercentage must be between 0 and 100')
+        throw new RangeError('ownershipPercentage must be between 0 and 100')
+        // return new RangeError('ownershipPercentage must be between 0 and 100')
+      }
+
       if (owner.sellPercentage > owner.ownershipPercentage) {
         debug(
           RED,
@@ -250,15 +285,10 @@ export class RealEstateContract extends Contract {
         )
         // return new RangeError('sellPercentage must be less than or equal ownershipPercentage')
       }
-      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
-        debug(RED, 'ownershipPercentage must be between 0 and 100')
-        throw new RangeError('ownershipPercentage must be between 0 and 100')
-        // return new RangeError('ownershipPercentage must be between 0 and 100')
-      } else {
-        ownershipOnAsset = ownershipOnAsset + owner.ownershipPercentage
-      }
+
+      totalOwnershipOnAsset = totalOwnershipOnAsset + owner.ownershipPercentage
     })
-    if (ownershipOnAsset > 100) {
+    if (totalOwnershipOnAsset > 100) {
       debug(RED, 'ownershipPercentage of all user must be less than 100')
       throw new RangeError(
         'ownershipPercentage of all user must be less than 100'

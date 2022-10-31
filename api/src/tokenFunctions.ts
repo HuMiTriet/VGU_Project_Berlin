@@ -48,23 +48,16 @@ export async function canTransferToken(
   contract: Contract,
   to: string,
   value: string
-): Promise<boolean> {
+): Promise<string> {
   try {
     console.log('*** Can Transfer Token?')
     const commit = await contract.submitTransaction('CanTransfer', to, value)
-    const result = <boolean>(<unknown>utf8Decoder.decode(commit))
-    // result = <boolean>(<unknown>utf8Decoder.decode(commit.getResult()))
-    // const status = await commit.getStatus()
-    // if (!status.successful) {
-    //   throw new Error(
-    //     `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
-    //   )
-    // }
+    const result = utf8Decoder.decode(commit)
     console.log('*** Result:', result)
-    return result
+    return JSON.stringify(result)
   } catch (error: unknown) {
     console.log('*** Error:', error)
-    return false
+    throw error
   }
 }
 

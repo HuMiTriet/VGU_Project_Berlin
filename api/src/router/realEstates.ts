@@ -158,40 +158,17 @@ realEstatesRouter.put(
           .send('Invalid data to transfer real estate')
       }
       try {
-        const isRealEstateTransferable = JSON.parse(
-          await fabric.canTransferRealEstate(
-            contractBasic,
-            id,
-            sellerID,
-            buyerID,
-            buyPercentage
-          )
-        )
-        if (isRealEstateTransferable.status == INTERNAL_SERVER_ERROR) {
-          return res.status(BAD_REQUEST).json({
-            message: 'Cannot transfer real estate',
-            result: isRealEstateTransferable.result
-          })
-        }
-      } catch (error) {
-        console.log(error)
-        throw Error('Cannot transfer real estate')
-      }
-      try {
-        const isTokenTransferable = await token.canTransferToken(
-          contractToken,
+        await fabric.canTransferRealEstate(
+          contractBasic,
+          id,
           sellerID,
-          value
+          buyerID,
+          buyPercentage
         )
-        if (!isTokenTransferable) {
-          return res.status(BAD_REQUEST).json({
-            message: 'Cannot transfer token',
-            result: isTokenTransferable
-          })
-        }
-      } catch (error) {
-        console.log(error)
-        throw Error('Cannot transfer token')
+        await token.canTransferToken(contractToken, sellerID, value)
+      } catch (error: any) {
+        console.log('>>> Error', error)
+        throw error.details[0].message
       }
       const result = await fabric.transferRealEstate(
         contractBasic,
@@ -208,9 +185,9 @@ realEstatesRouter.put(
       return res
         .status(ACCEPTED)
         .json({ realEstateResult: result, tokenResult: tokenResult })
-    } catch (error) {
+    } catch (error: any) {
       console.log(error)
-      return res.status(INTERNAL_SERVER_ERROR).send(error)
+      throw error.details[0].message
     }
   }
 )
