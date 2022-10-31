@@ -2,10 +2,10 @@ import './property-image-slider.scss'
 import PropTypes from 'prop-types'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Thumbs } from 'swiper'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 const ProductImagesSlider = props => {
-    const [activeThumb, setActiveThumb] = useState(undefined)
+    const [activeThumb, setActiveThumb] = useState()
 
     return <>
         <Swiper
@@ -26,7 +26,9 @@ const ProductImagesSlider = props => {
             }
         </Swiper>
         <Swiper
-            onSwiper={setActiveThumb}
+            onSwiper={() => {
+                setActiveThumb
+              }}
             loop={true}
             spaceBetween={10}
             slidesPerView={4}
