@@ -13,19 +13,8 @@ export function App() {
     <div className="app">
       <Router>
         <Routes>
-          {/*<Route path="/" element={<Home />} />
-          <Route path="/" element={<Upload />} />
-          */}
-          {/* <Route path="/" element={<InfoUpload />} /> */}
-          {/* <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Contract />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/reset" element={<Reset />} />
-         */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboardtest" element={<TestDashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/propertyinfo" element={<PropertyDetails />} />
           <Route path="/contract" element={<Contract />} />

@@ -517,6 +517,13 @@ case "$OPTION" in
     done
     ;;
 
+  pause)
+    ALL_ID=$(docker ps -a | awk '/^CONTAINER/ {next} ;{print $1}')
+
+    for ID in $ALL_ID; do
+      docker stop "$ID"
+    done
+    ;;
   o1)
     check_channel_exit
     switch_to_org1
