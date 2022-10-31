@@ -62,18 +62,13 @@ const Navbar = () => {
           <h1>REAL AS-STATED</h1>
         </NavLink>
         <Bars />
+
         <NavMenu>
-          <NavLink to="/about" activeStyle>
-            About
+          <NavLink to="/profile" activeStyle>
+            Profile
           </NavLink>
-          <NavLink to="/services" activeStyle>
-            Services
-          </NavLink>
-          <NavLink to="/contact-us" activeStyle>
-            Contact Us
-          </NavLink>
-          <NavLink to="/sign-up" activeStyle>
-            Sign Up
+          <NavLink to="/assetview" activeStyle>
+            My Real Estate
           </NavLink>
           <NavLink to="/infoupload" activeStyle>
             Info Upload
@@ -90,11 +85,11 @@ const Navbar = () => {
               onChange={(e: any) => {
                 if (e === 'mychannel') {
                   localStorage.setItem('channel', 'mychannel')
-                  alert('Switched to mychannel channel')
+                  // alert('Switched to mychannel channel')
                   window.location.reload()
                 } else if (e === 'business') {
                   localStorage.setItem('channel', 'business')
-                  alert('Switched to business channel')
+                  // alert('Switched to business channel')
                   if (
                     localStorage['apiKey'] ===
                     'i9flae32-10dk-3849-1l44-19lqoexnveoq'

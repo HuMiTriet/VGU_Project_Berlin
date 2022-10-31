@@ -8,13 +8,14 @@ const AssetTable = () => {
   // const [search, setSearch] = useState([]);
   // useState without type would be a bug when coding in TypeScript
   const [assets, setAssets] = useState([]);
+  const userID = localStorage['userID']
 
   const getAssets = async () => {
     try {
       const response = await getAllRealEstate();
       // parse the response array
       const data = JSON.parse(response);
-      console.log(data)
+      console.log(userID)
       setAssets(data);
     } catch (error) {
       console.log(error);
@@ -39,17 +40,35 @@ const AssetTable = () => {
       selector: (row) => row.location,
       sortable: true,
     },
+    {
+      name: "Membership Threshold",
+      selector: (row) => row.membershipThreshold,
+      sortable: true,
+    },
+    {
+      name: "Bath rooms",
+      selector: (row) => row.roomList.numOfBathroom,
+      sortable: true,
+    },
+    {
+      name: "Bed rooms",
+      selector: (row) => row.roomList.numOfBedroom,
+      sortable: true,
+    },
+    {
+      name: "Dining rooms",
+      selector: (row) => row.roomList.numOfDiningroom,
+      sortable: true,
+    },
+    {
+      name: "Living rooms",
+      selector: (row) => row.roomList.numOfLivingroom,
+      sortable: true,
+    },
     // {
-    //   name: "Ownership Percents",
-    //   selector: (row) => row.nativeName,
-    // },
-    // {
-    //   name: "Payment Date",
-    //   selector: (row) => row.capital,
-    // },
-    // {
-    //   name: "Price",
-    //   selector: (row) => row.numericCode && row.callingCodes,
+    //   name: "Listing",
+    //   selector: (row) => row.owners[0].isSeller,
+    //   sortable: true,
     // },
   ];
 
