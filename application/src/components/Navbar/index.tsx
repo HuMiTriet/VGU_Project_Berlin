@@ -121,12 +121,14 @@ const Navbar = () => {
             if(e === "Organization 1")
             {
               localStorage.setItem('apiKey', 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0')
+              localStorage.setItem('userID', "x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com")
               console.log("Changed to Organization 1")
               window.location.reload()
             }
             else if (e === "Organization 2")
             {
               localStorage.setItem('apiKey', 'e8ef8e47-7570-4165-8e87-c20bfd91fad1')
+              localStorage.setItem('userID', "x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com")
               console.log("Changed to Organization 2")
               window.location.reload()
             }
@@ -136,11 +138,13 @@ const Navbar = () => {
               {
                 alert("Organization 3 does not exist on channel Business, switching to Organization 1")
                 localStorage.setItem('apiKey', 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0')
+                localStorage.setItem('userID', "x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com")
                 console.log("Changed to Organization 1")
                 window.location.reload()
                 return
               }
               localStorage.setItem('apiKey', 'i9flae32-10dk-3849-1l44-19lqoexnveoq')
+              localStorage.setItem('apiKey', 'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Raleigh/O=org3.example.com/CN=ca.org3.example.com')
               console.log("Changed to Organization 3")
               window.location.reload()
             }
