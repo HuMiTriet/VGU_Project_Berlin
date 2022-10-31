@@ -31,7 +31,7 @@ function AppFeature(realEstates) {
     prices = prices.sort((n1, n2) => n1 - n2)
     let priceTag: JSX.Element
     if (prices[prices.length - 1] - prices[0] == 0) {
-      priceTag = <div className="price">{numberWithComma(prices[prices.length - 1])} CW</div>
+      priceTag = <div className="price">{numberWithComma(prices[prices.length - 1].toString())} CW</div>
     } else {
       priceTag = (
         <div className="price">
