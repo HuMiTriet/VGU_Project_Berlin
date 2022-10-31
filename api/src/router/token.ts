@@ -44,3 +44,25 @@ tokenRouter.post('/:channel/mint', async (req: Request, res: Response) => {
     return res.status(INTERNAL_SERVER_ERROR).send(error)
   }
 })
+
+/**
+ * Burn token
+ * @author Thai Hoang Tam
+ */
+tokenRouter.post('/:channel/burn', async (req: Request, res: Response) => {
+  try {
+    const msp = <string>req.user
+    const channel = req.params.channel
+    const contract = req.app.locals[msp + channel + 'token']
+    const body = req.body
+    const amount = body.amount
+    if (!amount) {
+      return res.status(BAD_REQUEST).send('Invalid body to burn token')
+    }
+    const result = await token.burn(contract, amount)
+    return res.status(ACCEPTED).send(result)
+  } catch (error) {
+    console.log(error)
+    return res.status(INTERNAL_SERVER_ERROR).send(error)
+  }
+})
