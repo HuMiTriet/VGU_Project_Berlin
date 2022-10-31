@@ -68,6 +68,9 @@
     "arrowParens": "avoid"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.12",
     "antd": "^4.23.6",
     "axios": "^1.1.3",
     "create-react-app": "^5.0.1",
