@@ -114,7 +114,7 @@ const Navbar = () => {
         <Form.Item>
           <Select defaultValue={
             currentOrgAfterRefresh
-          } placeholder="Select Organization" onChange={(e: any) => {
+          } placeholder="Select Channel" onChange={(e: any) => {
             if(e === "Organization 1")
             {
               localStorage.setItem('apiKey', 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0')
