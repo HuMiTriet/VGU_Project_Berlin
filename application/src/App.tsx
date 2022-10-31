@@ -8,7 +8,7 @@ import Login from './Authentication/Login/Login'
 import PropertyDetails from './pages/PropertyDetail/PropertyDetail'
 import InfoUpload from './pages/InfoUpload/InfoUpload'
 
-function App() {
+export function App() {
   return (
     <div className="app">
       <Router>
@@ -23,9 +23,6 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/reset" element={<Reset />} />
          */}
-          <Route path="/" element={<AssetView />} />
-
-          {/* Order of pages
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboardtest" element={<TestDashboard />} />
@@ -38,4 +35,3 @@ function App() {
     </div>
   )
 }
-

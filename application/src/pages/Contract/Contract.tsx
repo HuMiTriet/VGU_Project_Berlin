@@ -15,11 +15,49 @@ import * as api from '../../API_handler/api'
 import Navbar from '../../components/Navbar'
 import './Contract.css'
 
+/**
+ * @author Nguyen Khoa, Thai Hoang Tam, Quang
+ */
+function Contract() {
+  const [showAlert, setShowAlert] = useState(false)
+  const [result, loadResult] = useState('')
+  const buyerID = localStorage['userID']
+  const realEstateID = localStorage['realEstateID']
+  const sellerID = localStorage['sellerID']
+  const ownershipPercentage = localStorage['ownershipPercentage']
+  const sellPercentage = localStorage['sellPercentage']
+  const sellThreshold = localStorage['sellThreshold']
+  const sellPrice = localStorage['sellPrice']
+  const transferRealEstateResult = function (buyPercentage, value) {
+    api
+      .transferRealEstate(realEstateID, sellerID, buyerID, buyPercentage, value)
+      .then(allData => {
+        loadResult(allData)
+        return
+      })
+      .catch((error: any) => {
+        console.log(error)
+        alert(error.response.data.message)
+      })
+  }
+  const onFinish = (e: unknown) => {
+    const buyPercentage: string = e['Buy Percentage']
 
-const Contract = () => {
-  const [showAlert, setShowAlert] = useState(false);
-  const onFinish = (e)=>{
-    console.log(e);
+    // Check if buy Percentage is an integer
+    const re = /^[0-9\b]+$/
+    console.log(re.test(buyPercentage))
+
+    const value = (
+      (parseInt(sellPrice) / 100) *
+      parseInt(buyPercentage)
+    ).toString()
+    try {
+      transferRealEstateResult(buyPercentage, value)
+    } catch (err) {
+      console.log(err)
+    }
+    console.log(e)
+    console.log(result)
     setTimeout(() => {
       setShowAlert(true)
     }, 500)
