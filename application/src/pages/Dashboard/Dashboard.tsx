@@ -30,7 +30,7 @@ function Dashboard() {
       const q = query(collection(db, 'users'), where('uid', '==', user?.uid))
       const doc = await getDocs(q)
       const data = doc.docs[0].data()
-      localStorage.setItem('userID', data.id)
+      //localStorage.setItem('userID', data.id)
       return
     } catch (err) {
       console.error(err)
