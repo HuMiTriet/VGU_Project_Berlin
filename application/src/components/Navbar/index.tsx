@@ -92,7 +92,7 @@ const Navbar = () => {
 
 <div>
         <Form.Item>
-          <Select defaultValue={localStorage['channel']} placeholder="Select Organization" onChange={(e: any) => {
+          <Select defaultValue={localStorage['channel']} placeholder="Select Channel" onChange={(e: any) => {
             if(e === "mychannel")
             {
               localStorage.setItem('channel', 'mychannel')
