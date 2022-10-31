@@ -35,9 +35,9 @@ function Contract() {
         loadResult(allData)
         return
       })
-      .catch((error: any) => {
+      .catch(error => {
         console.log(error)
-        alert(error.response.data.message)
+        alert(error.response.data)
       })
   }
   const onFinish = (e: unknown) => {
@@ -51,7 +51,7 @@ function Contract() {
     const buyPercentageInteger = parseInt(buyPercentage)
     if(buyPercentageInteger < 1 || buyPercentageInteger > parseInt(sellPercentage))
     {
-      console.log("Buy Percentage is smaller than 1 OR larger then sell Percentage")
+      alert("Buy Percentage is smaller than 1 OR larger then sell Percentage")
     }
 
     const value = (
