@@ -5,7 +5,6 @@ import { Row, Col, Card, Pagination } from 'antd'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 import { Link } from 'react-router-dom'
-import { ReactFragment } from 'react'
 
 function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -23,19 +22,23 @@ function AppFeature(realEstates) {
     }
     let prices: Array<number> = []
     testRealEstate.owners.forEach(function (owner: Ownership) {
-      if(owner.isSeller){
+      if (owner.isSeller) {
         prices.push(owner.sellPrice)
       }
-      
     })
     prices = prices.sort((n1, n2) => n1 - n2)
     let priceTag: JSX.Element
     if (prices[prices.length - 1] - prices[0] == 0) {
-      priceTag = <div className="price">{numberWithComma(prices[prices.length - 1].toString())} CW</div>
+      priceTag = (
+        <div className="price">
+          {numberWithComma(prices[prices.length - 1].toString())} CW
+        </div>
+      )
     } else {
       priceTag = (
         <div className="price">
-          {numberWithComma(prices[0].toString())} - {numberWithComma(prices[prices.length - 1].toString())} CW
+          {numberWithComma(prices[0].toString())} -{' '}
+          {numberWithComma(prices[prices.length - 1].toString())} CW
         </div>
       )
     }

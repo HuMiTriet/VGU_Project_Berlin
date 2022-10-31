@@ -27,14 +27,6 @@ const normFile = (e: any) => {
 }
 
 const InfoUpload = () => {
-  const onFinish = (value: any) => {
-    const re = /^[0-9\b]+$/
-    console.log(value)
-
-    console.log(value['price'])
-    console.log(re.test(value['price']))
-  }
-
   return (
     <>
       {' '}
