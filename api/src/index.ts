@@ -5,6 +5,10 @@ import http from 'http'
 import fs from 'fs'
 import { env } from './env'
 
+/**
+ * Start application gateway and API server
+ * @author Thai Hoang Tam
+ */
 async function main() {
   // run the fabric gateway to connect to the HF
   await fabric.main().catch(error => {
@@ -14,6 +18,26 @@ async function main() {
 
   // start API server
   const app = await server()
+  app.locals[env.MSP_ID_ORG1 + 'mychannel' + 'basic'] =
+    fabric.contractMychannelBasic1
+  app.locals[env.MSP_ID_ORG2 + 'mychannel' + 'basic'] =
+    fabric.contractMychannelBasic2
+  app.locals[env.MSP_ID_ORG3 + 'mychannel' + 'basic'] =
+    fabric.contractMychannelBasic3
+  app.locals[env.MSP_ID_ORG1 + 'mychannel' + 'token'] =
+    fabric.contractMychannelToken1
+  app.locals[env.MSP_ID_ORG2 + 'mychannel' + 'token'] =
+    fabric.contractMychannelToken2
+  app.locals[env.MSP_ID_ORG3 + 'mychannel' + 'token'] =
+    fabric.contractMychannelToken3
+  app.locals[env.MSP_ID_ORG1 + 'business' + 'basic'] =
+    fabric.contractBusinessBasic1
+  app.locals[env.MSP_ID_ORG2 + 'business' + 'basic'] =
+    fabric.contractBusinessBasic2
+  app.locals[env.MSP_ID_ORG1 + 'business' + 'token'] =
+    fabric.contractBusinessToken1
+  app.locals[env.MSP_ID_ORG2 + 'business' + 'token'] =
+    fabric.contractBusinessToken2
   const httpHost = `localhost:${env.HTTP_PORT}`
   const httpsHost = `localhost:${env.HTTPS_PORT}`
 

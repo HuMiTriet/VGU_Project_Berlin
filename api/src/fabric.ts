@@ -15,15 +15,20 @@ import {
 import * as crypto from 'crypto'
 import { promises as fs } from 'fs'
 import * as path from 'path'
-import { TextDecoder } from 'util'
+import * as fabric from './fabricFunctions'
+import * as token from './tokenFunctions'
 import { env } from './env'
 
 const channelName = env.CHANNEL_NAME
-const chaincodeName = env.CHAINCODE_NAME
-const mspId = env.MSP_ID_ORG1
+const channelNameBusiness = env.CHANNEL_NAME_BUSINESS
+const chaincodeNameBasic = env.CHAINCODE_NAME_BASIC
+const chaincodeNameToken = env.CHAINCODE_NAME_TOKEN
+const mspId1 = env.MSP_ID_ORG1
+const mspId2 = env.MSP_ID_ORG2
+const mspId3 = env.MSP_ID_ORG3
 
 // Path to crypto materials.
-const cryptoPath = envOrDefault(
+const cryptoPath1 = envOrDefault(
   'CRYPTO_PATH',
   path.resolve(
     __dirname,
@@ -35,18 +40,99 @@ const cryptoPath = envOrDefault(
     'org1.example.com'
   )
 )
+const cryptoPath2 = envOrDefault(
+  'CRYPTO_PATH',
+  path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'network',
+    'organizations',
+    'peerOrganizations',
+    'org2.example.com'
+  )
+)
+const cryptoPath3 = envOrDefault(
+  'CRYPTO_PATH',
+  path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'network',
+    'organizations',
+    'peerOrganizations',
+    'org3.example.com'
+  )
+)
 
 // Path to user private key directory.
-const keyDirectoryPath = envOrDefault(
+const keyDirectoryPath1 = envOrDefault(
   'KEY_DIRECTORY_PATH',
-  path.resolve(cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore')
+  path.resolve(
+    cryptoPath1,
+    'users',
+    'User1@org1.example.com',
+    'msp',
+    'keystore'
+  )
+)
+const keyDirectoryPath2 = envOrDefault(
+  'KEY_DIRECTORY_PATH',
+  path.resolve(
+    cryptoPath2,
+    'users',
+    'User1@org2.example.com',
+    'msp',
+    'keystore'
+  )
+)
+const keyDirectoryPath3 = envOrDefault(
+  'KEY_DIRECTORY_PATH',
+  path.resolve(
+    cryptoPath3,
+    'users',
+    'User1@org3.example.com',
+    'msp',
+    'keystore'
+  )
+)
+
+const keyDirectoryPathBusiness1 = envOrDefault(
+  'KEY_DIRECTORY_PATH',
+  path.resolve(
+    cryptoPath1,
+    'users',
+    'minter@org1.example.com',
+    'msp',
+    'keystore'
+  )
+)
+const keyDirectoryPathBusiness2 = envOrDefault(
+  'KEY_DIRECTORY_PATH',
+  path.resolve(
+    cryptoPath2,
+    'users',
+    'minter@org2.example.com',
+    'msp',
+    'keystore'
+  )
+)
+const keyDirectoryPathBusiness3 = envOrDefault(
+  'KEY_DIRECTORY_PATH',
+  path.resolve(
+    cryptoPath3,
+    'users',
+    'minter@org3.example.com',
+    'msp',
+    'keystore'
+  )
 )
 
 // Path to user certificate.
-const certPath = envOrDefault(
+const certPath1 = envOrDefault(
   'CERT_PATH',
   path.resolve(
-    cryptoPath,
+    cryptoPath1,
     'users',
     'User1@org1.example.com',
     'msp',
@@ -54,31 +140,228 @@ const certPath = envOrDefault(
     'cert.pem'
   )
 )
+const certPathMinter1 = envOrDefault(
+  'CERT_PATH',
+  path.resolve(
+    cryptoPath1,
+    'users',
+    'minter@org1.example.com',
+    'msp',
+    'signcerts',
+    'cert.pem'
+  )
+)
+const certPath2 = envOrDefault(
+  'CERT_PATH',
+  path.resolve(
+    cryptoPath2,
+    'users',
+    'User1@org2.example.com',
+    'msp',
+    'signcerts',
+    'cert.pem'
+  )
+)
+const certPathMinter2 = envOrDefault(
+  'CERT_PATH2',
+  path.resolve(
+    cryptoPath2,
+    'users',
+    'minter@org2.example.com',
+    'msp',
+    'signcerts',
+    'cert.pem'
+  )
+)
+const certPath3 = envOrDefault(
+  'CERT_PATH3',
+  path.resolve(
+    cryptoPath3,
+    'users',
+    'User1@org3.example.com',
+    'msp',
+    'signcerts',
+    'cert.pem'
+  )
+)
+const certPathMinter3 = envOrDefault(
+  'CERT_PATH3',
+  path.resolve(
+    cryptoPath3,
+    'users',
+    'minter@org3.example.com',
+    'msp',
+    'signcerts',
+    'cert.pem'
+  )
+)
 
 // Path to peer tls certificate.
-const tlsCertPath = envOrDefault(
-  'TLS_CERT_PATH',
-  path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt')
+const tlsCertPath1 = envOrDefault(
+  'TLS_CERT_PATH1',
+  path.resolve(cryptoPath1, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt')
+)
+const tlsCertPath2 = envOrDefault(
+  'TLS_CERT_PATH2',
+  path.resolve(cryptoPath2, 'peers', 'peer0.org2.example.com', 'tls', 'ca.crt')
+)
+const tlsCertPath3 = envOrDefault(
+  'TLS_CERT_PATH3',
+  path.resolve(cryptoPath3, 'peers', 'peer0.org3.example.com', 'tls', 'ca.crt')
 )
 
 // Gateway peer endpoint.
-const peerEndpoint = envOrDefault('PEER_ENDPOINT', 'localhost:7051')
+const peerEndpoint1 = envOrDefault('PEER_ENDPOINT1', 'localhost:7051')
+const peerEndpoint2 = envOrDefault('PEER_ENDPOINT2', 'localhost:9051')
+const peerEndpoint3 = envOrDefault('PEER_ENDPOINT3', 'localhost:11051')
 
 // Gateway peer SSL host name override.
-const peerHostAlias = envOrDefault('PEER_HOST_ALIAS', 'peer0.org1.example.com')
+const peerHostAlias1 = envOrDefault(
+  'PEER_HOST_ALIAS1',
+  'peer0.org1.example.com'
+)
+const peerHostAlias2 = envOrDefault(
+  'PEER_HOST_ALIAS2',
+  'peer0.org2.example.com'
+)
+const peerHostAlias3 = envOrDefault(
+  'PEER_HOST_ALIAS3',
+  'peer0.org3.example.com'
+)
 
-const utf8Decoder = new TextDecoder()
-let contract: Contract
+// export let contract1: Contract
+export let contractBusinessBasic1: Contract
+export let contractBusinessToken1: Contract
+export let contractMychannelBasic1: Contract
+export let contractMychannelToken1: Contract
+export let contractBusinessBasic2: Contract
+export let contractBusinessToken2: Contract
+export let contractMychannelBasic2: Contract
+export let contractMychannelToken2: Contract
+export let contractBusinessBasic3: Contract
+export let contractBusinessToken3: Contract
+export let contractMychannelBasic3: Contract
+export let contractMychannelToken3: Contract
+// export let contract2: Contract
+// export let contractBusiness2: Contract
+// export let contract3: Contract
+// export let contractBusiness3: Contract
 export async function main(): Promise<void> {
   await displayInputParameters()
 
-  // The gRPC client connection should be shared by all Gateway connections to this endpoint.
-  const client = await newGrpcConnection()
+  // The gRPC client1 connection should be shared by all Gateway connections to this endpoint.
+  const client1 = await newGrpcConnection(
+    tlsCertPath1,
+    peerEndpoint1,
+    peerHostAlias1
+  )
+  const client2 = await newGrpcConnection(
+    tlsCertPath2,
+    peerEndpoint2,
+    peerHostAlias2
+  )
+  const client3 = await newGrpcConnection(
+    tlsCertPath3,
+    peerEndpoint3,
+    peerHostAlias3
+  )
 
-  const gateway = connect({
-    client,
-    identity: await newIdentity(),
-    signer: await newSigner(),
+  const gateway1 = connect({
+    client: client1,
+    identity: await newIdentity(mspId1, certPath1),
+    signer: await newSigner(keyDirectoryPath1),
+    // Default timeouts for different gRPC calls
+    evaluateOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    endorseOptions: () => {
+      return { deadline: Date.now() + 15000 } // 15 seconds
+    },
+    submitOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    commitStatusOptions: () => {
+      return { deadline: Date.now() + 60000 } // 1 minute
+    }
+  })
+
+  const gateway2 = connect({
+    client: client2,
+    identity: await newIdentity(mspId2, certPath2),
+    signer: await newSigner(keyDirectoryPath2),
+    // Default timeouts for different gRPC calls
+    evaluateOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    endorseOptions: () => {
+      return { deadline: Date.now() + 15000 } // 15 seconds
+    },
+    submitOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    commitStatusOptions: () => {
+      return { deadline: Date.now() + 60000 } // 1 minute
+    }
+  })
+
+  const gateway3 = connect({
+    client: client3,
+    identity: await newIdentity(mspId3, certPath3),
+    signer: await newSigner(keyDirectoryPath3),
+    // Default timeouts for different gRPC calls
+    evaluateOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    endorseOptions: () => {
+      return { deadline: Date.now() + 15000 } // 15 seconds
+    },
+    submitOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    commitStatusOptions: () => {
+      return { deadline: Date.now() + 60000 } // 1 minute
+    }
+  })
+  const gatewayMinter1 = connect({
+    client: client1,
+    identity: await newIdentity(mspId1, certPathMinter1),
+    signer: await newSigner(keyDirectoryPathBusiness1),
+    // Default timeouts for different gRPC calls
+    evaluateOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    endorseOptions: () => {
+      return { deadline: Date.now() + 15000 } // 15 seconds
+    },
+    submitOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    commitStatusOptions: () => {
+      return { deadline: Date.now() + 60000 } // 1 minute
+    }
+  })
+  const gatewayMinter2 = connect({
+    client: client2,
+    identity: await newIdentity(mspId2, certPathMinter2),
+    signer: await newSigner(keyDirectoryPathBusiness2),
+    // Default timeouts for different gRPC calls
+    evaluateOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    endorseOptions: () => {
+      return { deadline: Date.now() + 15000 } // 15 seconds
+    },
+    submitOptions: () => {
+      return { deadline: Date.now() + 5000 } // 5 seconds
+    },
+    commitStatusOptions: () => {
+      return { deadline: Date.now() + 60000 } // 1 minute
+    }
+  })
+  const gatewayMinter3 = connect({
+    client: client3,
+    identity: await newIdentity(mspId3, certPathMinter3),
+    signer: await newSigner(keyDirectoryPathBusiness3),
     // Default timeouts for different gRPC calls
     evaluateOptions: () => {
       return { deadline: Date.now() + 5000 } // 5 seconds
@@ -96,324 +379,85 @@ export async function main(): Promise<void> {
 
   try {
     // Get a network instance representing the channel where the smart contract is deployed.
-    const network = gateway.getNetwork(channelName)
+    const network1 = gateway1.getNetwork(channelName)
+    contractMychannelBasic1 = network1.getContract(chaincodeNameBasic)
+    contractMychannelToken1 = network1.getContract(chaincodeNameToken)
+    const businessNerwork1 = gatewayMinter1.getNetwork(channelNameBusiness)
+    contractBusinessBasic1 = businessNerwork1.getContract(chaincodeNameBasic)
+    contractBusinessToken1 = businessNerwork1.getContract(chaincodeNameToken)
 
-    // Get the smart contract from the network.
-    contract = network.getContract(chaincodeName)
+    const network2 = gateway2.getNetwork(channelName)
+    contractMychannelBasic2 = network2.getContract(chaincodeNameBasic)
+    contractMychannelToken2 = network2.getContract(chaincodeNameToken)
+    const businessNerwork2 = gatewayMinter2.getNetwork(channelNameBusiness)
+    contractBusinessBasic2 = businessNerwork2.getContract(chaincodeNameBasic)
+    contractBusinessToken2 = businessNerwork2.getContract(chaincodeNameToken)
+
+    const network3 = gateway3.getNetwork(channelName)
+    contractMychannelBasic3 = network3.getContract(chaincodeNameBasic)
+    contractMychannelToken3 = network3.getContract(chaincodeNameToken)
+    const businessNerwork3 = gatewayMinter3.getNetwork(channelNameBusiness)
+    contractBusinessBasic3 = businessNerwork3.getContract(chaincodeNameBasic)
+    contractBusinessToken3 = businessNerwork3.getContract(chaincodeNameToken)
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
-    await initLedger()
+    await fabric.initLedger(contractMychannelBasic1)
+    // await fabric.canTransferRealEstate(
+    //   contract1,
+    //   'asset1',
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+    //   '10'
+    // )
+    await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
+    // await token.Mint(contractBusinessBasic1, '500')
+    // await token.Mint(contractBusiness2, '500')
+    // await token.Mint(contractBusiness3, '500')
+    // await token.canTransferToken(
+    //   contractBusinessBasic1,
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+    //   '100'
+    // )
+    // await token.burn(contractBusinessBasic1, '400')
+    // await token.clientAccountBalance(contractBusinessBasic1)
+    // await token.clientAccountID(contractBusinessBasic1)
+    // await token.transferToken(
+    //   contractBusinessBasic1,
+    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+    //   '10'
+    // )
   } finally {
-    // gateway.close()
-    // client.close()
+    // gateway1.close()
+    // client1.close()
   }
 }
 
-async function newGrpcConnection(): Promise<grpc.Client> {
-  const tlsRootCert = await fs.readFile(tlsCertPath)
+async function newGrpcConnection(
+  tlsCertPath1: string,
+  peerEndpoint: string,
+  peerHostAlias: string
+): Promise<grpc.Client> {
+  const tlsRootCert = await fs.readFile(tlsCertPath1)
   const tlsCredentials = grpc.credentials.createSsl(tlsRootCert)
   return new grpc.Client(peerEndpoint, tlsCredentials, {
     'error.ssl_target_name_override': peerHostAlias
   })
 }
 
-async function newIdentity(): Promise<Identity> {
-  const credentials = await fs.readFile(certPath)
-  return { mspId, credentials }
+async function newIdentity(
+  mspId: string,
+  certPath1: string
+): Promise<Identity> {
+  const credentials = await fs.readFile(certPath1)
+  return { mspId: mspId, credentials: credentials }
 }
 
-async function newSigner(): Promise<Signer> {
+async function newSigner(keyDirectoryPath: string): Promise<Signer> {
   const files = await fs.readdir(keyDirectoryPath)
   const keyPath = path.resolve(keyDirectoryPath, files[0])
   const privateKeyPem = await fs.readFile(keyPath)
   const privateKey = crypto.createPrivateKey(privateKeyPem)
   return signers.newPrivateKeySigner(privateKey)
-}
-
-/**
- * Initialize the ledger to get some Real Estate and Users
- *
- */
-export async function initLedger(): Promise<void> {
-  console.log('*** Init ledger')
-  await contract.submitTransaction('InitLedger')
-  console.log('*** Init ledger successfully')
-}
-
-/**
- * Get all assets (Real estate and user)
- * @author Thai Hoang Tam
- * @return all assets from ledger
- */
-export async function getAllAssets(): Promise<string> {
-  try {
-    console.log('*** Get all assets')
-    const resultBytes = await contract.evaluateTransaction('GetAllAssets')
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: any) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Get all real estate
- * @author Thai Hoang Tam
- * @return all real estate from ledger
- */
-export async function getAllRealEstate(): Promise<string> {
-  try {
-    console.log('*** Get all real estate')
-    const resultBytes = await contract.evaluateTransaction('GetAllRealEstate')
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: any) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Create new Real Estate
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @param roomList
- * @param area
- * @param location
- * @param owners
- * @param membershipThreshold
- */
-export async function createRealEstate(
-  // contract: Contract,
-  id: string,
-  name: string,
-  roomList: string,
-  area: string,
-  location: string,
-  owners: string,
-  membershipThreshold: string
-): Promise<string> {
-  try {
-    console.log('*** Create Real Estate')
-    const result = await contract.submitTransaction(
-      'CreateRealEstate',
-      id,
-      name,
-      roomList,
-      area,
-      location,
-      owners,
-      membershipThreshold
-    )
-    console.log('*** Real Estate created')
-    return result.toString()
-  } catch (error: any) {
-    console.log(error)
-    return error
-  }
-}
-
-/**
- * Create a new user with a starting balance
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @returns
- */
-export async function createUser(id: string, name: string) {
-  try {
-    console.log('*** Create user')
-    const resultBytes = await contract.submitTransaction('CreateUser', id, name)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Transfer real estate
- * @author Thai Hoang Tam
- */
-export async function transferRealEstate(
-  // contract: Contract,
-  id: string,
-  sellerID: string,
-  buyerID: string,
-  buyPercentage: string
-): Promise<string> {
-  let result
-  try {
-    console.log('*** Transfer Real Estate')
-
-    const commit = await contract.submitAsync('TransferRealEstate', {
-      arguments: [id, sellerID, buyerID, buyPercentage]
-    })
-    result = utf8Decoder.decode(commit.getResult())
-
-    // console.log('*** Waiting for transaction commit')
-
-    const status = await commit.getStatus()
-    if (!status.successful) {
-      throw new Error(
-        `Transaction ${status.transactionId} failed to commit with status code ${status.code}`
-      )
-    }
-    console.log('*** Result:', result)
-    return result
-  } catch (error: any) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Return an asset read from world state
- * @author Thai Hoang Tam
- * @param id
- * @returns asset as json object
- */
-export async function readAsset(
-  // contract: Contract,
-  id: string
-): Promise<string> {
-  console.log('*** Read Asset')
-  let result
-  try {
-    const resultBytes = await contract.evaluateTransaction('ReadAsset', id)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    console.log(resultJson)
-    result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: any) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Delete an asset from the world state
- * @author Thai Hoang Tam
- * @param id
- * @returns
- */
-export async function deleteAsset(id: string): Promise<string> {
-  try {
-    console.log('*** Delete asset')
-    const resultBytes = await contract.submitTransaction('DeleteAsset', id)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: any) {
-    console.log(error)
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Check if asset exists
- * @param id
- * @returns
- */
-export async function assetExists(id: string): Promise<string> {
-  try {
-    console.log('*** Asset Exist')
-    const resultBytes = await contract.evaluateTransaction('AssetExists', id)
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: any) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Update an real estate
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @param roomList
- * @param area
- * @param location
- * @param owners
- * @param membershipThreshold
- * @returns
- */
-export async function updateRealEstate(
-  // contract: Contract
-  id: string,
-  name: string,
-  roomList: string,
-  area: string,
-  location: string,
-  owners: string,
-  membershipThreshold: string
-) {
-  try {
-    console.log('Update Real Estate')
-    const resultBytes = await contract.submitTransaction(
-      'UpdateRealEstate',
-      id,
-      name,
-      roomList,
-      area,
-      location,
-      owners,
-      membershipThreshold
-    )
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error) {
-    console.log('*** Error:', error)
-    return error
-  }
-}
-
-/**
- * Update a user information
- * @author Thai Hoang Tam
- * @param id
- * @param name
- * @param membershipScore
- * @returns
- */
-export async function updateUser(
-  id: string,
-  name: string,
-  membershipScore: string
-): Promise<string> {
-  try {
-    console.log('Update User')
-    const resultBytes = await contract.submitTransaction(
-      'UpdateUser',
-      id,
-      name,
-      membershipScore
-    )
-    const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
-  } catch (error: any) {
-    console.log('*** Error:', error)
-    return error
-  }
 }
 
 function envOrDefault(key: string, defaultValue: string) {
@@ -425,12 +469,26 @@ function envOrDefault(key: string, defaultValue: string) {
  */
 async function displayInputParameters(): Promise<void> {
   console.log(`channelName:       ${channelName}`)
-  console.log(`chaincodeName:     ${chaincodeName}`)
-  console.log(`mspId:             ${mspId}`)
-  console.log(`cryptoPath:        ${cryptoPath}`)
-  console.log(`keyDirectoryPath:  ${keyDirectoryPath}`)
-  console.log(`certPath:          ${certPath}`)
-  console.log(`tlsCertPath:       ${tlsCertPath}`)
-  console.log(`peerEndpoint:      ${peerEndpoint}`)
-  console.log(`peerHostAlias:     ${peerHostAlias}`)
+  console.log(`chaincodeNameBasic:     ${chaincodeNameBasic}`)
+  console.log(`mspId1:            ${mspId1}`)
+  console.log(`mspId2:            ${mspId2}`)
+  console.log(`mspId3:            ${mspId3}`)
+  console.log(`cryptoPath1:        ${cryptoPath1}`)
+  console.log(`cryptoPath2:        ${cryptoPath2}`)
+  console.log(`cryptoPath3:        ${cryptoPath3}`)
+  console.log(`keyDirectoryPath1:  ${keyDirectoryPath1}`)
+  console.log(`keyDirectoryPath2:  ${keyDirectoryPath2}`)
+  console.log(`keyDirectoryPath3:  ${keyDirectoryPath3}`)
+  console.log(`certPath1:          ${certPath1}`)
+  console.log(`certPath2:          ${certPath2}`)
+  console.log(`certPath3:          ${certPath3}`)
+  console.log(`tlsCertPath1:       ${tlsCertPath1}`)
+  console.log(`tlsCertPath2:       ${tlsCertPath2}`)
+  console.log(`tlsCertPath3:       ${tlsCertPath3}`)
+  console.log(`peerEndpoint1:      ${peerEndpoint1}`)
+  console.log(`peerEndpoint2:      ${peerEndpoint2}`)
+  console.log(`peerEndpoint3:      ${peerEndpoint3}`)
+  console.log(`peerHostAlias1:     ${peerHostAlias1}`)
+  console.log(`peerHostAlias2:     ${peerHostAlias2}`)
+  console.log(`peerHostAlias3:     ${peerHostAlias3}`)
 }

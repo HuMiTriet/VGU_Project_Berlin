@@ -20,7 +20,7 @@ export const server = async (): Promise<Express> => {
   // to get req.body as a JSON object
   app.use(bodyParser.json())
   app.use(function (req: Request, res: Response, next) {
-    res.header('Access-Control-Allow-Origin', '*') // update to match the domain you will make the request from
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000') // update to match the domain you will make the request from
     res.header(
       'Access-Control-Allow-Headers',
       'Origin, X-Requested-With, Content-Type, Accept, X-API-KEY, Accept-Encoding, x-api-key'
