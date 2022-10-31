@@ -52,6 +52,33 @@ export async function getAllRealEstate(contract: Contract): Promise<string> {
 }
 
 /**
+ * Get all user real estate
+ * @author Thai Hoang Tam
+ * @param contract
+ * @param userID
+ * @return all real estate from ledger
+ */
+export async function getUserRealEstate(
+  contract: Contract,
+  userID: string
+): Promise<string> {
+  try {
+    console.log('*** Get all user real estate')
+    const resultBytes = await contract.evaluateTransaction(
+      'GetUserRealEstate',
+      userID
+    )
+    const resultJson = utf8Decoder.decode(resultBytes)
+    const result = JSON.parse(resultJson)
+    console.log('*** Result:', result)
+    return result
+  } catch (error: unknown) {
+    console.log('*** Error:', error)
+    return <string>error
+  }
+}
+
+/**
  * Create new Real Estate
  * @author Thai Hoang Tam
  * @param contract

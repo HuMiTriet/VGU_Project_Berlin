@@ -47,6 +47,27 @@ async function getAllAssets(): Promise<string> {
 }
 
 /**
+ * Get all user real estate
+ * @author Thai Hoang Tam, Nguyen Khoa
+ */
+async function getUserRealEstate(userID: string): Promise<string> {
+  console.log('Get user real estate')
+  const query = `?userID=${userID}`
+  const assetsResponse = await axios.get(
+    `${assetPath}/getUserRealEstate${query}`
+  )
+  const data = assetsResponse.data
+  const status = assetsResponse.status
+  debug(
+    CYAN,
+    `getUserRealEstate:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
+  )
+  return JSON.stringify(data)
+}
+
+/**
  * Get all Real Estates
  * @author Nguyen Khoa
  */
@@ -299,6 +320,7 @@ async function updateUser(
 
 export {
   getAllAssets,
+  getUserRealEstate,
   getAllRealEstate,
   createRealEstate,
   updateRealEstate,
