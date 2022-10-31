@@ -1,4 +1,4 @@
-import './App.css'
+// import './App.css'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Contract from './pages/Contract/Contract'
@@ -13,6 +13,19 @@ function App() {
     <div className="app">
       <Router>
         <Routes>
+          {/*<Route path="/" element={<Home />} />
+          <Route path="/" element={<Upload />} />
+          */}
+          {/* <Route path="/" element={<InfoUpload />} /> */}
+          {/* <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Contract />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/reset" element={<Reset />} />
+         */}
+          <Route path="/" element={<AssetView />} />
+
+          {/* Order of pages
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboardtest" element={<TestDashboard />} />
@@ -26,4 +39,3 @@ function App() {
   )
 }
 
-export default App

@@ -4,6 +4,11 @@ general
 -------
 */
 
+.ant-form .ant-form-horizontal {
+  flex-direction: column;
+  max-width: 2000px;
+}
+
 .ant-checkbox {
   box-sizing: border-box;
   margin: 0;
@@ -292,7 +297,7 @@ general
 .ant-btn-primary[disabled]:hover > a:only-child::after,
 .ant-btn-primary[disabled]:focus > a:only-child::after,
 .ant-btn-primary[disabled]:active > a:only-child::after {
-  position: absolute;
+  position: Absolute;
   top: 0;
   right: 0;
   bottom: 0;
@@ -383,8 +388,8 @@ title holder
 .titleHolder {
   text-align: center;
   position: relative;
-  padding: 0 0 20px;
-  margin: 0 0 40px;
+  padding: 0 0 10px;
+  margin: 0 0 20px;
 }
 
 .titleButton {
