@@ -42,6 +42,13 @@ function Contract() {
   }
   const onFinish = (e: unknown) => {
     const buyPercentage: string = e['Buy Percentage']
+
+    // Check if buy Percentage is an integer
+    const re = /^[0-9\b]+$/;
+    console.log(re.test(buyPercentage))
+
+
+
     const value = (
       (parseInt(sellPrice) / 100) *
       parseInt(buyPercentage)
