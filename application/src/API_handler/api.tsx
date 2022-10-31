@@ -55,7 +55,7 @@ async function getUserRealEstate(userID: string): Promise<string> {
   console.log('Get user real estate')
   const query = `?userID=${userID}`
   const assetsResponse = await axios.get(
-    `${assetPath}/getUserRealEstate${query}`
+    `${realEstatePath}/getUserRealEstate${query}`
   )
   const data = assetsResponse.data
   const status = assetsResponse.status
