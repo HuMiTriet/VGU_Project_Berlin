@@ -1,11 +1,11 @@
 import axios from 'axios'
 const httpPort = '3001'
 const httpHost = `localhost:${httpPort}`
-let channelName = localStorage['channel'] || 'mychannel'
-let assetPath = `http://${httpHost}/api/assets/${channelName}`
-let userPath = `http://${httpHost}/api/users/${channelName}`
-let realEstatePath = `http://${httpHost}/api/realestates/${channelName}`
-let apiKey = localStorage['apiKey'] || 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0'
+const channelName = localStorage['channel'] || 'mychannel'
+const assetPath = `http://${httpHost}/api/assets/${channelName}`
+const userPath = `http://${httpHost}/api/users/${channelName}`
+const realEstatePath = `http://${httpHost}/api/realestates/${channelName}`
+const apiKey = localStorage['apiKey'] || 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0'
 // const httpsPort = '3002'
 // const httpsHost = `localhost:${httpsPort}`
 
