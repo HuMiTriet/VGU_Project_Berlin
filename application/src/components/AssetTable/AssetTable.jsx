@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getAllRealEstate } from '../../API_handler/api'
 
 import Datatable from "react-data-table-component";
 import { Button } from "react-bootstrap";
@@ -11,8 +11,11 @@ const AssetTable = () => {
 
   const getAssets = async () => {
     try {
-      const response = await axios.get("https://restcountries.com/v2/all");
-      setAssets(response.data);
+      const response = await getAllRealEstate();
+      // parse the response array
+      const data = JSON.parse(response);
+      console.log(data)
+      setAssets(data);
     } catch (error) {
       console.log(error);
     }
@@ -21,39 +24,33 @@ const AssetTable = () => {
   // Columns for table, data is from country data
 
   const columns = [
-    // {
-    //   name: " ",
-    //   selector: (row) => (
-    //     <img width={40} height={40} alt="asset" src={row.flag} />
-    //   ),
-    // },
     {
-      name: "Asset Name",
+      name: "Name",
       selector: (row) => row.name,
       sortable: true,
     },
     {
       name: "Asset ID",
-      selector: (row) => row.alpha3Code,
+      selector: (row) => row.id,
       sortable: true,
     },
     {
-      name: "Agency",
-      selector: (row) => row.name,
+      name: "Location",
+      selector: (row) => row.location,
       sortable: true,
     },
-    {
-      name: "Ownership Percents",
-      selector: (row) => row.nativeName,
-    },
-    {
-      name: "Payment Date",
-      selector: (row) => row.capital,
-    },
-    {
-      name: "Price",
-      selector: (row) => row.numericCode && row.callingCodes,
-    },
+    // {
+    //   name: "Ownership Percents",
+    //   selector: (row) => row.nativeName,
+    // },
+    // {
+    //   name: "Payment Date",
+    //   selector: (row) => row.capital,
+    // },
+    // {
+    //   name: "Price",
+    //   selector: (row) => row.numericCode && row.callingCodes,
+    // },
   ];
 
   useEffect(() => {
@@ -62,7 +59,7 @@ const AssetTable = () => {
 
   return (
     <Datatable
-      title="Country List"
+      title="Real Estate List"
       columns={columns}
       data={assets}
       pagination
@@ -78,8 +75,8 @@ const AssetTable = () => {
           type="text"
           className="w-25 form-control"
           placeholder="Search here"
-          // value={search}
-          // onChange={() => setSearch(e.target.value)}
+        // value={search}
+        // onChange={() => setSearch(e.target.value)}
         />
       }
     />

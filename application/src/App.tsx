@@ -5,6 +5,7 @@ import Contract from './pages/Contract/Contract'
 import Dashboard from './pages/Dashboard/Dashboard'
 import PropertyDetails from './pages/PropertyDetail/PropertyDetail'
 import InfoUpload from './pages/InfoUpload/InfoUpload'
+import AssetView from './pages/AssetView/AssetView'
 
 export function App() {
   return (
@@ -16,6 +17,7 @@ export function App() {
           <Route path="/propertyinfo" element={<PropertyDetails />} />
           <Route path="/contract" element={<Contract />} />
           <Route path="/infoupload" element={<InfoUpload />} />
+          <Route path="/assetview" element={<AssetView />} />
         </Routes>
       </Router>
     </div>
