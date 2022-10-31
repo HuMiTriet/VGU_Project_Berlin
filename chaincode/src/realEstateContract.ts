@@ -389,8 +389,15 @@ export class RealEstateContract extends Contract {
     // console.log('Buyer is not the same as Seller')
     debug(CYAN, 'Buyer is not the same as Seller')
 
+    // check if buyPercentageString all digits
+    const re = /^[0-9\b]+$/
+    if (!re.test(buyPercentageString)) {
+      debug(RED, 'buyPercentageString must be integer')
+      throw new RangeError('buyPercentageString must be integer')
+    }
+
     //convert buyPercentage to String
-    const buyPercentage = parseFloat(buyPercentageString)
+    const buyPercentage = parseInt(buyPercentageString)
     // console.log('Buyer wants to buy ' + buyPercentage + '%')
     console.log(`Buyer wants to buy ${buyPercentage}%`)
 
