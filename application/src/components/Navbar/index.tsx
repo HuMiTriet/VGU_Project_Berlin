@@ -1,38 +1,24 @@
-import { Radio, Switch } from 'antd'
-// import FormControlLabel from '@mui/material/FormControlLabel'
+import { Switch } from 'antd'
 import { signOut } from 'firebase/auth'
-import React from 'react'
-import { useEffect } from 'react'
-import { FormGroup } from 'react-bootstrap'
+import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import { auth } from '../../firebase'
+import { auth, signInWithGoogle } from '../../firebase'
 import {
-  Nav,
-  NavLink,
-  NavMenu,
-  Bars,
-  NavBtn,
-  NavBtnLink
+  Bars, Nav, NavBtn,
+  NavBtnLink, NavLink,
+  NavMenu
 } from './NavbarElements'
-// const labels = { inputProps: { channel: 'mychannel' } }
-const label = { inputProps: { 'aria-label': 'Switch demo' } }
-// const [checked, setChecked] = React.useState(true)
-// const handleChange = event => {
-//   setChecked(event.target.checked)
-// }
+
 const Navbar = () => {
   const [user, loading] = useAuthState(auth)
-  console.log(user)
-
   useEffect(() => {
     loading
-    // checked
   })
   let LoginLogoutBtn: JSX.Element
   if (!user) {
     LoginLogoutBtn = (
       <NavBtn>
-        <NavBtnLink to="/login">Log In</NavBtnLink>
+        <NavBtnLink onClick={()=> {signInWithGoogle('1')}}>Log In</NavBtnLink>
       </NavBtn>
     )
   } else {
@@ -68,13 +54,14 @@ const Navbar = () => {
         <Bars/>
         {LoginLogoutBtn}
         <Switch
-          {...label}
-          defaultChecked
+          defaultChecked={localStorage['channel'] ==='business'}
           onChange={(e) => {
             if(e === true){
-              localStorage.setItem('channel', 'mychannel')
-            } else {
               localStorage.setItem('channel', 'business')
+              alert('Switch to business')
+            } else {
+              localStorage.setItem('channel', 'mychannel')
+              alert('Switch to mychannel')
             }
             console.log(localStorage['channel'])
           }}
