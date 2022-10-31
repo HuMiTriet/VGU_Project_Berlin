@@ -2,12 +2,15 @@ import { Switch } from 'antd'
 import { signOut } from 'firebase/auth'
 import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
+//import { Form } from 'react-router-dom'
 import { auth, signInWithGoogle } from '../../firebase'
 import {
   Bars, Nav, NavBtn,
   NavBtnLink, NavLink,
   NavMenu
 } from './NavbarElements'
+
+import { Form, Input, Button, Select, Col, Row, Card} from 'antd';
 
 const Navbar = () => {
   const [user, loading] = useAuthState(auth)
@@ -30,6 +33,20 @@ const Navbar = () => {
       </NavBtn>
     )
   }
+  let currentOrgAfterRefresh: string
+  if(localStorage["apiKey"] === "c8caa01f-df2d-4be7-99d4-9e8ab0f370e0")
+  {
+    currentOrgAfterRefresh = "Organization 1"
+  }
+  else if(localStorage["apiKey"] === "e8ef8e47-7570-4165-8e87-c20bfd91fad1")
+  {
+    currentOrgAfterRefresh = "Organization 2"
+  }
+  else if(localStorage["apiKey"] === "i9flae32-10dk-3849-1l44-19lqoexnveoq")
+  {
+    currentOrgAfterRefresh = "Organization 3"
+  }
+
 
   return (
     <>
@@ -57,7 +74,9 @@ const Navbar = () => {
         </NavMenu>
         <Bars />
         {LoginLogoutBtn}
-        <Switch
+
+
+        {/* <Switch
           defaultChecked={localStorage['channel'] ==='business'}
           onChange={(e) => {
             if(e === true){
@@ -69,48 +88,72 @@ const Navbar = () => {
             }
             console.log(localStorage['channel'])
           }}
-        />
+        /> */}
+
+<div>
+        <Form.Item>
+          <Select defaultValue={localStorage['channel']} placeholder="Select Channel" onChange={(e: any) => {
+            if(e === "mychannel")
+            {
+              localStorage.setItem('channel', 'mychannel')
+              alert('Switched to mychannel channel')
+              window.location.reload();
+            }
+            else if(e === "business")
+            {
+              localStorage.setItem('channel', 'business')
+              alert('Switched to business channel')
+              if(localStorage["apiKey"] === "i9flae32-10dk-3849-1l44-19lqoexnveoq")
+              alert('Channel mychannel does not have Org 3, Switching to Org1')
+              localStorage.setItem('apiKey', 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0')
+              window.location.reload();
+            }
+            }}>
+                    <Select.Option value="mychannel">mychannel</Select.Option>
+                    <Select.Option value="business">business</Select.Option>
+          </Select>
+        </Form.Item> </div>
         <div>
-          <input
-            type="radio"
-            value="Org1"
-            name="organization"
-            onClick={(e: any) => {
-              console.log(e.target.value)
-              localStorage.setItem(
-                'apiKey',
-                'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0'
-              )
-            }}
-          />{' '}
-          1
-          <input
-            type="radio"
-            value="Org2"
-            name="organization"
-            onClick={(e: any) => {
-              console.log(e.target.value)
-              localStorage.setItem(
-                'apiKey',
-                'e8ef8e47-7570-4165-8e87-c20bfd91fad1'
-              )
-            }}
-          />{' '}
-          2
-          <input
-            type="radio"
-            value="Org3"
-            name="organization"
-            onClick={(e: any) => {
-              console.log(e.target.value)
-              localStorage.setItem(
-                'apiKey',
-                'i9flae32-10dk-3849-1l44-19lqoexnveoq'
-              )
-            }}
-          />{' '}
-          3<div></div>
-        </div>
+        <Form.Item>
+          <Select defaultValue={
+            currentOrgAfterRefresh
+          } placeholder="Select Organization" onChange={(e: any) => {
+            if(e === "Organization 1")
+            {
+              localStorage.setItem('apiKey', 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0')
+              console.log("Changed to Organization 1")
+              window.location.reload()
+            }
+            else if (e === "Organization 2")
+            {
+              localStorage.setItem('apiKey', 'e8ef8e47-7570-4165-8e87-c20bfd91fad1')
+              console.log("Changed to Organization 2")
+              window.location.reload()
+            }
+            else if (e === "Organization 3")
+            {
+              if(localStorage["channel"] === "business")
+              {
+                alert("Organization 3 does not exist on channel Business, switching to Organization 1")
+                localStorage.setItem('apiKey', 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0')
+                console.log("Changed to Organization 1")
+                window.location.reload()
+                return
+              }
+              localStorage.setItem('apiKey', 'i9flae32-10dk-3849-1l44-19lqoexnveoq')
+              console.log("Changed to Organization 3")
+              window.location.reload()
+            }
+            }
+
+            
+            }>
+                    <Select.Option value="Organization 1">Organization 1</Select.Option>
+                    <Select.Option value="Organization 2">Organization 2</Select.Option>
+                    <Select.Option value="Organization 3">Organization 3</Select.Option>
+          </Select>
+        </Form.Item>
+      </div>
       </Nav>
     </>
   )
