@@ -138,6 +138,11 @@ export class RealEstateContract extends Contract {
     // input validation
     let ownershipOnAsset = 0
     owners.forEach(function (owner: Ownership) {
+      if (owner.sellPrice % 100 !== 0) {
+        debug(RED, 'sellPrice must be a multiple of 100')
+        throw new Error('sellPrice must be a multiple of 100')
+      }
+
       if (owner.sellPercentage > owner.ownershipPercentage) {
         debug(
           RED,
