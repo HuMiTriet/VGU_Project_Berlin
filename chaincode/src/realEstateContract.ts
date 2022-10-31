@@ -138,6 +138,12 @@ export class RealEstateContract extends Contract {
     // input validation
     let ownershipOnAsset = 0
     owners.forEach(function (owner: Ownership) {
+      const re = /^[0-9\b]+$/
+      if (!re.test(owner.sellPercentage.toString())) {
+        debug(RED, 'sellPercentage must be integer')
+        throw new RangeError('sellPercentage must be integer')
+      }
+
       if (owner.sellPrice % 100 !== 0) {
         debug(RED, 'sellPrice must be a multiple of 100')
         throw new Error('sellPrice must be a multiple of 100')
@@ -245,7 +251,16 @@ export class RealEstateContract extends Contract {
     // input validation
     let ownershipOnAsset = 0
     owners.forEach(function (owner: Ownership) {
+      const re = /^[0-9\b]+$/
+      if (!re.test(owner.sellPercentage.toString())) {
+        debug(RED, 'sellPercentage must be integer')
+        throw new RangeError('sellPercentage must be integer')
+      }
       if (owner.sellPercentage > owner.ownershipPercentage) {
+        if (owner.sellPrice % 100 !== 0) {
+          debug(RED, 'sellPrice must be a multiple of 100')
+          throw new Error('sellPrice must be a multiple of 100')
+        }
         debug(
           RED,
           'sellPercentage must be less than or equal ownershipPercentage'
