@@ -44,14 +44,18 @@ function Contract() {
     const buyPercentage: string = e['Buy Percentage']
 
     // Check if buy Percentage is an integer
-    const re = /^[0-9\b]+$/;
-    console.log("Buy Percentage is a Positive Integer? " + re.test(buyPercentage))
+    const re = /^[0-9\b]+$/
+    console.log(
+      'Buy Percentage is a Positive Integer? ' + re.test(buyPercentage)
+    )
 
     //Check if buy percentage is from 1 to 100
     const buyPercentageInteger = parseInt(buyPercentage)
-    if(buyPercentageInteger < 1 || buyPercentageInteger > parseInt(sellPercentage))
-    {
-      alert("Buy Percentage is smaller than 1 OR larger then sell Percentage")
+    if (
+      buyPercentageInteger < 1 ||
+      buyPercentageInteger > parseInt(sellPercentage)
+    ) {
+      alert('Buy Percentage is smaller than 1 OR larger then sell Percentage')
     }
 
     const value = (
