@@ -5,6 +5,7 @@ const channelName = localStorage['channel'] || 'mychannel'
 const assetPath = `http://${httpHost}/api/assets/${channelName}`
 const userPath = `http://${httpHost}/api/users/${channelName}`
 const realEstatePath = `http://${httpHost}/api/realestates/${channelName}`
+const tokenPath = `http://${httpHost}/api/token/${channelName}`
 const apiKey = localStorage['apiKey'] || 'c8caa01f-df2d-4be7-99d4-9e8ab0f370e0'
 // const httpsPort = '3002'
 // const httpsHost = `localhost:${httpsPort}`
@@ -318,6 +319,37 @@ async function updateUser(
   return JSON.stringify(data)
 }
 
+/**
+ * Mint token
+ * @author Thai Hoang Tam
+ */
+async function mint(amount: string): Promise<string> {
+  const tokenResponse = await axios.post(`${tokenPath}/mint`, {
+    amount: amount
+  })
+  const data = tokenResponse.data
+  const status = tokenResponse.status
+  debug(CYAN, `mint:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  return JSON.stringify(data)
+}
+
+/**
+ * Get account balance
+ * @author Thai Hoang Tam
+ */
+async function getAccountBalance(): Promise<string> {
+  const tokenResponse = await axios.get(`${tokenPath}/getBalance`)
+  const data = tokenResponse.data
+  const status = tokenResponse.status
+  debug(
+    CYAN,
+    `getAccountBalance:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(
+      data
+    )}`
+  )
+  return JSON.stringify(data)
+}
+
 export {
   getAllAssets,
   getUserRealEstate,
@@ -329,5 +361,7 @@ export {
   createUser,
   updateUser,
   assetExists,
-  transferRealEstate
+  transferRealEstate,
+  mint,
+  getAccountBalance
 }

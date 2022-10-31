@@ -133,7 +133,7 @@ export async function clientAccountBalance(
     console.log('ClientAccountBalance')
     const resultBytes = await contract.submitTransaction('ClientAccountBalance')
     const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
+    const result = JSON.stringify(resultJson)
     console.log('*** Result:', result)
     return result
   } catch (error: unknown) {
