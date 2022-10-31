@@ -18,19 +18,28 @@ import Navbar from '../../components/Navbar'
 import { auth, db } from '../../firebase'
 import './Contract.css'
 
+/**
+ * @author Nguyen Khoa, Thai Hoang Tam, Quang
+ */
 function Contract() {
   const [showAlert, setShowAlert] = useState(false)
   const [user, loading] = useAuthState(auth)
   const [idLoading, setLoading] = useState(true)
-  const [id, setId] = useState('')
+  const [buyerID, setID] = useState('')
+  const realEstateID = localStorage['realEstateID']
+  const sellerID = localStorage['sellerID']
+  const ownershipPercentage = localStorage['ownershipPercentage']
+  const sellPercentage = localStorage['sellPercentage']
+  const sellThreshold = localStorage['sellThreshold']
+  const sellPrice = localStorage['sellPrice']
   const fetchId = async () => {
     try {
       const q = query(collection(db, 'users'), where('uid', '==', user?.uid))
       const doc = await getDocs(q)
       const data = doc.docs[0].data()
-      setId(data.id)
+      setID(data.realEstateID)
       setLoading(false)
-      console.log(id)
+      console.log(realEstateID)
     } catch (err) {
       console.error(err)
       // alert('An error occured while fetching user data')
@@ -40,13 +49,23 @@ function Contract() {
     fetchId()
   })
   const onFinish = (e: unknown) => {
-    // let id:string
-    let buyerID: string
+    // let realEstateID:string
+    // let buyerID: string
     const buyPercentage: string = e['Buy Percentage']
+    const value = (
+      (parseInt(sellPrice) / 100) *
+      parseInt(buyPercentage)
+    ).toString()
     const [result, loadResult] = useState('')
     const transferRealEstateResult = function () {
       api
-        .transferRealEstate(id, sellerID, buyerID, buyPercentage)
+        .transferRealEstate(
+          realEstateID,
+          sellerID,
+          buyerID,
+          buyPercentage,
+          value
+        )
         .then(allData => {
           loadResult(allData)
           return
@@ -82,11 +101,6 @@ function Contract() {
   //     })
   // }
   // console.log(data, 'neko')
-
-  const sellerID = `15705`
-  const sellerOwnership = `70`
-  const sellPercentage = `50`
-  const noRemain = '5'
 
   const html = (
     <>
@@ -131,11 +145,13 @@ function Contract() {
                     <p>
                       User: {sellerID}
                       <br />
-                      Own: {sellerOwnership}%
+                      Own: {ownershipPercentage}%
                       <br />
                       Sell Percentage: {sellPercentage}%
                       <br />
-                      No remain less than: {noRemain}%
+                      No remain less than: {sellThreshold}%
+                      <br />
+                      Sell Price (100%): {sellPrice} CW
                     </p>
                   </Card>
                 </Col>
@@ -194,6 +210,7 @@ function Contract() {
                     <div>
                       <h3>Payment Method</h3>
                       <Form.Item
+
                         name="Payment Method"
                         rules={[
                           {

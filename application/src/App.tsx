@@ -5,6 +5,8 @@ import Contract from './pages/Contract/Contract'
 import Dashboard from './pages/Dashboard/Dashboard'
 import TestDashboard from './DashboardTest/Dashboard'
 import Login from './Authentication/Login/Login'
+import PropertyDetails from './pages/PropertyDetail/PropertyDetail'
+import InfoUpload from './pages/InfoUpload/InfoUpload'
 
 function App() {
   return (
@@ -25,8 +27,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboardtest" element={<TestDashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/propertyinfo" element={<PropertyInfo />} />
-          <Route path="/contract" element={<Contract />} /> */}
+          {/* <Route path="/propertyinfo" element={<PropertyInfo />} /> */}
+          <Route path="/contract" element={<Contract />} />
         </Routes>
       </Router>
     </div>

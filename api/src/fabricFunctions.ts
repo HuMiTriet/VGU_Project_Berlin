@@ -330,7 +330,7 @@ export async function updateUser(
   membershipScore: string
 ): Promise<string> {
   try {
-    console.log('Update User')
+    console.log('*** Update User')
     const resultBytes = await contract.submitTransaction(
       'UpdateUser',
       id,
@@ -338,7 +338,7 @@ export async function updateUser(
       membershipScore
     )
     const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
+    const result = JSON.parse(JSON.stringify(resultJson))
     console.log('*** Result:', result)
     return result
   } catch (error: unknown) {
