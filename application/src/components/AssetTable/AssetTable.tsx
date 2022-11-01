@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { getUserRealEstate } from '../../API_handler/api'
 
 import Datatable from 'react-data-table-component'
@@ -26,47 +26,47 @@ const AssetTable = () => {
   const columns = [
     {
       name: 'Name',
-      selector: row => row.name,
+      selector: (row: RealEstate) => row.name,
       sortable: true
     },
     {
       name: 'Asset ID',
-      selector: row => row.id,
+      selector: (row: RealEstate) => row.id,
       sortable: true
     },
     {
       name: 'Location',
-      selector: row => row.location,
+      selector: (row: RealEstate) => row.location,
       sortable: true
     },
     {
       name: 'Membership Threshold',
-      selector: row => row.membershipThreshold,
+      selector: (row: RealEstate) => row.membershipThreshold,
       sortable: true
     },
     {
       name: 'Bath rooms',
-      selector: row => row.roomList.numOfBathroom,
+      selector: (row: RealEstate) => row.roomList.numOfBathroom,
       sortable: true
     },
     {
       name: 'Bed rooms',
-      selector: row => row.roomList.numOfBedroom,
+      selector: (row: RealEstate) => row.roomList.numOfBedroom,
       sortable: true
     },
     {
       name: 'Dining rooms',
-      selector: row => row.roomList.numOfDiningroom,
+      selector: (row: RealEstate) => row.roomList.numOfDiningroom,
       sortable: true
     },
     {
       name: 'Living rooms',
-      selector: row => row.roomList.numOfLivingroom,
+      selector: (row: RealEstate) => row.roomList.numOfLivingroom,
       sortable: true
     },
     {
       name: 'Listing',
-      selector: row => {
+      selector: (row: RealEstate) => {
         const ownerArray: Ownership[] = row.owners
         for (const owner of ownerArray) {
           if (owner.ownerID === userID) {
@@ -77,16 +77,18 @@ const AssetTable = () => {
       sortable: true
     }
     // {
-    //   name: "Listing",
-    //   selector: (row) => {
-    //     const ownersList = JSON.parse(row.owners)
-    //     ownersList.forEach((owner) => {
-    //       owner.ownerID === userID ? console.log("true") : console.log("false")
-    //     })
-    //   },
-    //   sortable: true,
-    // },
+    //   name: 'edit',
+    //   cell: row => (
+    //     <button onClick={clickHandler} id={row.id}>
+    //       Action
+    //     </button>
+    //   )
+    // }
   ]
+
+  // let clickHandler = state => {
+  //   console.log(state.target.id)
+  // }
 
   useEffect(() => {
     getAssets()
@@ -100,11 +102,36 @@ const AssetTable = () => {
       pagination
       fixedHeader
       fixedHeaderScrollHeight="400px"
-      selectableRows
+      selectableRowsSingle
       selectableRowsHighlight
       highlightOnHover
       actions={<Button className="btn btn-info">Export</Button>}
       subHeader
+      onRowClicked={(row, event) => {
+        // show the pop up Form
+        return (
+          <div>
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input className="form-control" id="name" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Email address</label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                placeholder="name@example.com"
+              />
+            </div>
+            <div className="form-group">
+              <button className="form-control btn btn-primary" type="submit">
+                Submit
+              </button>
+            </div>
+          </div>
+        )
+      }}
       subHeaderComponent={
         <input
           type="text"

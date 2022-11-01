@@ -85,11 +85,9 @@ const Navbar = () => {
               onChange={(e: any) => {
                 if (e === 'mychannel') {
                   localStorage.setItem('channel', 'mychannel')
-                  alert('Switched to mychannel channel')
                   window.location.reload()
                 } else if (e === 'business') {
                   localStorage.setItem('channel', 'business')
-                  alert('Switched to business channel')
                   if (
                     localStorage['apiKey'] ===
                     'i9flae32-10dk-3849-1l44-19lqoexnveoq'
