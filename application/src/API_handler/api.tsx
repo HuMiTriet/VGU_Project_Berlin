@@ -340,6 +340,20 @@ async function mint(amount: string): Promise<string> {
 }
 
 /**
+ * Burn token
+ * @author Thai Hoang Tam
+ */
+async function burn(amount: string): Promise<string> {
+  const tokenResponse = await axios.post(`${tokenPath}/burn`, {
+    amount: amount
+  })
+  const data = tokenResponse.data
+  const status = tokenResponse.status
+  debug(CYAN, `burn:\n\t- Status: ${status}\n\t- Data: ${JSON.stringify(data)}`)
+  return JSON.stringify(data)
+}
+
+/**
  * Get account balance
  * @author Thai Hoang Tam
  */
@@ -369,5 +383,6 @@ export {
   assetExists,
   transferRealEstate,
   mint,
+  burn,
   getAccountBalance
 }

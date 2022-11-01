@@ -238,8 +238,6 @@ export let contractBusinessBasic2: Contract
 export let contractBusinessToken2: Contract
 export let contractMychannelBasic2: Contract
 export let contractMychannelToken2: Contract
-export let contractBusinessBasic3: Contract
-export let contractBusinessToken3: Contract
 export let contractMychannelBasic3: Contract
 export let contractMychannelToken3: Contract
 // export let contract2: Contract
@@ -322,6 +320,7 @@ export async function main(): Promise<void> {
       return { deadline: Date.now() + 60000 } // 1 minute
     }
   })
+
   const gatewayMinter1 = connect({
     client: client1,
     identity: await newIdentity(mspId1, certPathMinter1),
@@ -379,53 +378,34 @@ export async function main(): Promise<void> {
 
   try {
     // Get a network instance representing the channel where the smart contract is deployed.
-    const network1 = gateway1.getNetwork(channelName)
+    const network1 = gatewayMinter1.getNetwork(channelName)
     contractMychannelBasic1 = network1.getContract(chaincodeNameBasic)
     contractMychannelToken1 = network1.getContract(chaincodeNameToken)
     const businessNerwork1 = gatewayMinter1.getNetwork(channelNameBusiness)
     contractBusinessBasic1 = businessNerwork1.getContract(chaincodeNameBasic)
     contractBusinessToken1 = businessNerwork1.getContract(chaincodeNameToken)
 
-    const network2 = gateway2.getNetwork(channelName)
+    const network2 = gatewayMinter2.getNetwork(channelName)
     contractMychannelBasic2 = network2.getContract(chaincodeNameBasic)
     contractMychannelToken2 = network2.getContract(chaincodeNameToken)
     const businessNerwork2 = gatewayMinter2.getNetwork(channelNameBusiness)
     contractBusinessBasic2 = businessNerwork2.getContract(chaincodeNameBasic)
     contractBusinessToken2 = businessNerwork2.getContract(chaincodeNameToken)
 
-    const network3 = gateway3.getNetwork(channelName)
+    const network3 = gatewayMinter3.getNetwork(channelName)
     contractMychannelBasic3 = network3.getContract(chaincodeNameBasic)
     contractMychannelToken3 = network3.getContract(chaincodeNameToken)
-    const businessNerwork3 = gatewayMinter3.getNetwork(channelNameBusiness)
-    contractBusinessBasic3 = businessNerwork3.getContract(chaincodeNameBasic)
-    contractBusinessToken3 = businessNerwork3.getContract(chaincodeNameToken)
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
     await fabric.initLedger(contractMychannelBasic1)
-    // await fabric.canTransferRealEstate(
-    //   contract1,
-    //   'asset1',
-    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
-    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
-    //   '10'
-    // )
+    await fabric.initLedger(contractBusinessBasic1)
+    await token.Mint(contractMychannelToken1, '500')
+    await token.Mint(contractMychannelToken2, '500')
+    await token.Mint(contractMychannelToken3, '500')
+    await token.Mint(contractBusinessToken1, '500')
+    await token.Mint(contractBusinessToken2, '500')
     await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
-    // await token.Mint(contractBusinessBasic1, '500')
-    // await token.Mint(contractBusiness2, '500')
-    // await token.Mint(contractBusiness3, '500')
-    // await token.canTransferToken(
-    //   contractBusinessBasic1,
-    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
-    //   '100'
-    // )
-    // await token.burn(contractBusinessBasic1, '400')
-    // await token.clientAccountBalance(contractBusinessBasic1)
-    // await token.clientAccountID(contractBusinessBasic1)
-    // await token.transferToken(
-    //   contractBusinessBasic1,
-    //   'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
-    //   '10'
-    // )
+    await token.Initialize(contractBusinessToken1, 'CW', 'CW', '3')
   } finally {
     // gateway1.close()
     // client1.close()
