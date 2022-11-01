@@ -1,14 +1,13 @@
 import { Avatar } from '@mui/material'
-import { useEffect, useState } from 'react'
 import { Button, Form, Input } from 'antd'
-import { getAccountBalance, readAsset } from '../../API_handler/api'
+import { useEffect, useState } from 'react'
+import { getAccountBalance, mint, readAsset } from '../../API_handler/api'
 import CurrentBalance from '../../assets/images/balance.png'
 import Membership from '../../assets/images/membercard.png'
 import CurrentOrg from '../../assets/images/organization.png'
 import ProfileImage from '../../assets/images/profile.jpg'
 import Navbar from '../../components/Navbar'
 import { User } from '../../resources/user'
-import { mint } from '../../API_handler/api'
 import './Profile.css'
 
 function numberWithComma(number: string) {
