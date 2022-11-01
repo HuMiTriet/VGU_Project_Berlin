@@ -75,9 +75,13 @@ export async function Initialize(
   symbol: string,
   decimals: string
 ): Promise<void> {
-  console.log('*** Initialize Token')
-  await contract.submitTransaction('Initialize', name, symbol, decimals)
-  console.log('*** Init token successfully')
+  try {
+    console.log('*** Initialize Token')
+    await contract.submitTransaction('Initialize', name, symbol, decimals)
+    console.log('*** Init token successfully')
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 /**

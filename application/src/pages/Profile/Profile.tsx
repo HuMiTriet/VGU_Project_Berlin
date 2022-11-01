@@ -98,11 +98,9 @@ function Profile() {
           </div>
         </div>
         <Form
-          onFinish={e => {
+          onFinish={async e => {
             const amountToken = e.token
-            setTimeout(() => {
-              mint(amountToken)
-            }, 0)
+            await mint(amountToken)
             window.location.reload()
           }}
         >
