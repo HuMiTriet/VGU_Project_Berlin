@@ -1,13 +1,15 @@
-import './Profile.css'
 import { Avatar } from '@mui/material'
-import Navbar from '../../components/Navbar'
-import ProfileImage from '../../assets/images/profile.jpg'
-import CurrentBalance from '../../assets/images/balance.png'
-import CurrentOrg from '../../assets/images/organization.png'
-import Membership from '../../assets/images/membercard.png'
-import { getAccountBalance, readAsset } from '../../API_handler/api'
 import { useEffect, useState } from 'react'
+import { Button, Form, Input } from 'antd'
+import { getAccountBalance, readAsset } from '../../API_handler/api'
+import CurrentBalance from '../../assets/images/balance.png'
+import Membership from '../../assets/images/membercard.png'
+import CurrentOrg from '../../assets/images/organization.png'
+import ProfileImage from '../../assets/images/profile.jpg'
+import Navbar from '../../components/Navbar'
 import { User } from '../../resources/user'
+import { mint } from '../../API_handler/api'
+import './Profile.css'
 
 function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -96,6 +98,32 @@ function Profile() {
             </p>
           </div>
         </div>
+        <Form
+          onFinish={e => {
+            const amountToken = e.token
+            setTimeout(() => {
+              mint(amountToken)
+            }, 0)
+            window.location.reload()
+          }}
+        >
+          Mint Token
+          <Form.Item
+            name="token"
+            id="token"
+            rules={[
+              {
+                required: true,
+                message: 'Please enter token amount'
+              }
+            ]}
+          >
+            <Input placeholder="Amount of tokens to be minted" />
+          </Form.Item>
+          <Button type="primary" htmlType="submit">
+            Mint
+          </Button>
+        </Form>
       </div>
     </>
   )
