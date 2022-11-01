@@ -5,8 +5,9 @@ import ProfileImage from '../../assets/images/profile.jpg'
 import CurrentBalance from '../../assets/images/balance.png'
 import CurrentOrg from '../../assets/images/organization.png'
 import Membership from '../../assets/images/membercard.png'
-import { getAccountBalance } from '../../API_handler/api'
+import { getAccountBalance, readAsset } from '../../API_handler/api'
 import { useEffect, useState } from 'react'
+import { User } from '../../resources/user'
 
 function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -15,22 +16,37 @@ function numberWithComma(number: string) {
 function Profile() {
   const userName = 'Dan Duong'
   const userID = localStorage['userID']
-  const [balance, setBalance] = useState('')
+  const [balance, setBalance] = useState('0')
+  const [membershipScore, setMembershipScore] = useState('0')
 
   const currentChannel = localStorage['channel']
+
   // Variables for Balance, Org & Membership score
 
-  // const currentBalance = await getAccountBalanceWrapper()
+  const getMembershipScore = async () => {
+    try {
+      const response = await readAsset(userID)
+      const user: User = JSON.parse(response)
+      setMembershipScore(String(user.membershipScore))
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   // const getBalance = async () => {
   //   const balance = await getAccountBalance()
   //   setBalance(balance)
   // }
 
+  useEffect(() => {
+    getMembershipScore()
+  }, [])
+
   // useEffect(() => {
   //   getBalance()
   // }, [])
 
-  const membershipScore = '50'
+  // const membershipScore = '50'
 
   return (
     <>
