@@ -131,7 +131,7 @@ const Navbar = () => {
                   )
                   localStorage.setItem(
                     'userID',
-                    'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=recipient::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com'
+                    'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com'
                   )
                   console.log('Changed to Organization 2')
                   window.location.reload()
