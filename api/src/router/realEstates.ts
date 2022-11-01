@@ -192,7 +192,7 @@ realEstatesRouter.put(
         await token.canTransferToken(contractToken, sellerID, value)
       } catch (error: any) {
         console.log('>>> Error', error)
-        throw error.details[0].message
+        return res.status(BAD_REQUEST).send(error.details[0].message)
       }
       const result = await fabric.transferRealEstate(
         contractBasic,
@@ -211,7 +211,7 @@ realEstatesRouter.put(
         .json({ realEstateResult: result, tokenResult: tokenResult })
     } catch (error: any) {
       console.log(error)
-      throw error.details[0].message
+      res.status(INTERNAL_SERVER_ERROR).send(error.details[0].message)
     }
   }
 )
