@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{hyperref}
 \usepackage{listings}
-% \usepackage{forest}
+\usepackage{forest}
 \usepackage{multicol}
 \usepackage{fancyhdr}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -19,14 +19,14 @@
 \setlength{\oddsidemargin}{0in} 
 \setlength{\textwidth}{6.8in}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcounter{mycounter} 
-\newcommand\showmycounter{\stepcounter{mycounter}\themycounter}
-\newcommand\showlips{\stepcounter{mycounter}\lipsum[\value{mycounter}]}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcounter{mycounter} 
+\newcommand\showmycounter{\stepcounter{mycounter}\themycounter}
+\newcommand\showlips{\stepcounter{mycounter}\lipsum[\value{mycounter}]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},   
@@ -58,10 +58,19 @@
 \begin{document}
     \maketitle
     \begin{multicols}{2}
-        \begin{enumerate}
-            \item Front-end
-            \item Back-end
-            \item API
-        \end{enumerate}
+        \section{Abstract} 
+            Real As-stated, a website of Berlin team, offers a real estate trading service.
+            Our primary goal is to incorporate blockchain technology into the real estate business model rather than the traditional model.
+            By using blockchain technology in general and Hyperledger Faric in particular, we archive the high transaction trading speed, data security and some special features compared to old-fashion model such as fractional trading, membership service.
+            Furthermore, we successfully launched our new cryptocurrency, Curry Wurst (CW), to support blockchain transactions.
+            The front-end is the website written in React Native and Typescript programming language.
+            In the back-end, we use Hyperledger Fabric to implement the core bussiness logic and Typescript to construct API routes to call functions from chaincode.
+        \section{Introduction}
+        \section{Architecture}
+            \subsection{Front-end}
+            \subsection{Back-end}
+                \subsubsection{API}
+                \subsubsection{Chaincode}
+        \section{Discussion}
     \end{multicols}
 \end{document} 
