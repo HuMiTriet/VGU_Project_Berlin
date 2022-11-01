@@ -397,15 +397,15 @@ export async function main(): Promise<void> {
     contractMychannelToken3 = network3.getContract(chaincodeNameToken)
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
-    await token.Initialize(contractBusinessToken1, 'CW', 'CW', '3')
     await fabric.initLedger(contractMychannelBasic1)
     await fabric.initLedger(contractBusinessBasic1)
+    await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
+    await token.Initialize(contractBusinessToken1, 'CW', 'CW', '3')
     await token.Mint(contractMychannelToken1, '500')
     await token.Mint(contractMychannelToken2, '500')
     await token.Mint(contractMychannelToken3, '500')
     await token.Mint(contractBusinessToken1, '500')
     await token.Mint(contractBusinessToken2, '500')
-    await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
   } finally {
     // gateway1.close()
     // client1.close()
