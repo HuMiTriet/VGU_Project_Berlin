@@ -14,39 +14,34 @@ function numberWithComma(number: string) {
 }
 
 function Profile() {
-  const userName = 'Dan Duong'
+  // const userName = 'Dan Duong'
   const userID = localStorage['userID']
   const [balance, setBalance] = useState('0')
+  const [name, setName] = useState('foobar')
   const [membershipScore, setMembershipScore] = useState('0')
 
   const currentChannel = localStorage['channel']
 
-  // Variables for Balance, Org & Membership score
-
-  const getMembershipScore = async () => {
+  const getUserInfo = async () => {
     try {
-      const response = await readAsset(userID)
+      const responsePromise = readAsset(userID)
+      const currentBalancePromise = getAccountBalance()
+      const [response, currentBalance] = await Promise.all([
+        responsePromise,
+        currentBalancePromise
+      ])
       const user: User = JSON.parse(response)
       setMembershipScore(String(user.membershipScore))
+      setName(user.name)
+      setBalance(currentBalance)
     } catch (error) {
       console.log(error)
     }
   }
 
-  // const getBalance = async () => {
-  //   const balance = await getAccountBalance()
-  //   setBalance(balance)
-  // }
-
   useEffect(() => {
-    getMembershipScore()
+    getUserInfo()
   }, [])
-
-  // useEffect(() => {
-  //   getBalance()
-  // }, [])
-
-  // const membershipScore = '50'
 
   return (
     <>
@@ -61,7 +56,7 @@ function Profile() {
             sx={{ width: 150, height: 150 }}
           />
           <p>
-            <h2>{userName}</h2>
+            <h2>{name}</h2>
             User ID: {userID}
           </p>
         </div>
