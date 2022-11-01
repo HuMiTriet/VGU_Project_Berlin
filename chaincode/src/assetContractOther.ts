@@ -1,7 +1,3 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- */
-// Deterministic JSON.stringify()
 import {
   Context,
   Contract,

@@ -1,7 +1,7 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
+/** * This class is exposed to index file to let user invoke chaincode functions
+ *
  */
-// Deterministic JSON.stringify()
+
 import {
   Context,
   Contract,
@@ -23,6 +23,11 @@ export class AssetContract extends Contract {
   private realEstateContract: RealEstateContract = new RealEstateContract()
   private assetContractOther: AssetContractOther = new AssetContractOther()
 
+  /**
+   * Initialize Assets' data in the world state
+   * @param ctx
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async InitLedger(ctx: Context): Promise<void> {
     await this.InitLedgerAsset(ctx)
@@ -39,6 +44,19 @@ export class AssetContract extends Contract {
     await this.userContract.InitLedgerUser(ctx)
   }
 
+  /**
+   * Function to create a new Real Estate in the world state.
+   * Delegates to RealEstateContract
+   * @param ctx
+   * @param id
+   * @param name
+   * @param roomListString
+   * @param areaString
+   * @param location
+   * @param OwnersString
+   * @param membershipThresholdString
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async CreateRealEstate(
     ctx: Context,
@@ -62,12 +80,32 @@ export class AssetContract extends Contract {
     )
   }
 
+  /**
+   * Function to create a new User in the world state.
+   * Delegates to UserContract
+   * @param ctx
+   * @param id
+   * @param name
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async CreateUser(ctx: Context, id: string, name: string) {
     await this.userContract.CreateUser(ctx, id, name)
   }
 
-  // UpdateAsset updates an existing asset in the world state with provided parameters.
+  /**
+   * Function to update already created RealEstate in the world state.
+   * Delegates to RealEstateContract
+   * @param ctx
+   * @param id
+   * @param name
+   * @param roomListString
+   * @param areaString
+   * @param location
+   * @param ownersString
+   * @param membershipThresholdString
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async UpdateRealEstate(
     ctx: Context,
@@ -91,6 +129,15 @@ export class AssetContract extends Contract {
     )
   }
 
+  /**
+   * Function to update already created User in the world state.
+   * Delegates to UserContract
+   * @param ctx
+   * @param id
+   * @param name
+   * @param membershipScoreString
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async UpdateUser(
     ctx: Context,
@@ -103,10 +150,11 @@ export class AssetContract extends Contract {
 
   /**
    * ReadAsset returns the asset stored in the world state with given id.
+   * Delegates to AssetContractOther.
    * @param {Context} ctx the transaction context
    * @param {string} AssetID the id of the asset (unique identifier)
    *  @returns {Promise<string>} the json object of the asset (stored in string format)
-   * @author Đinh Minh Hoàng
+   * @author Dinh Minh Hoang
    */
   @Transaction(false)
   @Returns('string')
@@ -114,19 +162,42 @@ export class AssetContract extends Contract {
     return await this.assetContractOther.ReadAsset(ctx, AssetID)
   }
 
-  // DeleteAsset deletes an given asset from the world state.
+  /**
+   * DeleteAsset deletes an given asset from the world state.
+   * Delegates to AssetContractOther.
+   * @param ctx
+   * @param AssetID
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async DeleteAsset(ctx: Context, AssetID: string): Promise<void> {
     await this.assetContractOther.DeleteAsset(ctx, AssetID)
   }
 
-  // AssetExists returns true when asset with given ID exists in world state.
+  /**
+   * AssetExists returns true when asset with given ID exists in world state.
+   * Delegates to AssetContractOther.
+   * @param ctx
+   * @param id
+   * @author Dinh Minh Hoang
+   *  */
   @Transaction(false)
   @Returns('boolean')
   public async AssetExists(ctx: Context, id: string): Promise<boolean> {
     return this.assetContractOther.AssetExists(ctx, id)
   }
 
+  /**
+   * Function to check if the Transfer of RealEstate will be successful or not.
+   * Must be run before TrasferRealEstate() function.
+   * Delegates to RealEstateContract.
+   * @param ctx
+   * @param realEstateID
+   * @param sellerID
+   * @param buyerID
+   * @param buyPercentageString
+   * @author Dinh Minh Hoang
+   */
   @Transaction(false)
   @Returns('boolean')
   public async CanTransferRealEstate(
@@ -145,7 +216,16 @@ export class AssetContract extends Contract {
     )
   }
 
-  // TransferAsset updates the owner field of asset with given id in the world state, and returns the old owner.
+  /**
+   * Function to Transfer a RealEstate.
+   * Delegates to RealEstateContract.
+   * @param ctx
+   * @param AssetID
+   * @param sellerID
+   * @param buyerID
+   * @param buyPercentageString
+   * @author Dinh Minh Hoang
+   */
   @Transaction()
   public async TransferRealEstate(
     ctx: Context,
@@ -163,20 +243,37 @@ export class AssetContract extends Contract {
     )
   }
 
-  // GetAllAssets returns all assets found in the world state.
+  /**
+   * GetAllAssets returns all assets found in the world state.
+   * Delegates to AssetContractOther.
+   * @param ctx
+   * @author Dinh Minh Hoang
+   */
   @Transaction(false)
   @Returns('string')
   public async GetAllAssets(ctx: Context): Promise<string> {
     return await this.assetContractOther.GetAllAssets(ctx)
   }
 
-  // GetAllAssets returns all assets found in the world state.
+  /**
+   * GetAllRealEstate returns all RealEstate found in the world state.
+   * Delegates to RealEstateContract.
+   * @param ctx
+   * @author Dinh Minh Hoang
+   */
   @Transaction(false)
   @Returns('string')
   public async GetAllRealEstate(ctx: Context): Promise<string> {
     return await this.realEstateContract.GetAllRealEstate(ctx)
   }
 
+  /**
+   * GetUserRealEstate returns all Real Estate owned by User (user identified by userID)
+   * Delegates to RealEstateContract.
+   * @param ctx
+   * @param userID
+   * @author Dinh Minh Hoang
+   */
   @Transaction(false)
   public async GetUserRealEstate(
     ctx: Context,
