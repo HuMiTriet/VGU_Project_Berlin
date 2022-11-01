@@ -10,7 +10,7 @@ import {
   Select,
   Typography
 } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import * as api from '../../API_handler/api'
 import Navbar from '../../components/Navbar'
 import './Contract.css'
@@ -28,19 +28,13 @@ function Contract() {
   const sellPercentage = localStorage['sellPercentage']
   const sellThreshold = localStorage['sellThreshold']
   const sellPrice = localStorage['sellPrice']
-  const transferRealEstateResult = function (buyPercentage, value) {
-    api
-      .transferRealEstate(realEstateID, sellerID, buyerID, buyPercentage, value)
-      .then(allData => {
-        loadResult(allData)
-        return
-      })
-      .catch(error => {
-        console.log(error)
-        alert(error.response.data)
-      })
-  }
-  const onFinish = (e: unknown) => {
+  // store the money that will be paid by the user
+  const [price, setPrice] = useState('0')
+
+  // function updateRealEstateValue(value: string) {
+
+  // }
+  function calculateValue(e): string {
     const buyPercentage: string = e['Buy Percentage']
 
     // Check if buy Percentage is an integer
@@ -56,12 +50,38 @@ function Contract() {
       buyPercentageInteger > parseInt(sellPercentage)
     ) {
       alert('Buy Percentage is smaller than 1 OR larger then sell Percentage')
+      return
     }
 
-    const value = (
+    const newValue = (
       (parseInt(sellPrice) / 100) *
       parseInt(buyPercentage)
     ).toString()
+
+    return newValue
+  }
+
+  const transferRealEstateResult = function (buyPercentage, value) {
+    api
+      .transferRealEstate(realEstateID, sellerID, buyerID, buyPercentage, value)
+      .then(allData => {
+        loadResult(allData)
+        setShowAlert(true)
+        setTimeout(() => {
+          window.open('/dashboard', '_self')
+        }, 5000)
+        return
+      })
+      .catch(error => {
+        console.log(error)
+        alert(error.response.data)
+      })
+  }
+
+  const onFinish = e => {
+    const buyPercentage: string = e['Buy Percentage']
+
+    const value = calculateValue(e)
     try {
       transferRealEstateResult(buyPercentage, value)
     } catch (err) {
@@ -69,9 +89,6 @@ function Contract() {
     }
     console.log(e)
     console.log(result)
-    setTimeout(() => {
-      setShowAlert(true)
-    }, 500)
   }
 
   // const [data, loadAllRealEstate] = useState('')
@@ -98,8 +115,7 @@ function Contract() {
           {showAlert && (
             <Alert
               type="success"
-              message="Transaction Completed Successfully"
-              description="asdcsvsdv"
+              message="Transaction Completed Successfully. Returning to Dashboard after 5s"
               closable
               showIcon
             />
@@ -147,6 +163,13 @@ function Contract() {
                     onFinish={e => {
                       onFinish(e)
                     }}
+                    onValuesChange={e => {
+                      const value = calculateValue(e)
+                      if (!isNaN(parseInt(value))) {
+                        setPrice(value)
+                      }
+                      console.log(e)
+                    }}
                     initialValues={{ remember: true }}
                   >
                     <div>
@@ -164,80 +187,24 @@ function Contract() {
                         <Input placeholder="Buy Percentage" />
                       </Form.Item>
                     </div>
-                    <div>
-                      <h3>Total</h3>
-                      <Form.Item
-                        name="total"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Please input Total number!'
-                          }
-                        ]}
-                      >
-                        <Input placeholder="Total" />
-                      </Form.Item>
-                    </div>
-                    <div>
-                      <h3>Other Services</h3>
-                      <Form.Item
-                        name="Other Services"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Other Service is required'
-                          }
-                        ]}
-                      >
-                        <Select placeholder="Cleaning">
-                          <Select.Option value="Cleaning">
-                            Cleaning
-                          </Select.Option>
-                          <Select.Option value="Insurance">
-                            Insurance
-                          </Select.Option>
-                        </Select>
-                      </Form.Item>
-                    </div>
-                    <div>
-                      <h3>Payment Method</h3>
-                      <Form.Item
-                        name="Payment Method"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Payment Method is required'
-                          }
-                        ]}
-                      >
-                        <Select placeholder="One-Time-Payment">
-                          <Select.Option value="One-Time-Payment">
-                            One-Time-Payment
-                          </Select.Option>
-                          <Select.Option value="Installment">
-                            Installment
-                          </Select.Option>
-                        </Select>
-                      </Form.Item>
-                    </div>
-                    <Form.Item>
-                      <Form.Item
-                        name="remember"
-                        valuePropName="checked"
-                        noStyle
-                        rules={[
-                          {
-                            validator: (_, value) =>
-                              value
-                                ? Promise.resolve()
-                                : Promise.reject('Should accept agreement')
-                          }
-                        ]}
-                      >
-                        <Checkbox>
-                          I have read and agree to Contract Terms and Agreement.
-                        </Checkbox>
-                      </Form.Item>
+
+                    <div>Price: {price}</div>
+                    <Form.Item
+                      name="remember"
+                      valuePropName="checked"
+                      noStyle
+                      rules={[
+                        {
+                          validator: (_, value) =>
+                            value
+                              ? Promise.resolve()
+                              : Promise.reject('Should accept agreement')
+                        }
+                      ]}
+                    >
+                      <Checkbox>
+                        I have read and agree to Contract Terms and Agreement.
+                      </Checkbox>
                     </Form.Item>
                     <Form.Item>
                       <Button type="primary" htmlType="submit">
