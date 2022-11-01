@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { getUserRealEstate } from '../../API_handler/api'
 
 import Datatable from 'react-data-table-component'
-import { Button } from 'react-bootstrap'
+//import { Button } from 'react-bootstrap'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
+import { Button } from 'antd'
+import React from 'react'
 
 const AssetTable = () => {
   // const [search, setSearch] = useState([]);
@@ -22,17 +24,87 @@ const AssetTable = () => {
     }
   }
 
+  const [selectedRows, setSelectedRows] = React.useState([])
+  const [toggleCleared, setToggleCleared] = React.useState(false)
+  const [data, setData] = React.useState(assets as RealEstate[])
+
+  const handleRowSelected = React.useCallback(state => {
+    setSelectedRows(state.selectedRows)
+  }, [])
+
+  const contextActions = React.useMemo(() => {
+    const handleDelete = () => {
+      if (
+        window.confirm(
+          `Are you sure you want to delete:\r ${selectedRows.map(
+            r => r.name
+          )}?`
+        )
+      ) {
+        setToggleCleared(!toggleCleared)
+        //setData(differenceBy(data, selectedRows, 'title'));
+      }
+    }
+
+    const handleEdit = () => {
+      if (
+        window.confirm(
+          `Are you sure you want to edit:\r ${selectedRows.map(r => r.name)}?`
+        )
+      ) {
+        setToggleCleared(!toggleCleared)
+        //setData(differenceBy(data, selectedRows, 'title'));
+      }
+    }
+
+    if (selectedRows.length === 1) {
+      return (
+        <div>
+          <Button
+            key="Edit"
+            onClick={handleEdit}
+            style={{ backgroundColor: 'yellow' }}
+            icon
+          >
+            Edit
+          </Button>
+          <Button
+            key="delete"
+            onClick={handleDelete}
+            style={{ backgroundColor: 'red' }}
+            icon
+          >
+            Delete
+          </Button>
+        </div>
+      )
+    }
+
+    return (
+      <Button
+        key="delete"
+        onClick={handleDelete}
+        style={{ backgroundColor: 'red' }}
+        icon
+      >
+        Delete
+      </Button>
+    )
+  }, [data, selectedRows, toggleCleared])
+
   // Columns for table, data is from country data
   const columns = [
     {
       name: 'Name',
       selector: (row: RealEstate) => row.name,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Asset ID',
       selector: (row: RealEstate) => row.id,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Location',
@@ -42,7 +114,8 @@ const AssetTable = () => {
     {
       name: 'Membership Threshold',
       selector: (row: RealEstate) => row.membershipThreshold,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Bath rooms',
@@ -121,21 +194,26 @@ const AssetTable = () => {
       pagination
       fixedHeader
       fixedHeaderScrollHeight="500px"
-      selectableRowsSingle
+      selectableRows
       selectableRowsHighlight
       highlightOnHover
-      actions={<Button className="btn btn-info">Export</Button>}
+      //actions={<Button className="btn btn-info">Export</Button>}
       subHeader
-      onRowClicked={(row: RealEstate) => {}}
-      subHeaderComponent={
-        <input
-          type="text"
-          className="w-25 form-control"
-          placeholder="Search here"
-          // value={search}
-          // onChange={() => setSearch(e.target.value)}
-        />
-      }
+      onSelectedRowsChange={handleRowSelected}
+      contextActions={contextActions}
+      clearSelectedRows={toggleCleared}
+      onRowClicked={(row: RealEstate) => {
+        console.log(row)
+      }}
+      // subHeaderComponent={
+      //   <input
+      //     type="text"
+      //     className="w-25 form-control"
+      //     placeholder="Search here"
+      //     // value={search}
+      //     // onChange={() => setSearch(e.target.value)}
+      //   />
+      // }
     />
   )
 }
