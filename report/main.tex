@@ -1,0 +1,76 @@
+\documentclass[11pt, a4paper, twoside, table, xcdraw]{report}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{svg}
+\usepackage{listings}
+\usepackage{textcomp}
+
+\usepackage{graphicx}
+% \usepackage[table,xcdraw]{xcolor}
+% If you use beamer only pass "xcolor=table" option, i.e. \documentclass[xcolor=table]{beamer}
+\usepackage{lscape}
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Title}
+\author{Your Name}
+
+
+\begin{document}
+
+\input{title/title.tex}
+
+\tableofcontents
+
+
+
+% \chapter{\centering Declaration}
+% % \begin{declaration}
+% % 	\addchaptertocentry{\authorshipname} % Add the declaration to the table of contents
+% 	\noindent We declare that this project report titled, Java group project 15 - Time Scheduler and the work presented in it are of our own. We 
+% 	confirm that:
+
+% 	\begin{itemize}
+% 		\item This work was done wholly or mainly while participating in the the Java OOP course at Frankfurt University of Applied Sciences.
+% 		\item Where any part of this project has previously been submitted for a degree or any other qualification at this University or any other institution, this has been clearly stated.
+% 		\item Where we have consulted the published work of others, this is always clearly attributed.
+% 		\item Where we have quoted from the work of others, the source is always given. With the exception of such quotations, this project is entirely is our work.
+% 		\item we have acknowledged all main sources of help.
+% 		\item Where the project's code is based on work done by individual members
+% 		      or jointly with others, we have made clear exactly what was done
+% 		      by multiple members or done by one member.\\
+% 	\end{itemize}
+
+% 	\noindent Signed:\\
+% 	\rule[0.5em]{25em}{0.5pt} % This prints a line for the signature
+
+% 	\noindent Date:\\
+% 	\rule[0.5em]{25em}{0.5pt} % This prints a line to write the date
+% % \end{declaration}
+
+% Put all of your chapters here
+\input{chapters/project_motivation}
+% \input{chapters/project_description}
+% \input{chapters/team_organization}
+\input{chapters/requirements}
+\input{chapters/Gantt_chart}
+\input{chapters/Software}
+\input{chapters/diagrams}
+\input{chapters/challenges}
+\input{chapters/conclusion}
+\input{chapters/Sources}
+
+
+\listoffigures
+
+\end{document}

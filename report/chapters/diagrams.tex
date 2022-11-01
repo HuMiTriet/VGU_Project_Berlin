@@ -1,0 +1,11 @@
+\chapter{\centering Diagrams}
+
+\section{Class diagram}
+\emph{Author: Jorge Vanegas A. - 1333459\\
+Co-Author: Minh Triet Huynh - 1370690}\\
+\\The central role is conducted by the User class as it contains the current user information. This is stored in the remote database "DbConnection".
+\par To prompt and enter the software the LoginPage will first check the credentials of User from the database, and if they are not registered the SignUpPage then plays the key role in creating a new users and updating the remote database with the new user's data. To be able to gain access to the admin page a check
+of the user's credentials similar to one done in Loginpage is also done.
+% AdminPage must also check the administrative credentials of the same database. 
+
+\par The only difference is in our local database, implemented to reduce queries latency, and its relationship with the CalendarView, as in our main event. For example there the events are locally stored for ease of access and updates.\\
