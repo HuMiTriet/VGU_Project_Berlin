@@ -521,7 +521,7 @@ case "$OPTION" in
     ALL_ID=$(docker ps -a | awk '/^CONTAINER/ {next} ;{print $1}')
 
     for ID in $ALL_ID; do
-      docker stop "$ID"
+      docker stop -t 3 "$ID"
     done
     ;;
   o1)
