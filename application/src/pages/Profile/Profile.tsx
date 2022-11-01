@@ -16,9 +16,9 @@ function numberWithComma(number: string) {
 function Profile() {
   // const userName = 'Dan Duong'
   const userID = localStorage['userID']
-  const [balance, setBalance] = useState('0')
-  const [name, setName] = useState('foobar')
-  const [membershipScore, setMembershipScore] = useState('0')
+  const [balance, setBalance] = useState('loading...')
+  const [name, setName] = useState('loading...')
+  const [membershipScore, setMembershipScore] = useState('loading...')
 
   const currentChannel = localStorage['channel']
 

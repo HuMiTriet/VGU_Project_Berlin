@@ -45,6 +45,11 @@ const AssetTable = () => {
       sortable: true
     },
     {
+      name: 'Area',
+      selector: (row: RealEstate) => row.area,
+      sortable: true
+    },
+    {
       name: 'Bath rooms',
       selector: (row: RealEstate) => row.roomList.numOfBathroom,
       sortable: true
