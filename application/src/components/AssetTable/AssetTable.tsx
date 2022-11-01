@@ -126,7 +126,7 @@ const AssetTable = () => {
       highlightOnHover
       actions={<Button className="btn btn-info">Export</Button>}
       subHeader
-      onRowClicked={(row: RealEstate, event) => {}}
+      onRowClicked={(row: RealEstate) => {}}
       subHeaderComponent={
         <input
           type="text"

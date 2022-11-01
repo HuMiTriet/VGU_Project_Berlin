@@ -21,16 +21,14 @@ function Profile() {
   // Variables for Balance, Org & Membership score
 
   // const currentBalance = await getAccountBalanceWrapper()
-  const getBalance = async () => {
-    const balance = await getAccountBalance()
-    setBalance(balance)
-  }
+  // const getBalance = async () => {
+  //   const balance = await getAccountBalance()
+  //   setBalance(balance)
+  // }
 
-  useEffect(() => {
-    getBalance()
-  }, [])
-
-  // const currentBalance = '2000'
+  // useEffect(() => {
+  //   getBalance()
+  // }, [])
 
   const membershipScore = '50'
 
