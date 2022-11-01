@@ -55,7 +55,7 @@ async function getUserRealEstate(userID: string): Promise<string> {
   console.log('Get user real estate')
   const query = `?userID=${userID}`
   const assetsResponse = await axios.get(
-    `${assetPath}/getUserRealEstate${query}`
+    `${realEstatePath}/getUserRealEstate${query}`
   )
   const data = assetsResponse.data
   const status = assetsResponse.status
@@ -115,10 +115,16 @@ async function createRealEstate(
     owners: JSON.parse(owners),
     membershipThreshold: membershipThreshold
   }
-  const createRealEstateResponse = await axios.post(
-    `${realEstatePath}/create`,
-    realEstateData
-  )
+  let createRealEstateResponse
+  try {
+    createRealEstateResponse = await axios.post(
+      `${realEstatePath}/create`,
+      realEstateData
+    )
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
   const data = createRealEstateResponse.data
   const status = createRealEstateResponse.status
   debug(

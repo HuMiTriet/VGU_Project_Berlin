@@ -1,0 +1,103 @@
+.Profile {
+  position: relative;
+  margin: auto;
+}
+.Profile h1 {
+  margin-left: 30px;
+  margin-bottom: 40px;
+  text-align: left;
+  color: #370257;
+}
+
+.Profile .info-basic {
+  position: relative;
+  display: flex;
+  /* Align info-basic container bottom with avatar */
+  align-items: bottom;
+  justify-content: center;
+  width: 60vw;
+  margin: auto;
+  border-style: solid;
+  border-radius: 20px;
+  border-color: #cdb6dc;
+  background-color: #f3f3fa;
+}
+.Profile .info-basic .avatar,
+.Profile .info-basic p {
+  margin: 10px 20px;
+}
+.Profile .info-basic .avatar {
+  border-style: solid;
+  border-color: #f3f3fa;
+}
+.Profile .info-basic p {
+  color: #000;
+  margin: 20px 0;
+}
+.Profile .info-basic p h2 {
+  font-size: 30px;
+  color: #370257;
+  margin: 20px 0;
+}
+
+.Profile .other-info {
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+}
+
+.Profile .other-info .current-balance {
+  height: auto;
+  width: auto;
+  margin: 40px 30px;
+  position: relative;
+  display: flex;
+  text-align: center;
+  /* border-style: solid;
+  border-radius: 10px; */
+}
+.Profile .other-info .current-balance p {
+  margin: auto;
+  font-size: 20px;
+  font-weight: 700;
+}
+.Profile .other-info .current-balance h3 {
+  color: #a482b9;
+  margin: 10px 20px;
+}
+
+.Profile .other-info .current-org {
+  height: auto;
+  width: auto;
+  margin: 40px 30px;
+  position: relative;
+  display: flex;
+  text-align: center;
+}
+.Profile .other-info .current-org p {
+  margin: auto;
+  font-size: 20px;
+  font-weight: 700;
+}
+.Profile .other-info .current-org h3 {
+  color: #a482b9;
+  margin: 10px 20px;
+}
+
+.Profile .other-info .membership {
+  height: auto;
+  width: auto;
+  margin: 40px 30px;
+  position: relative;
+  display: flex;
+  text-align: center;
+}
+.Profile .other-info .membership p {
+  margin: auto;
+  font-size: 20px;
+  font-weight: 700;
+}
+.Profile .other-info .membership h3 {
+  color: #a482b9;
+  margin: 10px 20px;
+}
