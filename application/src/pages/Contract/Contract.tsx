@@ -10,12 +10,9 @@ import {
   Select,
   Typography
 } from 'antd'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
-import { useAuthState } from 'react-firebase-hooks/auth'
+import { useState } from 'react'
 import * as api from '../../API_handler/api'
 import Navbar from '../../components/Navbar'
-import { auth, db } from '../../firebase'
 import './Contract.css'
 
 /**
@@ -23,61 +20,51 @@ import './Contract.css'
  */
 function Contract() {
   const [showAlert, setShowAlert] = useState(false)
-  const [user, loading] = useAuthState(auth)
-  const [idLoading, setLoading] = useState(true)
-  const [buyerID, setID] = useState('')
+  const [result, loadResult] = useState('')
+  const buyerID = localStorage['userID']
   const realEstateID = localStorage['realEstateID']
   const sellerID = localStorage['sellerID']
   const ownershipPercentage = localStorage['ownershipPercentage']
   const sellPercentage = localStorage['sellPercentage']
   const sellThreshold = localStorage['sellThreshold']
   const sellPrice = localStorage['sellPrice']
-  const fetchId = async () => {
-    try {
-      const q = query(collection(db, 'users'), where('uid', '==', user?.uid))
-      const doc = await getDocs(q)
-      const data = doc.docs[0].data()
-      setID(data.realEstateID)
-      setLoading(false)
-      console.log(realEstateID)
-    } catch (err) {
-      console.error(err)
-      // alert('An error occured while fetching user data')
-    }
+  const transferRealEstateResult = function (buyPercentage, value) {
+    api
+      .transferRealEstate(realEstateID, sellerID, buyerID, buyPercentage, value)
+      .then(allData => {
+        loadResult(allData)
+        return
+      })
+      .catch(error => {
+        console.log(error)
+        alert(error.response.data)
+      })
   }
-  useEffect(() => {
-    fetchId()
-  })
   const onFinish = (e: unknown) => {
-    // let realEstateID:string
-    // let buyerID: string
     const buyPercentage: string = e['Buy Percentage']
+
+    // Check if buy Percentage is an integer
+    const re = /^[0-9\b]+$/
+    console.log(
+      'Buy Percentage is a Positive Integer? ' + re.test(buyPercentage)
+    )
+
+    //Check if buy percentage is from 1 to 100
+    const buyPercentageInteger = parseInt(buyPercentage)
+    if (
+      buyPercentageInteger < 1 ||
+      buyPercentageInteger > parseInt(sellPercentage)
+    ) {
+      alert('Buy Percentage is smaller than 1 OR larger then sell Percentage')
+    }
+
     const value = (
       (parseInt(sellPrice) / 100) *
       parseInt(buyPercentage)
     ).toString()
-    const [result, loadResult] = useState('')
-    const transferRealEstateResult = function () {
-      api
-        .transferRealEstate(
-          realEstateID,
-          sellerID,
-          buyerID,
-          buyPercentage,
-          value
-        )
-        .then(allData => {
-          loadResult(allData)
-          return
-        })
-        .catch((error: unknown) => {
-          console.log(error)
-        })
-    }
     try {
-      transferRealEstateResult()
+      transferRealEstateResult(buyPercentage, value)
     } catch (err) {
-      // err box
       console.log(err)
     }
     console.log(e)
@@ -156,7 +143,12 @@ function Contract() {
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Form onFinish={onFinish} initialValues={{ remember: true }}>
+                  <Form
+                    onFinish={e => {
+                      onFinish(e)
+                    }}
+                    initialValues={{ remember: true }}
+                  >
                     <div>
                       <h3>Buy Percentage</h3>
                       <Form.Item
@@ -210,7 +202,6 @@ function Contract() {
                     <div>
                       <h3>Payment Method</h3>
                       <Form.Item
-
                         name="Payment Method"
                         rules={[
                           {
@@ -263,11 +254,7 @@ function Contract() {
     </>
   )
 
-  if (idLoading) {
-    return <div>Loading</div>
-  } else {
-    return html
-  }
+  return html
 }
 
 export default Contract

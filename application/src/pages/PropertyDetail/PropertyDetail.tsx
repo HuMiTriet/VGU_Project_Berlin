@@ -11,19 +11,15 @@ import { BsBuilding, BsLayoutTextWindow } from 'react-icons/bs'
 import { SlLocationPin } from 'react-icons/sl'
 import { IconContext } from 'react-icons'
 import Button from 'react-bootstrap/Button'
-import * as api from '../../API_handler/api'
 import { useEffect, useState } from 'react'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 import { Link } from 'react-router-dom'
-import { RoomType } from '../../resources/roomType'
-import { randomBytes } from 'crypto'
 
 function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 function PropertyDetail() {
-  const id = localStorage['realEstateID']
   const realEstate: RealEstate = JSON.parse(localStorage['realEstate'])
   const propertyName = realEstate.name
   const propertyPriceMin = localStorage['sellPriceMin']
@@ -51,74 +47,62 @@ function PropertyDetail() {
   const propertyDescription =
     '5 floors, Japanese garden (35 m2), terrace (27.09 m2), balcony (6.63 m2)'
 
-  const [isLoading, setLoading] = useState(true)
+  const [isLoading, setLoading] = useState(false)
   const [html] = useState([])
-  const realEstateInfo = function () {
-    api
-      .readAsset(id)
-      .then(allData => {
-        const info: RealEstate = JSON.parse(allData)
-        info.owners.forEach(function (owner: Ownership) {
-          // api.readAsset(owner.ownerID).then(owner)
-          html.push(
-            <div className="ownership child">
-              <p>
-                <b>User ID: </b> {owner.ownerID}
-              </p>
-              <p>
-                <b>Own: </b> {owner.ownershipPercentage}%
-              </p>
-              <p>
-                <b>Sell percentage: </b> {owner.sellPercentage}%
-              </p>
-              <p>
-                <b>Sell price: </b> {owner.sellPrice}
-              </p>
-              <p>
-                <b>Remain no less than </b> {owner.sellThreshold}%{' '}
-              </p>
+  const showRealEstateInfo = () => {
+    realEstate.owners.forEach(function (owner: Ownership) {
+      if (owner.isSeller) {
+        html.push(
+          <div className="ownership child">
+            <p>
+              <b>User ID: </b> {owner.ownerID}
+            </p>
+            <p>
+              <b>Own: </b> {owner.ownershipPercentage}%
+            </p>
+            <p>
+              <b>Sell percentage: </b> {owner.sellPercentage}%
+            </p>
+            <p>
+              <b>Sell price: </b> {owner.sellPrice}
+            </p>
+            <p>
+              <b>Remain no less than </b> {owner.sellThreshold}%{' '}
+            </p>
 
-              <Link to="/contract">
-                <Button
-                  className="btn-purchase btn-l"
-                  variant="purchase"
-                  onClick={() => {
-                    localStorage.setItem('sellerID', owner.ownerID)
-                    localStorage.setItem(
-                      'ownershipPercentage',
-                      owner.ownershipPercentage.toString()
-                    )
-                    localStorage.setItem(
-                      'sellThreshold',
-                      owner.sellThreshold.toString()
-                    )
-                    localStorage.setItem(
-                      'sellPercentage',
-                      owner.sellPercentage.toString()
-                    )
-                    localStorage.setItem(
-                      'sellPrice',
-                      owner.sellPrice.toString()
-                    )
-                  }}
-                >
-                  Make Purchase
-                </Button>
-              </Link>
-            </div>
-          )
-        })
-        setLoading(false)
-        return
-      })
-      .catch((error: unknown) => {
-        console.log(error)
-      })
+            <Link to="/contract">
+              <Button
+                className="btn-purchase btn-l"
+                variant="purchase"
+                onClick={() => {
+                  localStorage.setItem('sellerID', owner.ownerID)
+                  localStorage.setItem(
+                    'ownershipPercentage',
+                    owner.ownershipPercentage.toString()
+                  )
+                  localStorage.setItem(
+                    'sellThreshold',
+                    owner.sellThreshold.toString()
+                  )
+                  localStorage.setItem(
+                    'sellPercentage',
+                    owner.sellPercentage.toString()
+                  )
+                  localStorage.setItem('sellPrice', owner.sellPrice.toString())
+                }}
+              >
+                Make Purchase
+              </Button>
+            </Link>
+          </div>
+        )
+      }
+    })
   }
-  realEstateInfo()
-  // useEffect(() => {
-  //   realEstateInfo()
-  // })
+  showRealEstateInfo()
+  useEffect(() => {
+    setLoading(false)
+  })
 
   if (isLoading) {
     return <div>Loading</div>

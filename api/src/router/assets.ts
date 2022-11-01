@@ -9,10 +9,11 @@ export const assetsRouter: Router = express.Router()
  * Get all assets
  * @author Thai Hoang Tam, Nguyen Khoa
  */
-assetsRouter.get('/getAll', async (req: Request, res: Response) => {
+assetsRouter.get('/:channel/getAll', async (req: Request, res: Response) => {
   try {
     const msp = <string>req.user
-    const contract = req.app.locals[msp + 'public']
+    const channel = req.params.channel
+    const contract = req.app.locals[msp + channel + 'basic']
     const assets = await fabric.getAllAssets(contract)
     return res.status(ACCEPTED).send(assets)
   } catch (error) {
@@ -25,12 +26,13 @@ assetsRouter.get('/getAll', async (req: Request, res: Response) => {
  * Read asset
  * @author Thai Hoang Tam, Nguyen Khoa
  */
-assetsRouter.get('/read', async (req, res) => {
+assetsRouter.get('/:channel/read', async (req, res) => {
   try {
     const query = req.query
     const id = <string>query['id']
     const msp = <string>req.user
-    const contract = req.app.locals[msp + 'public']
+    const channel = req.params.channel
+    const contract = req.app.locals[msp + channel + 'basic']
     if (!id) {
       return res.status(BAD_REQUEST).send('Invalid query to read asset')
     }
@@ -47,12 +49,13 @@ assetsRouter.get('/read', async (req, res) => {
  * Check if asset exists
  * @author Thai Hoang Tam, Nguyen Khoa
  */
-assetsRouter.get('/exists', async (req, res) => {
+assetsRouter.get('/:channel/exists', async (req, res) => {
   try {
     const query = req.query
     const id = <string>query['id']
     const msp = <string>req.user
-    const contract = req.app.locals[msp + 'public']
+    const channel = req.params.channel
+    const contract = req.app.locals[msp + channel + 'basic']
     if (!id) {
       res.status(BAD_REQUEST).send('Invalid query to check asset exists')
     }
@@ -69,12 +72,13 @@ assetsRouter.get('/exists', async (req, res) => {
  * Delete asset
  * @author Thai Hoang Tam, Nguyen Khoa
  */
-assetsRouter.delete('/delete', async (req, res) => {
+assetsRouter.delete('/:channel/delete', async (req, res) => {
   try {
     const query = req.query
     const id: string = <string>query['id']
     const msp = <string>req.user
-    const contract = req.app.locals[msp + 'public']['public']
+    const channel = req.params.channel
+    const contract = req.app.locals[msp + channel + 'basic']
     if (!id) {
       return res.status(BAD_REQUEST).send('Invalid query format')
     }
