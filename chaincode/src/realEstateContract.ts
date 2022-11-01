@@ -16,6 +16,19 @@ import { realEstateDocType, userDocType } from './docType'
 import { AssetContractOther } from './assetContractOther'
 import { User } from './user'
 
+const RED = '\x1b[31m'
+const GREEN = '\x1b[32m'
+const BLUE = '\x1b[34m'
+const MAGENTA = '\x1b[35m'
+const CYAN = '\x1b[36m'
+const RESET = '\x1b[0m'
+/**
+ * @author Nguyen Khoa
+ */
+function debug(color: string, msgString: string) {
+  console.log(`${color}\n\t${msgString}${RESET}\n`)
+}
+
 @Info({
   title: 'RealEstateTransfer',
   description: 'Smart contract for Real Estate'
@@ -99,7 +112,7 @@ export class RealEstateContract extends Contract {
    * @param location
    * @param OwnersString
    * @param membershipThresholdString
-   * @author Dinh Minh Hoang
+   * @author Dinh Minh Hoang, Nguyen Khoa
    */
   @Transaction()
   public async CreateRealEstate(
@@ -118,12 +131,73 @@ export class RealEstateContract extends Contract {
     }
 
     const roomList: RoomType = JSON.parse(roomListString)
-
     const area: number = parseFloat(areaString)
-
     const owners: Array<Ownership> = JSON.parse(OwnersString)
-
     const membershipThreshold: number = parseInt(membershipThresholdString)
+
+    // input validation
+    let totalOwnershipOnAsset = 0
+    owners.forEach(function (owner: Ownership) {
+      const re = /^[0-9\b]+$/
+      if (!re.test(owner.sellPercentage.toString())) {
+        debug(RED, 'sellPercentage must be integer')
+        throw new RangeError('sellPercentage must be integer')
+      }
+      if (!re.test(owner.ownershipPercentage.toString())) {
+        debug(RED, 'ownership Percentage must be integer')
+        throw new Error('ownership Percentage must be integer')
+      }
+      if (owner.sellPrice % 100 !== 0) {
+        debug(RED, 'sellPrice must be a multiple of 100')
+        throw new Error('sellPrice must be a multiple of 100')
+      }
+
+      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
+        debug(RED, 'ownershipPercentage must be between 0 and 100')
+        throw new RangeError('ownershipPercentage must be between 0 and 100')
+        // return new RangeError('ownershipPercentage must be between 0 and 100')
+      }
+
+      if (owner.sellPercentage > owner.ownershipPercentage) {
+        debug(
+          RED,
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        throw new RangeError(
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        // return new RangeError('sellPercentage must be less than or equal ownershipPercentage')
+      }
+
+      totalOwnershipOnAsset = totalOwnershipOnAsset + owner.ownershipPercentage
+    })
+    if (totalOwnershipOnAsset > 100) {
+      debug(RED, 'ownershipPercentage of all user must be less than 100')
+      throw new RangeError(
+        'ownershipPercentage of all user must be less than 100'
+      )
+      // return new RangeError('ownershipPercentage of all user must be less than 100')
+    }
+
+    if (area <= 0) {
+      debug(RED, 'area must be > 0')
+      throw new RangeError('area must be greater than 0')
+      // return new RangeError('area must be greater than 0')
+    }
+
+    for (const key in roomList) {
+      if (roomList[key] < 0) {
+        debug(RED, 'Number of room must be greater than 0')
+        throw new RangeError('Number of room must be greater than 0')
+        // return new RangeError('Number of room must be greater than 0')
+      }
+    }
+
+    if (membershipThreshold < 0) {
+      debug(RED, 'membershipThresholdString must be greater than 0')
+      throw new RangeError('membershipThresholdString must be greater than 0')
+      // return new RangeError('membershipThresholdString must be greater than 0')
+    }
 
     const realEstate: RealEstate = {
       name: name,
@@ -153,7 +227,7 @@ export class RealEstateContract extends Contract {
    * @param ownersString
    * @param membershipThresholdString
    * @returns
-   * @author Dinh Minh Hoang
+   * @author Dinh Minh Hoang, Nguyen Khoa
    */
   @Transaction()
   public async UpdateRealEstate(
@@ -173,14 +247,74 @@ export class RealEstateContract extends Contract {
 
     // code to test this method
     // peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"UpdateAsset","Args":["asset1", "{ \"numOfBedroom\": \"0\", \"numOfLivingroom\": \"0\", \"numOfBathroom\": \"0\", \"numOfDiningroom\": \"0\" }", "420", "cumhole", "[ { \"ownerID\": \"user1\", \"ownershipPercentage\": 69, \"sellPercentage\": 10, \"sellPrice\": 69420, \"sellThreshold\": 69, \"isSeller\": true },{ \"ownerID\": \"user2\", \"ownershipPercentage\": 69, \"sellPercentage\": 10, \"sellPrice\": 69420, \"sellThreshold\": 69, \"isSeller\": true } ]" ]}'
-
     const roomList: RoomType = JSON.parse(roomListString)
-
     const area: number = parseFloat(areaString)
-
     const owners: Array<Ownership> = JSON.parse(ownersString)
-
     const membershipThreshold = parseInt(membershipThresholdString)
+
+    // input validation
+    let totalOwnershipOnAsset = 0
+    owners.forEach(function (owner: Ownership) {
+      const re = /^[0-9\b]+$/
+      if (!re.test(owner.sellPercentage.toString())) {
+        debug(RED, 'sellPercentage must be integer')
+        throw new RangeError('sellPercentage must be integer')
+      }
+      if (!re.test(owner.ownershipPercentage.toString())) {
+        debug(RED, 'ownership Percentage must be integer')
+        throw new Error('ownership Percentage must be integer')
+      }
+      if (owner.sellPrice % 100 !== 0) {
+        debug(RED, 'sellPrice must be a multiple of 100')
+        throw new Error('sellPrice must be a multiple of 100')
+      }
+
+      if (owner.ownershipPercentage > 100 || owner.ownershipPercentage < 0) {
+        debug(RED, 'ownershipPercentage must be between 0 and 100')
+        throw new RangeError('ownershipPercentage must be between 0 and 100')
+        // return new RangeError('ownershipPercentage must be between 0 and 100')
+      }
+
+      if (owner.sellPercentage > owner.ownershipPercentage) {
+        debug(
+          RED,
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        throw new RangeError(
+          'sellPercentage must be less than or equal ownershipPercentage'
+        )
+        // return new RangeError('sellPercentage must be less than or equal ownershipPercentage')
+      }
+
+      totalOwnershipOnAsset = totalOwnershipOnAsset + owner.ownershipPercentage
+    })
+    if (totalOwnershipOnAsset > 100) {
+      debug(RED, 'ownershipPercentage of all user must be less than 100')
+      throw new RangeError(
+        'ownershipPercentage of all user must be less than 100'
+      )
+      // return new RangeError('ownershipPercentage of all user must be less than 100')
+    }
+
+    if (area <= 0) {
+      debug(RED, 'area must be > 0')
+      throw new RangeError('area must be greater than 0')
+      // return new RangeError('area must be greater than 0')
+    }
+
+    for (const key in roomList) {
+      if (roomList[key] < 0) {
+        debug(RED, 'Number of room must be greater than 0')
+        throw new RangeError('Number of room must be greater than 0')
+        // return new RangeError('Number of room must be greater than 0')
+      }
+    }
+
+    if (membershipThreshold < 0) {
+      debug(RED, 'membershipThresholdString must be greater than 0')
+      throw new RangeError('membershipThresholdString must be greater than 0')
+      // return new RangeError('membershipThresholdString must be greater than 0')
+    }
 
     // overwriting original asset with new asset
     const updatedRealEstate: RealEstate = {
@@ -210,7 +344,7 @@ export class RealEstateContract extends Contract {
    * @param {string} buyerID The ID of the Buyer
    * @param {string} buyPercentageString The Percentage of the Real Estate that Buyer wants to buy
    * @returns {Promise<boolean>} successful message
-   * @author Dinh Minh Hoang
+   * @author Dinh Minh Hoang, Nguyen Khoa
    * */
   @Transaction(false)
   @Returns('boolean')
@@ -221,12 +355,17 @@ export class RealEstateContract extends Contract {
     buyerID: string,
     buyPercentageString: string
   ) {
+    debug(
+      MAGENTA,
+      '==================== CanTransferRealEstate ===================='
+    )
     //Check if buyer exists
     const buyerInfoJSON = await this.assetContractOther.ReadAsset(ctx, buyerID)
     if (buyerInfoJSON === undefined) {
       throw new Error('Buyer does not exist')
     }
-    console.log('Buyer exists')
+    // console.log('Buyer exists')
+    debug(CYAN, 'Buyer exists')
 
     const buyer: User = JSON.parse(buyerInfoJSON)
 
@@ -238,7 +377,8 @@ export class RealEstateContract extends Contract {
     if (sellerInfoJSON === undefined) {
       throw new Error('Seller does not exist')
     }
-    console.log('Seller exists')
+    // console.log('Seller exists')
+    debug(CYAN, 'Seller exists')
 
     //const seller: User = JSON.parse(sellerInfoJSON)
 
@@ -246,11 +386,20 @@ export class RealEstateContract extends Contract {
     if (sellerID === buyerID) {
       throw new Error('Buyer has the same ID as Seller')
     }
-    console.log('Buyer is not the same as Seller')
+    // console.log('Buyer is not the same as Seller')
+    debug(CYAN, 'Buyer is not the same as Seller')
+
+    // check if buyPercentageString all digits
+    const re = /^[0-9\b]+$/
+    if (!re.test(buyPercentageString)) {
+      debug(RED, 'buyPercentageString must be integer')
+      throw new RangeError('buyPercentageString must be integer')
+    }
 
     //convert buyPercentage to String
-    const buyPercentage = parseFloat(buyPercentageString)
-    console.log('Buyer wants to buy ' + buyPercentage + '%')
+    const buyPercentage = parseInt(buyPercentageString)
+    // console.log('Buyer wants to buy ' + buyPercentage + '%')
+    console.log(`Buyer wants to buy ${buyPercentage}%`)
 
     //Get Real Estate
     const realEstateString = await this.assetContractOther.ReadAsset(
@@ -258,7 +407,8 @@ export class RealEstateContract extends Contract {
       realEstateID
     )
     const realEstate: RealEstate = JSON.parse(realEstateString)
-    console.log('Real Estate exists, ID:' + realEstate.id)
+    // console.log('Real Estate exists, ID:' + realEstate.id)
+    debug(CYAN, `Real Estate exists, ID: ${realEstate.id}`)
 
     if (realEstate.membershipThreshold > buyer.membershipScore) {
       throw new Error('Buyer does not have enough membership score')
@@ -272,19 +422,24 @@ export class RealEstateContract extends Contract {
     )
 
     if (sellerOwnership === undefined) {
+      // throw new Error(
+      //   'Seller with ID:' +
+      //     sellerID +
+      //     ' does not own asset with ID:' +
+      //     realEstateID
+      // )
       throw new Error(
-        'Seller with ID:' +
-          sellerID +
-          ' does not own asset with ID:' +
-          realEstateID
+        `Seller with ID: ${sellerID} does not own asset with ID: ${realEstateID}`
       )
     }
-    console.log('Seller owns this asset')
+    debug(CYAN, 'Seller owns this asset')
+    // console.log('Seller owns this asset')
 
     if (sellerOwnership.isSeller === false) {
       throw new Error('Asset is not for sale according to Seller.')
     }
-    console.log('Seller is selling this asset')
+    // console.log('Seller is selling this asset')
+    debug(CYAN, 'Seller is selling this asset')
 
     //Check if buyer wants to buy MORE than seller's sellPercentage
     if (buyPercentage > sellerOwnership.sellPercentage) {
@@ -292,14 +447,20 @@ export class RealEstateContract extends Contract {
         "Buyer wants to buy more percentage than Seller's sell percentage"
       )
     }
+    debug(
+      CYAN,
+      `buyPercentage (${buyPercentage}%) <= sellPercentage (${sellerOwnership.sellPercentage}%)`
+    )
 
     const sellerRemainOwnershipPercentage =
       sellerOwnership.sellPercentage - buyPercentage
-
-    console.log(
-      "If transaction is successful, the remaining seller's ownershipPercentage will be: " +
-        sellerRemainOwnershipPercentage
+    debug(
+      CYAN,
+      `If transaction is successful, the remaining seller's ownershipPercentage will be: ${sellerRemainOwnershipPercentage}`
     )
+    // console.log(
+    //   `If transaction is successful, the remaining seller's ownershipPercentage will be: ${sellerRemainOwnershipPercentage}`
+    // )
 
     if (
       sellerRemainOwnershipPercentage < sellerOwnership.sellThreshold &&
@@ -422,7 +583,7 @@ export class RealEstateContract extends Contract {
       AssetID,
       Buffer.from(stringify(sortKeysRecursive(realEstate)))
     )
-    console.log('Successfully updates Real Estate')
+    debug(GREEN, 'Successfully updates Real Estate')
 
     buyer.membershipScore += 1
 
@@ -447,25 +608,30 @@ export class RealEstateContract extends Contract {
         Buffer.from(stringify(sortKeysRecursive(participant)))
       )
     }
-    console.log('Successfully updates participants in Transaction')
+    // console.log('Successfully updates participants in Transaction')
+    debug(GREEN, 'Successfully updates participants in Transaction')
 
-    console.log(
-      'current membershipScore of buyer: ' +
-        buyer.id +
-        'score: ' +
-        buyer.membershipScore
+    // console.log(
+    //   'current membershipScore of buyer: ' +
+    //     buyer.id +
+    //     'score: ' +
+    //     buyer.membershipScore
+    // )
+    debug(
+      BLUE,
+      `Current membershipScore of buyer (ID: ${buyer.id}): ${buyer.membershipScore}`
     )
-
-    return (
-      'Transaction successful. Buyer ' +
-      buyerOwnership.ownerID +
-      ' obtained ' +
-      buyPercentage +
-      '% of Asset ' +
-      realEstate.id +
-      ' from Seller ' +
-      sellerOwnership.ownerID
-    )
+    // return (
+    //   'Transaction successful. Buyer ' +
+    //   buyerOwnership.ownerID +
+    //   ' obtained ' +
+    //   buyPercentage +
+    //   '% of Asset ' +
+    //   realEstate.id +
+    //   ' from Seller ' +
+    //   sellerOwnership.ownerID
+    // )
+    return `Transaction successful. Buyer (ID: ${buyerOwnership.ownerID}) obtained ${buyPercentage}% of Asset (ID: ${realEstate.id})  from Seller ${sellerOwnership.ownerID}`
   }
 
   /**

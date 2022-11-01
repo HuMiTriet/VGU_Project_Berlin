@@ -10,55 +10,61 @@ import {
   Select,
   Typography
 } from 'antd'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
-import { useAuthState } from 'react-firebase-hooks/auth'
+import { useState } from 'react'
 import * as api from '../../API_handler/api'
 import Navbar from '../../components/Navbar'
-import { auth, db } from '../../firebase'
 import './Contract.css'
 
+/**
+ * @author Nguyen Khoa, Thai Hoang Tam, Quang
+ */
 function Contract() {
   const [showAlert, setShowAlert] = useState(false)
-  const [user, loading] = useAuthState(auth)
-  const [idLoading, setLoading] = useState(true)
-  const [id, setId] = useState('')
-  const fetchId = async () => {
-    try {
-      const q = query(collection(db, 'users'), where('uid', '==', user?.uid))
-      const doc = await getDocs(q)
-      const data = doc.docs[0].data()
-      setId(data.id)
-      setLoading(false)
-      console.log(id)
-    } catch (err) {
-      console.error(err)
-      // alert('An error occured while fetching user data')
-    }
+  const [result, loadResult] = useState('')
+  const buyerID = localStorage['userID']
+  const realEstateID = localStorage['realEstateID']
+  const sellerID = localStorage['sellerID']
+  const ownershipPercentage = localStorage['ownershipPercentage']
+  const sellPercentage = localStorage['sellPercentage']
+  const sellThreshold = localStorage['sellThreshold']
+  const sellPrice = localStorage['sellPrice']
+  const transferRealEstateResult = function (buyPercentage, value) {
+    api
+      .transferRealEstate(realEstateID, sellerID, buyerID, buyPercentage, value)
+      .then(allData => {
+        loadResult(allData)
+        return
+      })
+      .catch(error => {
+        console.log(error)
+        alert(error.response.data)
+      })
   }
-  useEffect(() => {
-    fetchId()
-  })
   const onFinish = (e: unknown) => {
-    // let id:string
-    let buyerID: string
     const buyPercentage: string = e['Buy Percentage']
-    const [result, loadResult] = useState('')
-    const transferRealEstateResult = function () {
-      api
-        .transferRealEstate(id, sellerID, buyerID, buyPercentage)
-        .then(allData => {
-          loadResult(allData)
-          return
-        })
-        .catch((error: unknown) => {
-          console.log(error)
-        })
+
+    // Check if buy Percentage is an integer
+    const re = /^[0-9\b]+$/
+    console.log(
+      'Buy Percentage is a Positive Integer? ' + re.test(buyPercentage)
+    )
+
+    //Check if buy percentage is from 1 to 100
+    const buyPercentageInteger = parseInt(buyPercentage)
+    if (
+      buyPercentageInteger < 1 ||
+      buyPercentageInteger > parseInt(sellPercentage)
+    ) {
+      alert('Buy Percentage is smaller than 1 OR larger then sell Percentage')
     }
+
+    const value = (
+      (parseInt(sellPrice) / 100) *
+      parseInt(buyPercentage)
+    ).toString()
     try {
-      transferRealEstateResult()
+      transferRealEstateResult(buyPercentage, value)
     } catch (err) {
-      // err box
       console.log(err)
     }
     console.log(e)
@@ -82,11 +88,6 @@ function Contract() {
   //     })
   // }
   // console.log(data, 'neko')
-
-  const sellerID = `15705`
-  const sellerOwnership = `70`
-  const sellPercentage = `50`
-  const noRemain = '5'
 
   const html = (
     <>
@@ -131,16 +132,23 @@ function Contract() {
                     <p>
                       User: {sellerID}
                       <br />
-                      Own: {sellerOwnership}%
+                      Own: {ownershipPercentage}%
                       <br />
                       Sell Percentage: {sellPercentage}%
                       <br />
-                      No remain less than: {noRemain}%
+                      No remain less than: {sellThreshold}%
+                      <br />
+                      Sell Price (100%): {sellPrice} CW
                     </p>
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Form onFinish={onFinish} initialValues={{ remember: true }}>
+                  <Form
+                    onFinish={e => {
+                      onFinish(e)
+                    }}
+                    initialValues={{ remember: true }}
+                  >
                     <div>
                       <h3>Buy Percentage</h3>
                       <Form.Item
@@ -246,11 +254,7 @@ function Contract() {
     </>
   )
 
-  if (idLoading) {
-    return <div>Loading</div>
-  } else {
-    return html
-  }
+  return html
 }
 
 export default Contract

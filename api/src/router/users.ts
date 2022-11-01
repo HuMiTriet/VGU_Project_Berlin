@@ -9,14 +9,15 @@ export const usersRouter: Router = express.Router()
  * Create user
  * @author Thai Hoang Tam, Nguyen Khoa
  */
-usersRouter.post('/create', async (req: Request, res: Response) => {
+usersRouter.post('/:channel/create', async (req: Request, res: Response) => {
   try {
     console.log(req.body)
     const body = req.body
     const id: string = body.id
     const name: string = body.name
     const msp = <string>req.user
-    const contract = req.app.locals[msp + 'public']
+    const channel = req.params.channel
+    const contract = req.app.locals[msp + channel + 'basic']
     if (!(id && name)) {
       return res.status(BAD_REQUEST).send('Invalid data format to create user')
     }
@@ -32,7 +33,7 @@ usersRouter.post('/create', async (req: Request, res: Response) => {
  * Update user
  * @author Thai Hoang Tam
  */
-usersRouter.put('/update', async (req: Request, res: Response) => {
+usersRouter.put('/:channel/update', async (req: Request, res: Response) => {
   try {
     console.log(req.body)
     const body = req.body
@@ -40,7 +41,8 @@ usersRouter.put('/update', async (req: Request, res: Response) => {
     const name: string = body.name
     const membershipScore: string = body.membershipScore
     const msp = <string>req.user
-    const contract = req.app.locals[msp + 'public']
+    const channel = req.params.channel
+    const contract = req.app.locals[msp + channel + 'basic']
     if (!(id && name && membershipScore)) {
       return res.status(BAD_REQUEST).send('Invalid data format to create user')
     }

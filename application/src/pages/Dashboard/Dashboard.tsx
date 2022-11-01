@@ -1,19 +1,23 @@
 import { Tabs } from 'antd'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
 import * as api from '../../API_handler/api'
 import Navbar from '../../components/Navbar'
+import { auth, db } from '../../firebase'
 import './Dashboard.css'
 import AppFeature from './Feature'
 function Dashboard() {
   const [allRealEstate, loadAllRealEstate] = useState('')
-  const [isLoading, loading] = useState(true)
-  const getAllAssets = function () {
+  const [user] = useAuthState(auth)
+  const [isLoading, setLoading] = useState(true)
+  const getAllRealEstate = function () {
     api
       .getAllRealEstate()
       .then(allRealEstates => {
         loadAllRealEstate(allRealEstates)
         console.log(allRealEstates)
-        loading(false)
+        setLoading(false)
         return
       })
       .catch(error => {
@@ -21,8 +25,21 @@ function Dashboard() {
       })
   }
 
+  const fetchId = async () => {
+    try {
+      const q = query(collection(db, 'users'), where('uid', '==', user?.uid))
+      const doc = await getDocs(q)
+      const data = doc.docs[0].data()
+      //localStorage.setItem('userID', data.id)
+      return
+    } catch (err) {
+      console.error(err)
+      // alert('An error occured while fetching user data')
+    }
+  }
   useEffect(() => {
-    getAllAssets()
+    getAllRealEstate()
+    fetchId()
   })
   if (isLoading) {
     return <div>Loading</div>
