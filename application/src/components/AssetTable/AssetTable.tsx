@@ -76,19 +76,37 @@ const AssetTable = () => {
       },
       sortable: true
     }
-    // {
-    //   name: 'edit',
-    //   cell: row => (
-    //     <button onClick={clickHandler} id={row.id}>
-    //       Action
-    //     </button>
-    //   )
-    // }
   ]
 
-  // let clickHandler = state => {
-  //   console.log(state.target.id)
-  // }
+  // customStyles for Datatable will deep merges your customStyles with the default styling.
+  // Source: https://react-data-table-component.netlify.app/?path=/docs/api-custom-styles--page
+  // Check source code for detailed styles that can be overriden
+  // https://github.com/jbetancur/react-data-table-component/blob/master/src/DataTable/styles.ts
+  const customStyles = {
+    table: {
+      style: {
+        width: '90vw',
+        margin: 'auto'
+      }
+    },
+    rows: {
+      style: {
+        minHeight: '65px' // override the row height
+      }
+    },
+    headCells: {
+      style: {
+        paddingLeft: '8px', // override the cell padding for head cells
+        paddingRight: '8px'
+      }
+    },
+    cells: {
+      style: {
+        paddingLeft: '8px', // override the cell padding for data cells
+        paddingRight: '8px'
+      }
+    }
+  }
 
   useEffect(() => {
     getAssets()
@@ -96,42 +114,19 @@ const AssetTable = () => {
 
   return (
     <Datatable
+      customStyles={customStyles}
       title="Real Estate List"
       columns={columns}
       data={assets}
       pagination
       fixedHeader
-      fixedHeaderScrollHeight="400px"
+      fixedHeaderScrollHeight="500px"
       selectableRowsSingle
       selectableRowsHighlight
       highlightOnHover
       actions={<Button className="btn btn-info">Export</Button>}
       subHeader
-      onRowClicked={(row, event) => {
-        // show the pop up Form
-        return (
-          <div>
-            <div className="form-group">
-              <label htmlFor="name">Name</label>
-              <input className="form-control" id="name" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="email">Email address</label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                placeholder="name@example.com"
-              />
-            </div>
-            <div className="form-group">
-              <button className="form-control btn btn-primary" type="submit">
-                Submit
-              </button>
-            </div>
-          </div>
-        )
-      }}
+      onRowClicked={(row: RealEstate, event) => {}}
       subHeaderComponent={
         <input
           type="text"

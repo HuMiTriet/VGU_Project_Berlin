@@ -1,6 +1,5 @@
-import { Switch } from 'antd'
 import { signOut } from 'firebase/auth'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 //import { Form } from 'react-router-dom'
 import { auth, signInWithGoogle } from '../../firebase'

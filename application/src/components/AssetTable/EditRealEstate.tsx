@@ -1,5 +1,3 @@
-import React from 'react'
-
 /**
  * @author Khoa Nguyen, Triet Huynh
  */

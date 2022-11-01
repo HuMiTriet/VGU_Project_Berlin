@@ -11,13 +11,10 @@ import { BsBuilding, BsLayoutTextWindow } from 'react-icons/bs'
 import { SlLocationPin } from 'react-icons/sl'
 import { IconContext } from 'react-icons'
 import Button from 'react-bootstrap/Button'
-import * as api from '../../API_handler/api'
 import { useEffect, useState } from 'react'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 import { Link } from 'react-router-dom'
-import { RoomType } from '../../resources/roomType'
-import { randomBytes } from 'crypto'
 
 function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')

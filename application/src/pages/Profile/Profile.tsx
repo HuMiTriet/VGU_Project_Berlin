@@ -1,11 +1,12 @@
 import './Profile.css'
 import { Avatar } from '@mui/material'
-import React from 'react'
 import Navbar from '../../components/Navbar'
 import ProfileImage from '../../assets/images/profile.jpg'
 import CurrentBalance from '../../assets/images/balance.png'
 import CurrentOrg from '../../assets/images/organization.png'
 import Membership from '../../assets/images/membercard.png'
+import { getAccountBalance } from '../../API_handler/api'
+import { useEffect, useState } from 'react'
 
 function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -13,12 +14,26 @@ function numberWithComma(number: string) {
 
 function Profile() {
   const userName = 'Dan Duong'
-  const userID = '590x2359023857203cfr3'
+  const userID = localStorage['userID']
+  const [balance, setBalance] = useState('')
 
+  const currentChannel = localStorage['channel']
   // Variables for Balance, Org & Membership score
-  const currentBalance = '2000000000'
-  const currentOrg = 'mychannel'
+
+  // const currentBalance = await getAccountBalanceWrapper()
+  const getBalance = async () => {
+    const balance = await getAccountBalance()
+    setBalance(balance)
+  }
+
+  useEffect(() => {
+    getBalance()
+  }, [])
+
+  // const currentBalance = '2000'
+
   const membershipScore = '50'
+
   return (
     <>
       <Navbar />
@@ -46,18 +61,18 @@ function Profile() {
             />
             <p>
               <h3>Current Balance</h3>
-              {numberWithComma(currentBalance)}
+              {numberWithComma(balance)}
             </p>
           </div>
           <div className="current-org">
             <img
               src={CurrentOrg}
-              alt="Current Organization"
+              alt="Current Channel"
               style={{ height: '80px', width: '80px' }}
             />
             <p>
-              <h3>Current Organization</h3>
-              {currentOrg}
+              <h3>Current Channel</h3>
+              {currentChannel}
             </p>
           </div>
           <div className="membership">
