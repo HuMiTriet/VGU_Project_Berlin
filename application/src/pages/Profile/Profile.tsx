@@ -15,7 +15,6 @@ function numberWithComma(number: string) {
 }
 
 function Profile() {
-  // const userName = 'Dan Duong'
   const userID = localStorage['userID']
   const [balance, setBalance] = useState('loading...')
   const [name, setName] = useState('loading...')
@@ -62,6 +61,17 @@ function Profile() {
           </p>
         </div>
         <div className="other-info">
+          <div className="current-org">
+            <img
+              src={CurrentOrg}
+              alt="Current Channel"
+              style={{ height: '80px', width: '80px' }}
+            />
+            <p>
+              <h3>Current Channel</h3>
+              {currentChannel}
+            </p>
+          </div>
           <div className="current-balance">
             {/* Thay hình Currywurst sau */}
             <img
@@ -72,17 +82,6 @@ function Profile() {
             <p>
               <h3>Current Balance</h3>
               {numberWithComma(balance)}
-            </p>
-          </div>
-          <div className="current-org">
-            <img
-              src={CurrentOrg}
-              alt="Current Channel"
-              style={{ height: '80px', width: '80px' }}
-            />
-            <p>
-              <h3>Current Channel</h3>
-              {currentChannel}
             </p>
           </div>
           <div className="membership">
