@@ -28,47 +28,56 @@ const AssetTable = () => {
     {
       name: 'Name',
       selector: (row: RealEstate) => row.name,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Asset ID',
       selector: (row: RealEstate) => row.id,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Location',
       selector: (row: RealEstate) => row.location,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Membership Threshold',
       selector: (row: RealEstate) => row.membershipThreshold,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Area',
       selector: (row: RealEstate) => row.area,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Bath rooms',
       selector: (row: RealEstate) => row.roomList.numOfBathroom,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Bed rooms',
       selector: (row: RealEstate) => row.roomList.numOfBedroom,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Dining rooms',
       selector: (row: RealEstate) => row.roomList.numOfDiningroom,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Living rooms',
       selector: (row: RealEstate) => row.roomList.numOfLivingroom,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
     {
       name: 'Listing',
@@ -80,7 +89,8 @@ const AssetTable = () => {
           }
         }
       },
-      sortable: true
+      sortable: true,
+      wrap: true
     }
   ]
 
