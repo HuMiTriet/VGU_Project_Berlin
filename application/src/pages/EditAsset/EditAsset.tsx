@@ -43,17 +43,11 @@ const { TextArea } = Input
 //     numOfLivingroom: 1
 //   }
 // }
-const realEstate: RealEstate = JSON.parse(localStorage['editRealEstate'])
 
-const ownerArray: Ownership[] = realEstate.owners
-const userID = localStorage['userID']
+
 let owner: Ownership
-for (const oneOwner of ownerArray) {
-  if (oneOwner.ownerID === userID) {
-    owner = oneOwner
-    break
-  }
-}
+
+
 
 const normFile = (e: any) => {
   console.log('Upload event:', e)
@@ -64,6 +58,15 @@ const normFile = (e: any) => {
 }
 
 const EditAsset = () => {
+  const realEstate: RealEstate = JSON.parse(localStorage['editRealEstate'])
+  const ownerArray: Ownership[] = realEstate.owners
+  const userID = localStorage['userID']
+  for (const oneOwner of ownerArray) {
+    if (oneOwner.ownerID === userID) {
+      owner = oneOwner
+      break
+    }
+  }
   return (
     <>
       {' '}
@@ -85,6 +88,9 @@ const EditAsset = () => {
                 <Col span={12}>
                   <Form
                     onFinish={async value => {
+                     
+
+
                       const re = /^[0-9\b]+$/
                       // console.log(re.test(value['price']))
                       const sellPercentage = value['sellpercentage']
