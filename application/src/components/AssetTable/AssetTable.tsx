@@ -38,6 +38,19 @@ const AssetTable = () => {
       wrap: true
     },
     {
+      name: 'Owning Percentage',
+      selector: (row: RealEstate) => {
+        const ownerArray: Ownership[] = row.owners
+        for (const owner of ownerArray) {
+          if (owner.ownerID === userID) {
+            return owner.ownershipPercentage
+          }
+        }
+      },
+      sortable: true,
+      wrap: true
+    },
+    {
       name: 'Location',
       selector: (row: RealEstate) => row.location,
       sortable: true,
@@ -91,7 +104,33 @@ const AssetTable = () => {
       },
       sortable: true,
       wrap: true
-    }
+    },
+    {
+      name: 'Sell Percentage',
+      selector: (row: RealEstate) => {
+        const ownerArray: Ownership[] = row.owners
+        for (const owner of ownerArray) {
+          if (owner.ownerID === userID) {
+            return owner.sellPercentage
+          }
+        }
+      },
+      sortable: true,
+      wrap: true
+    },
+    {
+      name: 'Sell Price',
+      selector: (row: RealEstate) => {
+        const ownerArray: Ownership[] = row.owners
+        for (const owner of ownerArray) {
+          if (owner.ownerID === userID) {
+            return owner.sellPrice
+          }
+        }
+      },
+      sortable: true,
+      wrap: true
+    },
   ]
 
   // customStyles for Datatable will deep merges your customStyles with the default styling.

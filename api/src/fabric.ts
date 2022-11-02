@@ -467,8 +467,8 @@ export async function main(): Promise<void> {
       realEstate.membershipThreshold
     )
 
-    // await fabric.initLedger(contractMychannelBasic1)
-    // await fabric.initLedger(contractBusinessBasic1)
+    await fabric.initLedger(contractMychannelBasic1)
+    await fabric.initLedger(contractBusinessBasic1)
     // await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
     // await token.Initialize(contractBusinessToken1, 'CW', 'CW', '3')
     // await token.Mint(contractMychannelToken1, '500')
