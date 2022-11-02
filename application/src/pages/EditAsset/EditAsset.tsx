@@ -19,12 +19,37 @@ import { Ownership } from '../../resources/ownership'
 import { RealEstate } from '../../resources/realEstate'
 const { TextArea } = Input
 
+// const realEstate: RealEstate = {
+//   area: 500,
+//   id: '93837437-e0a1-4d6b-b619-a631c35f7b7b',
+//   location: 'Thu Dau Mot',
+//   membershipThreshold: 5,
+//   name: 'Hello',
+//   owners: [
+//     {
+//       isSeller: true,
+//       ownerID:
+//         'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
+//       ownershipPercentage: 100,
+//       sellPercentage: 50,
+//       sellPrice: 10000,
+//       sellThreshold: 5
+//     }
+//   ],
+//   roomList: {
+//     numOfBathroom: 1,
+//     numOfBedroom: 1,
+//     numOfDiningroom: 1,
+//     numOfLivingroom: 1
+//   }
+// }
 const realEstate: RealEstate = JSON.parse(localStorage['editRealEstate'])
 
 const ownerArray: Ownership[] = realEstate.owners
+const userID = localStorage['userID']
 let owner: Ownership
 for (const oneOwner of ownerArray) {
-  if (oneOwner.ownerID === localStorage['userID']) {
+  if (oneOwner.ownerID === userID) {
     owner = oneOwner
     break
   }
@@ -94,21 +119,21 @@ const EditAsset = () => {
 
                         const roomType: RoomType = realEstate.roomList
 
-                        const owners: Ownership[] = [
-                          {
-                            ownerID: localStorage['userID'],
-                            ownershipPercentage: 100,
-                            sellThreshold: 5,
-                            sellPercentage: sellPercentageInt,
-                            sellPrice: priceInt,
-                            isSeller: false
+                        for (const oneOwner of ownerArray) {
+                          if (oneOwner.ownerID === userID) {
+                            oneOwner.sellPercentage = sellPercentageInt
+                            oneOwner.sellPrice = priceInt
+                            oneOwner.isSeller = value['isSelling']
+                            break
                           }
-                        ]
+                        }
 
-                        console.log(owners)
-
-                        const roomTypeString = JSON.stringify(roomType)
-                        const ownersString = JSON.stringify(owners)
+                        const roomTypeString = JSON.parse(
+                          JSON.stringify(roomType)
+                        )
+                        const ownersString = JSON.parse(
+                          JSON.stringify(ownerArray)
+                        )
 
                         try {
                           await api.updateRealEstate(
@@ -125,7 +150,7 @@ const EditAsset = () => {
                           return
                         }
 
-                        // window.open('/dashboard', '_self')
+                        window.open('/dashboard', '_self')
                       }
                     }}
                     onFinishFailed={error => {
@@ -144,7 +169,7 @@ const EditAsset = () => {
 
                     <h3>Is selling ? </h3>
                     <Form.Item name="isSelling">
-                      <Select defaultValue={owner.isSeller ? 'Yes' : 'No'}>
+                      <Select defaultValue={owner.isSeller ? true : false}>
                         <Select.Option value={true}>Yes</Select.Option>
                         <Select.Option value={false}>No</Select.Option>
                       </Select>

@@ -113,12 +113,11 @@ export async function createRealEstate(
       membershipThreshold
     )
     const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
+    console.log('*** Result:', resultJson)
     console.log('*** Real Estate created')
-    return result
+    return resultJson
   } catch (error: unknown) {
-    console.log(error)
+    console.log('*** Error', error)
     return <string>error
   }
 }
@@ -261,9 +260,8 @@ export async function deleteAsset(
     console.log('*** Delete asset')
     const resultBytes = await contract.submitTransaction('DeleteAsset', id)
     const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
+    console.log('*** Result:', resultJson)
+    return resultJson
   } catch (error: unknown) {
     console.log(error)
     console.log('*** Error:', error)
@@ -319,7 +317,7 @@ export async function updateRealEstate(
   membershipThreshold: string
 ): Promise<string> {
   try {
-    console.log('Update Real Estate')
+    console.log('*** Update Real Estate')
     const resultBytes = await contract.submitTransaction(
       'UpdateRealEstate',
       id,
@@ -331,9 +329,8 @@ export async function updateRealEstate(
       membershipThreshold
     )
     const resultJson = utf8Decoder.decode(resultBytes)
-    const result = JSON.parse(resultJson)
-    console.log('*** Result:', result)
-    return result
+    console.log('*** Result:', resultJson)
+    return resultJson
   } catch (error: unknown) {
     console.log('*** Error:', error)
     return <string>error

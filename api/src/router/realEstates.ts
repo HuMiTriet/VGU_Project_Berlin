@@ -27,7 +27,7 @@ realEstatesRouter.get(
 )
 
 /**
- * Get all real estates
+ * Get user real estates
  * @author Thai Hoang Tam
  */
 realEstatesRouter.get(
@@ -67,6 +67,13 @@ realEstatesRouter.post(
       const roomList = JSON.stringify(bodyJson.roomList)
       const owners = JSON.stringify(bodyJson.owners)
       const membershipThreshold = bodyJson.membershipThreshold
+      console.log('id', id)
+      console.log('name', name)
+      console.log('area', area)
+      console.log('location', location)
+      console.log('owners', owners)
+      console.log('roomList', roomList)
+      console.log('membershipThreshold', membershipThreshold)
       const msp = <string>req.user
       const channel = req.params.channel
       const contract = req.app.locals[msp + channel + 'basic']
@@ -121,8 +128,14 @@ realEstatesRouter.put(
       const roomList = JSON.stringify(bodyJson.roomList)
       const owners = JSON.stringify(bodyJson.owners)
       const membershipThreshold = bodyJson.membershipThreshold
+      console.log('id', id)
+      console.log('name', name)
+      console.log('area', area)
+      console.log('location', location)
+      console.log('roomList', roomList)
+      console.log('owners', owners)
       const msp = <string>req.user
-      const channel = req.params
+      const channel = req.params.channel
       const contract = req.app.locals[msp + channel + 'basic']
       if (
         !(
@@ -137,21 +150,26 @@ realEstatesRouter.put(
       ) {
         return res
           .status(BAD_REQUEST)
-          .send('Invalid data to create real estate')
+          .send('Invalid data to update real estate')
       }
-      const result = await fabric.updateRealEstate(
-        contract,
-        id,
-        name,
-        roomList,
-        area,
-        location,
-        owners,
-        membershipThreshold
-      )
-      console.log('> API Result ', result)
-      res.status(ACCEPTED).send(result)
-    } catch (error) {
+      try {
+        const result = await fabric.updateRealEstate(
+          contract,
+          id,
+          name,
+          roomList,
+          area,
+          location,
+          owners,
+          membershipThreshold
+        )
+        console.log('>>> API Result ', result)
+        res.status(ACCEPTED).send(result)
+      } catch (error: any) {
+        console.log('>>> Error', error)
+        res.status(BAD_REQUEST).send(error)
+      }
+    } catch (error: any) {
       console.log(error)
       res.status(INTERNAL_SERVER_ERROR).send(error)
     }

@@ -27,51 +27,60 @@ function AppFeature(realEstates) {
       }
     })
     prices = prices.sort((n1, n2) => n1 - n2)
+    console.log(prices)
+
     let priceTag: JSX.Element
-    if (prices[prices.length - 1] - prices[0] == 0) {
-      priceTag = (
-        <div className="price">
-          {numberWithComma(prices[prices.length - 1].toString())} CW
-        </div>
-      )
-    } else {
-      priceTag = (
-        <div className="price">
-          {numberWithComma(prices[0].toString())} -{' '}
-          {numberWithComma(prices[prices.length - 1].toString())} CW
-        </div>
+    if (prices.length !== 0) {
+      if (prices[prices.length - 1] - prices[0] == 0) {
+        priceTag = (
+          <div className="price">
+            {numberWithComma(prices[prices.length - 1].toString())} CW
+          </div>
+        )
+      } else {
+        priceTag = (
+          <div className="price">
+            {numberWithComma(prices[0].toString())} -{' '}
+            {numberWithComma(prices[prices.length - 1].toString())} CW
+          </div>
+        )
+      }
+    }
+    if (prices.length !== 0) {
+      html.push(
+        <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 12 }}>
+          <Link to="/propertyinfo">
+            <Card
+              style={{ borderRadius: '20px', overflow: 'hidden' }}
+              hoverable
+              onClick={e => {
+                localStorage.setItem('realEstateID', testRealEstate.id)
+                localStorage.setItem('sellPriceMin', prices[0].toString())
+                localStorage.setItem(
+                  'sellPriceMax',
+                  prices[prices.length - 1].toString()
+                )
+                localStorage.setItem(
+                  'realEstate',
+                  JSON.stringify(testRealEstate)
+                )
+                localStorage.setItem('numberOfRoom', numberOfRoom.toString())
+                console.log(e)
+              }}
+              cover={<img alt="City Garden Duplex " src={Homepage_House} />}
+            >
+              <div className="houseType">{testRealEstate.name}</div>
+              <p>
+                {testRealEstate.location}
+                <br />
+                {testRealEstate.area} m<sup>2</sup>
+                {priceTag}
+              </p>
+            </Card>
+          </Link>
+        </Col>
       )
     }
-    html.push(
-      <Col xs={{ span: 24 }} sm={{ span: 12 }} md={{ span: 12 }}>
-        <Link to="/propertyinfo">
-          <Card
-            style={{ borderRadius: '20px', overflow: 'hidden' }}
-            hoverable
-            onClick={e => {
-              localStorage.setItem('realEstateID', testRealEstate.id)
-              localStorage.setItem('sellPriceMin', prices[0].toString())
-              localStorage.setItem(
-                'sellPriceMax',
-                prices[prices.length - 1].toString()
-              )
-              localStorage.setItem('realEstate', JSON.stringify(testRealEstate))
-              localStorage.setItem('numberOfRoom', numberOfRoom.toString())
-              console.log(e)
-            }}
-            cover={<img alt="City Garden Duplex " src={Homepage_House} />}
-          >
-            <div className="houseType">{testRealEstate.name}</div>
-            <p>
-              {testRealEstate.location}
-              <br />
-              {testRealEstate.area} m<sup>2</sup>
-              {priceTag}
-            </p>
-          </Card>
-        </Link>
-      </Col>
-    )
   })
 
   return (

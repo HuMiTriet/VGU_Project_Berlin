@@ -397,15 +397,85 @@ export async function main(): Promise<void> {
     contractMychannelToken3 = network3.getContract(chaincodeNameToken)
 
     // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
-    await fabric.initLedger(contractMychannelBasic1)
-    await fabric.initLedger(contractBusinessBasic1)
-    await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
-    await token.Initialize(contractBusinessToken1, 'CW', 'CW', '3')
-    await token.Mint(contractMychannelToken1, '500')
-    await token.Mint(contractMychannelToken2, '500')
-    await token.Mint(contractMychannelToken3, '500')
-    await token.Mint(contractBusinessToken1, '500')
-    await token.Mint(contractBusinessToken2, '500')
+    const khanhLinh = {
+      area: '200',
+      id: 'asset19',
+      name: 'Bunny :3',
+      docType: 'realEstate',
+      location: 'Thu Dau Mot',
+      owners: [
+        {
+          isSeller: false,
+          ownerID:
+            'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+          ownershipPercentage: 100,
+          sellPercentage: 20,
+          sellPrice: 10000,
+          sellThreshold: 5
+        }
+      ],
+      roomList: {
+        numOfBathroom: 2,
+        numOfBedroom: 2,
+        numOfDiningroom: 1,
+        numOfLivingroom: 1
+      },
+      membershipThreshold: 1
+    }
+    const realEstate = {
+      area: '200',
+      docType: 'realEstate',
+      id: 'asset1',
+      location: 'Ben Cat',
+      membershipThreshold: '0',
+      name: 'Beautiful Duplex Apartment',
+      owners: JSON.stringify([
+        {
+          isSeller: true,
+          ownerID:
+            'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=UK/ST=Hampshire/L=Hursley/O=org2.example.com/CN=ca.org2.example.com',
+          ownershipPercentage: 100,
+          sellPercentage: 50,
+          sellPrice: 1000,
+          sellThreshold: 5
+        }
+      ]),
+      roomList: JSON.stringify({
+        numOfBathroom: 2,
+        numOfBedroom: 2,
+        numOfDiningroom: 1,
+        numOfLivingroom: 1
+      })
+    }
+
+    console.log('id', realEstate.id)
+    console.log('name', realEstate.name)
+    console.log('area', realEstate.area)
+    console.log('location', realEstate.location)
+    console.log('roomList', realEstate.roomList)
+    console.log('owners', realEstate.owners)
+    console.log(contractMychannelBasic1)
+
+    await fabric.updateRealEstate(
+      contractMychannelBasic1,
+      realEstate.id,
+      realEstate.name,
+      realEstate.roomList,
+      realEstate.area,
+      realEstate.location,
+      realEstate.owners,
+      realEstate.membershipThreshold
+    )
+
+    // await fabric.initLedger(contractMychannelBasic1)
+    // await fabric.initLedger(contractBusinessBasic1)
+    // await token.Initialize(contractMychannelToken1, 'CW', 'CW', '3')
+    // await token.Initialize(contractBusinessToken1, 'CW', 'CW', '3')
+    // await token.Mint(contractMychannelToken1, '500')
+    // await token.Mint(contractMychannelToken2, '500')
+    // await token.Mint(contractMychannelToken3, '500')
+    // await token.Mint(contractBusinessToken1, '500')
+    // await token.Mint(contractBusinessToken2, '500')
   } finally {
     // gateway1.close()
     // client1.close()

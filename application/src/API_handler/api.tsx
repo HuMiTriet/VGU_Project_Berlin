@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { Ownership } from '../resources/ownership'
+import { RoomType } from '../resources/roomType'
 const httpPort = '3001'
 const httpHost = `localhost:${httpPort}`
 const channelName = localStorage['channel'] || 'mychannel'
@@ -282,6 +284,8 @@ async function updateRealEstate(
     owners: owners,
     membershipThreshold: membershipThreshold
   }
+  console.log(realEstateData)
+
   const updateRealEstateResponse = await axios.put(
     `${realEstatePath}/update`,
     realEstateData
