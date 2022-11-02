@@ -130,21 +130,21 @@ const AssetTable = () => {
       selectableRowsSingle
       selectableRowsHighlight
       highlightOnHover
-      actions={<Button className="btn btn-info">Export</Button>}
+      // actions={<Button className="btn btn-info">Export</Button>}
       subHeader
       onRowClicked={(row: RealEstate) => {
         localStorage.setItem('editRealEstate', JSON.stringify(row))
         window.open('/editasset', '_self')
       }}
-      subHeaderComponent={
-        <input
-          type="text"
-          className="w-25 form-control"
-          placeholder="Search here"
-          // value={search}
-          // onChange={() => setSearch(e.target.value)}
-        />
-      }
+      // subHeaderComponent={
+      //   <input
+      //     type="text"
+      //     className="w-25 form-control"
+      //     placeholder="Search here"
+      //     // value={search}
+      //     // onChange={() => setSearch(e.target.value)}
+      //   />
+      // }
     />
   )
 }
