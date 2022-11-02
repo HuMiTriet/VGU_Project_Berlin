@@ -4,6 +4,7 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+
 }
 
 body {
@@ -22,8 +23,10 @@ a {
 }
 
 .child {
-  float: left;
+  //float: left;
   position: relative;
+  justify-content: center;
+
 }
 
 .propertyName {
@@ -50,8 +53,8 @@ a {
 .ownership {
   background-color: #f3f3fa;
   width: fit-content;
-  margin: 50px 50px;
-  padding: 20px 20px;
+  margin: 20px auto 50px auto;
+  padding: auto;
   border-radius: 3px;
 }
 
@@ -76,4 +79,11 @@ a {
 .btn-purchase:hover {
   background-color: #370257;
   opacity: 80%;
+}
+
+.centered {
+  //height: 100vh; /* Magic here */
+  //display: flex;
+  justify-content: center,
+  //align-items: center;
 }

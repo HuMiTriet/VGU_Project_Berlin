@@ -53,7 +53,7 @@ function PropertyDetail() {
     realEstate.owners.forEach(function (owner: Ownership) {
       if (owner.isSeller) {
         html.push(
-          <div className="ownership child">
+          <div className="ownership child centered">
             <p>
               <b>User ID: </b> {owner.ownerID}
             </p>
@@ -111,13 +111,17 @@ function PropertyDetail() {
       <>
         <Navbar />
         <div
-          className="child"
+          className="centered"
           style={{
-            width: '700px',
-            backgroundColor: '#fff',
-            marginTop: '4px',
-            marginLeft: '10vw',
-            padding: '0px'
+          //   width: '700px',
+          //   //display: 'auto',
+          //   justifyContent: 'center',
+          //   alignItems: 'center',
+          //   backgroundColor: '#fff',
+            marginTop: '5px',
+            marginLeft: '25vw',
+            marginRight: '25vw'
+          //   padding: '0px'
           }}
         >
           <h1 className="propertyName">{propertyName}</h1>
