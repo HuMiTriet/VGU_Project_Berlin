@@ -16,7 +16,6 @@ import {
 import { InboxOutlined } from '@ant-design/icons'
 import { RoomType } from '../../resources/roomType'
 import { Ownership } from '../../resources/ownership'
-import { Link } from 'react-router-dom'
 const { TextArea } = Input
 
 const normFile = (e: any) => {
@@ -130,19 +129,19 @@ const InfoUpload = () => {
                       console.log({ error })
                     }}
                   >
-                    <h3>Tier List</h3>
+                    <h3>Tier</h3>
                     <Form.Item
                       name="tier"
                       rules={[
                         { required: true, message: 'Tier list is required' }
                       ]}
                     >
-                      <Select placeholder="Tier List">
-                        <Select.Option value="0">Bronze</Select.Option>
-                        <Select.Option value="5">Silver</Select.Option>
-                        <Select.Option value="25">Gold</Select.Option>
-                        <Select.Option value="70">Platinum</Select.Option>
-                        <Select.Option value="100">Deluxe</Select.Option>
+                      <Select placeholder="Tier">
+                        <Select.Option value="0">Bronze [0]</Select.Option>
+                        <Select.Option value="5">Silver [5]</Select.Option>
+                        <Select.Option value="25">Gold [25]</Select.Option>
+                        <Select.Option value="70">Platinum [70]</Select.Option>
+                        <Select.Option value="100">Deluxe [100]</Select.Option>
                       </Select>
                     </Form.Item>
 

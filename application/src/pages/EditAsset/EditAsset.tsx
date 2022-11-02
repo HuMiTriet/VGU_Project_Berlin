@@ -1,5 +1,4 @@
 import Navbar from '../../components/Navbar'
-import { v4 as uuidv4 } from 'uuid'
 import * as api from '../../API_handler/api'
 import './EditAsset.css'
 import {
@@ -10,14 +9,12 @@ import {
   Col,
   Row,
   Card,
-  Upload,
   Typography
 } from 'antd'
-import { InboxOutlined } from '@ant-design/icons'
 import { RoomType } from '../../resources/roomType'
 import { Ownership } from '../../resources/ownership'
 import { RealEstate } from '../../resources/realEstate'
-const { TextArea } = Input
+
 
 // const realEstate: RealEstate = {
 //   area: 500,
@@ -49,13 +46,13 @@ let owner: Ownership
 
 
 
-const normFile = (e: any) => {
-  console.log('Upload event:', e)
-  if (Array.isArray(e)) {
-    return e
-  }
-  return e?.fileList
-}
+// const normFile = (e: any) => {
+//   console.log('Upload event:', e)
+//   if (Array.isArray(e)) {
+//     return e
+//   }
+//   return e?.fileList
+// }
 
 const EditAsset = () => {
   const realEstate: RealEstate = JSON.parse(localStorage['editRealEstate'])
