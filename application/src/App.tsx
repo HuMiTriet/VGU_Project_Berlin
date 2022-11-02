@@ -7,6 +7,7 @@ import PropertyDetails from './pages/PropertyDetail/PropertyDetail'
 import InfoUpload from './pages/InfoUpload/InfoUpload'
 import Profile from './pages/Profile/Profile'
 import AssetView from './pages/AssetView/AssetView'
+import EditAsset from './pages/EditAsset/EditAsset'
 
 export function App() {
   return (
@@ -20,6 +21,7 @@ export function App() {
           <Route path="/contract" element={<Contract />} />
           <Route path="/infoupload" element={<InfoUpload />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/editasset" element={<EditAsset />} />
         </Routes>
       </Router>
     </div>

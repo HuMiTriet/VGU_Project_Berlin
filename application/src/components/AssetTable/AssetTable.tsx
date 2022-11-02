@@ -5,6 +5,7 @@ import Datatable from 'react-data-table-component'
 import { Button } from 'react-bootstrap'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
+import { Form } from 'antd'
 
 const AssetTable = () => {
   // const [search, setSearch] = useState([]);
@@ -131,7 +132,10 @@ const AssetTable = () => {
       highlightOnHover
       actions={<Button className="btn btn-info">Export</Button>}
       subHeader
-      onRowClicked={(row: RealEstate) => {}}
+      onRowClicked={(row: RealEstate) => {
+        localStorage.setItem('editRealEstate', JSON.stringify(row))
+        window.open('/editasset', '_self')
+      }}
       subHeaderComponent={
         <input
           type="text"
