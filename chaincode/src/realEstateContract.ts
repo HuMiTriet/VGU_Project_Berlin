@@ -49,7 +49,7 @@ export class RealEstateContract extends Contract {
           'x509::/C=US/ST=North Carolina/O=Hyperledger/OU=client/CN=minter::/C=US/ST=North Carolina/L=Durham/O=org1.example.com/CN=ca.org1.example.com',
         ownershipPercentage: 100,
         sellPercentage: 50,
-        sellPrice: 1000,
+        sellPrice: 5000,
         sellThreshold: 5,
         isSeller: true
       }
