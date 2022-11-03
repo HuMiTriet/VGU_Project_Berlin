@@ -449,8 +449,7 @@ case "$OPTION" in
     # docker rmi -f $(docker images -q)
     ;;
   down | o)
-
-    read -p "Charles: Are you sure? [y/N] " -n 1 -r
+    read -p "Charles: Are you sure? [y/N] " -r REPLY
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
       exit 0
     fi
@@ -469,7 +468,7 @@ case "$OPTION" in
     ;;
   reset | up | r)
 
-    read -p "Charles Are you sure? [y/N] " -n 1 -r
+    read -p "Charles: Are you sure? [y/N] " -r REPLY
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
       exit 0
     fi
