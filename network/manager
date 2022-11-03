@@ -449,6 +449,12 @@ case "$OPTION" in
     # docker rmi -f $(docker images -q)
     ;;
   down | o)
+
+    read -p "Charles: Are you sure? [y/N] " -n 1 -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      exit 0
+    fi
+
     ./network.sh down
     cd ./addOrg3 || exit
     ./addOrg3.sh down
@@ -457,11 +463,17 @@ case "$OPTION" in
 
     cd "${PWD}/organizations/fabric-ca/" || exit
     rm -r "${PWD}/org3"
-    # # # docker rm -f $(docker ps -aq)
-    # # # docker rmi -f $(docker images -q)
+    # # docker rm -f $(docker ps -aq)
+    # # docker rmi -f $(docker images -q)
 
     ;;
   reset | up | r)
+
+    read -p "Charles Are you sure? [y/N] " -n 1 -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      exit 0
+    fi
+
     ./network.sh down
     cd ./addOrg3 || exit
     ./addOrg3.sh down
