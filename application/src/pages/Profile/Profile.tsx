@@ -14,6 +14,9 @@ function numberWithComma(number: string) {
   return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
+/**
+ * @author Huynh Minh Triet (Integration with the backend)
+ */
 function Profile() {
   const userID = localStorage['userID']
   const [balance, setBalance] = useState('loading...')

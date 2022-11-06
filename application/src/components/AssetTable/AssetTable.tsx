@@ -5,6 +5,9 @@ import Datatable from 'react-data-table-component'
 import { RealEstate } from '../../resources/realEstate'
 import { Ownership } from '../../resources/ownership'
 
+/**
+ * @author Vu Nhat Quang (UI), Huynh Minh Triet <17447@student.vgu.edu.vn> (Integration with the backend)
+ */
 const AssetTable = () => {
   // const [search, setSearch] = useState([]);
   // useState without type would be a bug when coding in TypeScript
@@ -128,7 +131,7 @@ const AssetTable = () => {
       },
       sortable: true,
       wrap: true
-    },
+    }
   ]
 
   // customStyles for Datatable will deep merges your customStyles with the default styling.

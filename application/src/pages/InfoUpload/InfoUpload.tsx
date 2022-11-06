@@ -26,6 +26,9 @@ const normFile = (e: any) => {
   return e?.fileList
 }
 
+/**
+ * @author Vu Nhat Quang (UI) Huynh Minh Triet, Hoang Dinh Minh, Nguyen Khoa (Integration with backend)
+ */
 const InfoUpload = () => {
   return (
     <>

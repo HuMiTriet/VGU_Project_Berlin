@@ -2,6 +2,9 @@ import { Object, Property } from 'fabric-contract-api'
 import { RoomType } from './resources/classRoomType'
 import { Ownership } from './resources/classOwnership'
 
+/**
+ * @author Hoang Dinh Minh
+ */
 @Object()
 export class RealEstate {
   @Property()
@@ -25,6 +28,9 @@ export class RealEstate {
   @Property()
   public owners: Ownership[]
 
+  /**
+   * @author Huynh Minh Triet <17447@student.vgu.edu.vn>
+   */
   @Property()
   public membershipThreshold: number
 }

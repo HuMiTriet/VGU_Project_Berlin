@@ -10,6 +10,9 @@ export class User {
   @Property()
   public name: string
 
+  /**
+   * @author Huynh Minh Triet <17447@student.vgu.edu.vn>
+   */
   @Property()
   public membershipScore: number
 }

@@ -1,20 +1,10 @@
 import Navbar from '../../components/Navbar'
 import * as api from '../../API_handler/api'
 import './EditAsset.css'
-import {
-  Form,
-  Input,
-  Button,
-  Select,
-  Col,
-  Row,
-  Card,
-  Typography
-} from 'antd'
+import { Form, Input, Button, Select, Col, Row, Card, Typography } from 'antd'
 import { RoomType } from '../../resources/roomType'
 import { Ownership } from '../../resources/ownership'
 import { RealEstate } from '../../resources/realEstate'
-
 
 // const realEstate: RealEstate = {
 //   area: 500,
@@ -41,10 +31,7 @@ import { RealEstate } from '../../resources/realEstate'
 //   }
 // }
 
-
 let owner: Ownership
-
-
 
 // const normFile = (e: any) => {
 //   console.log('Upload event:', e)
@@ -54,6 +41,9 @@ let owner: Ownership
 //   return e?.fileList
 // }
 
+/**
+ * @author Huynh Minh Triet <17447@student.vgu.edu.vn> (UI and Integration), Dinh Minh Hoang, Thai Hoang Tam, Nguyen Khoa
+ */
 const EditAsset = () => {
   const realEstate: RealEstate = JSON.parse(localStorage['editRealEstate'])
   const ownerArray: Ownership[] = realEstate.owners
@@ -85,9 +75,6 @@ const EditAsset = () => {
                 <Col span={12}>
                   <Form
                     onFinish={async value => {
-                     
-
-
                       const re = /^[0-9\b]+$/
                       // console.log(re.test(value['price']))
                       const sellPercentage = value['sellpercentage']

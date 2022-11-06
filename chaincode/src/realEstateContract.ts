@@ -193,6 +193,9 @@ export class RealEstateContract extends Contract {
       }
     }
 
+    /**
+     * @author Huynh Minh Triet <17447@student.vgu.edu.vn>
+     */
     if (membershipThreshold < 0) {
       debug(RED, 'membershipThresholdString must be greater than 0')
       throw new RangeError('membershipThresholdString must be greater than 0')
@@ -227,7 +230,7 @@ export class RealEstateContract extends Contract {
    * @param ownersString
    * @param membershipThresholdString
    * @returns
-   * @author Dinh Minh Hoang, Nguyen Khoa
+   * @author Dinh Minh Hoang, Nguyen Khoa, Huynh Minh Triet
    */
   @Transaction()
   public async UpdateRealEstate(
