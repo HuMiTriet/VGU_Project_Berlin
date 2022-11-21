@@ -82,27 +82,27 @@ class TokenERC20Contract extends Contract {
         return totalSupply;
     }
 
-    /**
-     * BalanceOf returns the balance of the given account.
-     *
-     * @param {Context} ctx the transaction context
-     * @param {String} owner The owner from which the balance will be retrieved
-     * @returns {Number} Returns the account balance
-     */
-    async BalanceOf(ctx, owner) {
-        //check contract options are already set first to execute the function
-        await this.CheckInitialized(ctx);
+    // /**
+    //  * BalanceOf returns the balance of the given account.
+    //  *
+    //  * @param {Context} ctx the transaction context
+    //  * @param {String} owner The owner from which the balance will be retrieved
+    //  * @returns {Number} Returns the account balance
+    //  */
+    // async BalanceOf(ctx, owner) {
+    //     //check contract options are already set first to execute the function
+    //     await this.CheckInitialized(ctx);
 
-        const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [owner]);
+    //     const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [owner]);
 
-        const balanceBytes = await ctx.stub.getState(balanceKey);
-        if (!balanceBytes || balanceBytes.length === 0) {
-            throw new Error(`the account ${owner} does not exist`);
-        }
-        const balance = parseInt(balanceBytes.toString());
+    //     const balanceBytes = await ctx.stub.getState(balanceKey);
+    //     if (!balanceBytes || balanceBytes.length === 0) {
+    //         throw new Error(`the account ${owner} does not exist`);
+    //     }
+    //     const balance = parseInt(balanceBytes.toString());
 
-        return balance;
-    }
+    //     return balance;
+    // }
 
     /**
      * CW
@@ -212,7 +212,7 @@ class TokenERC20Contract extends Contract {
         await this.CheckInitialized(ctx);
 
         const from = ctx.clientIdentity.getID();
-        
+
         if (from === to) {
             throw new Error("cannot transfer to and from same client account");
         }
